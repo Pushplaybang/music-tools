@@ -640,6 +640,7 @@ async function toggleMic(){
     document.getElementById('micStatus').textContent='Microphone active';
     savePref('micPref',true);
     detectLoop();
+    startStrobeLoop();
   } catch(e){
     document.getElementById('micStatus').textContent='Mic permission denied';
     document.getElementById('micBtnLabel').textContent='TAP TO LISTEN';
@@ -770,11 +771,14 @@ function resizeCanvas(){
   }
 }
 function drawStrobe(){
-  strobeAnimFrame=requestAnimationFrame(drawStrobe);
   resizeCanvas();
   const dpr=window.devicePixelRatio||1;
   const W=canvas.offsetWidth,H=canvas.offsetHeight;
-  if(!W||!H)return;
+  if(!W||!H){
+    if(micActive||strobeAlpha>0.005){strobeAnimFrame=requestAnimationFrame(drawStrobe);}
+    else{strobeAnimFrame=null;}
+    return;
+  }
   const ctx=canvas.getContext('2d');
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,W,H);
@@ -815,8 +819,29 @@ function drawStrobe(){
     ctx.fillRect(0,0,W,H);
     ctx.globalAlpha=1;
   }
+
+  // Keep looping while mic is active or the fade-out animation is still visible;
+  // otherwise let the loop end to avoid unnecessary CPU/battery usage.
+  if(micActive||strobeAlpha>0.005){
+    strobeAnimFrame=requestAnimationFrame(drawStrobe);
+  } else {
+    strobeAlpha=0;
+    ctx.clearRect(0,0,W,H);
+    strobeAnimFrame=null;
+  }
 }
-drawStrobe();
+// Helper: start the strobe loop only when it is not already running.
+function startStrobeLoop(){
+  if(!strobeAnimFrame){strobeAnimFrame=requestAnimationFrame(drawStrobe);}
+}
+// Pause the loop when the tab is hidden; resume when it becomes visible again.
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    if(strobeAnimFrame){cancelAnimationFrame(strobeAnimFrame);strobeAnimFrame=null;}
+  } else if(micActive||strobeAlpha>0.005){
+    startStrobeLoop();
+  }
+});
 
 // ══ INIT SELECTS ══
 function buildAll(){
