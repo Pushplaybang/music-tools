@@ -11,13 +11,16 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 ## ✨ Features
 
 - **15 scales & modes** — Major, Natural/Harmonic/Melodic Minor, all 7 diatonic modes, Pentatonic Major/Minor, Blues, Whole Tone, Diminished, and Chromatic
-- **4 visualisers** — Piano keyboard, Treble staff with key signatures, Guitar fretboard, Ukulele fretboard
-- **Alternative tunings** — 8 guitar tunings (Standard, Drop D, Open G/D/E/A, DADGAD, Eb) and 5 ukulele tunings (Soprano re-entrant GCEA, Low G, Baritone, D Tuning, Open C)
-- **Ear training quiz** — identifies notes from your chosen scale with multiple-choice answers
-- **Weighted difficulty** — notes you get wrong appear more frequently; correct answers reduce the weight
-- **No-repeat logic** — the same note is never asked twice in a row
+- **5 visualisers** — Piano keyboard, Treble staff with key signatures, Guitar fretboard, Bass fretboard, Ukulele fretboard
+- **Alternative tunings** — 8 guitar tunings (Standard, Drop D, Open G/D/E/A, DADGAD, Eb), 4 bass tunings (Standard EADG, Drop D, Half Step Down, 5-String BEADG), and 5 ukulele tunings (Soprano re-entrant GCEA, Low G, Baritone, D Tuning, Open C)
+- **3 ear training quiz modes**:
+  - **Note Names** — hear a single note and identify it from the scale
+  - **Intervals** — hear two notes and name the interval between them; options are limited to intervals present in the chosen scale
+  - **Chords** — hear a diatonic chord and identify its quality (major, minor, dominant 7th, etc.); all chord tones are highlighted on the visualiser after answering
+- **Weighted difficulty** — notes/intervals/chords you get wrong appear more frequently; correct answers reduce the weight
+- **No-repeat logic** — the same question is never asked twice in a row
 - **10-second countdown timer** with animated SVG ring
-- **Root-first mode** — plays the tonic before the mystery note as a tonal anchor
+- **Root-first mode** — plays the tonic before the mystery note as a tonal anchor (Note Names and Intervals modes)
 - **Score tracking** — correct, wrong, timeouts, and accuracy %, with an encouraging summary on reset
 - **5 themes** — Dark Gold, Clean & Minimal, Dark Studio, Retro Piano, Bright & Playful
 - **Fully persistent settings** — theme, scale, root, octave, tuning, visualiser, and toggle states are all saved in `localStorage`
@@ -32,10 +35,10 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 
 ### Option 1 — Just open it
 
-Download `ear-training.html` and open it in any modern browser. That's it.
+Download `ear-trainer.html` and open it in any modern browser. That's it.
 
 ```
-ear-training.html  ← this is the entire app
+ear-trainer.html  ← this is the entire app
 ```
 
 ### Option 2 — Clone the repo
@@ -43,11 +46,11 @@ ear-training.html  ← this is the entire app
 ```bash
 git clone https://github.com/YOUR_USERNAME/ear-trainer.git
 cd ear-trainer
-open ear-training.html   # macOS
+open ear-trainer.html   # macOS
 # or
-start ear-training.html  # Windows
+start ear-trainer.html  # Windows
 # or
-xdg-open ear-training.html  # Linux
+xdg-open ear-trainer.html  # Linux
 ```
 
 No build step. No `npm install`. No server required.
@@ -72,14 +75,14 @@ If you're comfortable with Git:
 
 ```bash
 git init
-git add ear-training.html README.md
+git add ear-trainer.html README.md
 git commit -m "Initial commit"
 git branch -M main
 git remote add origin https://github.com/YOUR_USERNAME/ear-trainer.git
 git push -u origin main
 ```
 
-Or use the GitHub web interface — drag and drop `ear-training.html` and `README.md` directly into the repository page.
+Or use the GitHub web interface — drag and drop `ear-trainer.html` and `README.md` directly into the repository page.
 
 ### Step 3 — Enable GitHub Pages
 
@@ -94,17 +97,17 @@ Or use the GitHub web interface — drag and drop `ear-training.html` and `READM
 After about 60 seconds, your app will be live at:
 
 ```
-https://YOUR_USERNAME.github.io/ear-trainer/ear-training.html
+https://YOUR_USERNAME.github.io/ear-trainer/ear-trainer.html
 ```
 
-> **Tip:** Rename `ear-training.html` to `index.html` before pushing and your URL will be the cleaner `https://YOUR_USERNAME.github.io/ear-trainer/` — GitHub Pages serves `index.html` automatically.
+> **Tip:** Rename `ear-trainer.html` to `index.html` before pushing and your URL will be the cleaner `https://YOUR_USERNAME.github.io/ear-trainer/` — GitHub Pages serves `index.html` automatically.
 
 ### Updating the app
 
 Every time you push a new commit to `main`, GitHub Pages will automatically redeploy within a minute or two.
 
 ```bash
-git add ear-training.html
+git add ear-trainer.html
 git commit -m "Update: add chord quiz"
 git push
 ```
@@ -115,12 +118,12 @@ git push
 
 ```
 ear-trainer/
-├── ear-training.html          # The entire app — HTML, CSS, and JS in one file
+├── ear-trainer.html          # The entire app — HTML, CSS, and JS in one file
 ├── music-tools-boilerplate.html  # Design system starter for new companion tools
 └── README.md                  # This file
 ```
 
-Everything lives in `ear-training.html`. There are no external dependencies, no build artifacts, and no configuration files needed to run the app.
+Everything lives in `ear-trainer.html`. There are no external dependencies, no build artifacts, and no configuration files needed to run the app.
 
 ---
 
@@ -144,20 +147,8 @@ The companion file `music-tools-boilerplate.html` contains the full design syste
 
 The following features are planned for future iterations. Contributions and ideas are welcome.
 
-### 🎹 Chord Quiz Mode
-
-A new quiz mode focused on harmonic recognition rather than single notes.
-
-- **Chord identification** — play a chord and ask the user to identify it (e.g. "C Major", "A minor", "G dominant 7th")
-- **Inversions** — first and second inversions presented as quiz options, teaching the user to hear which note is on the bottom
-- **Basic alterations** — add/sus chords, flat-5 and sharp-5 alterations, dominant 7ths, major 7ths, minor 7ths
-- **Scale-aware chord set** — chords generated from the diatonic chord family of the selected key, so every chord is musically contextual
-- **Visualiser integration** — the piano, staff, and fretboard all highlight the full chord voicing during the question and reveal
-- **Roman numeral display** — show I, ii, iii, IV, V, vi, vii° labels alongside chord names to reinforce functional harmony
-
 ### 🎸 Additional String Instruments
 
-- **Bass guitar** — 4-string EADG, with optional 5-string (BEADG) tuning, lower octave register
 - **Mandolin** — GDAE tuning, 8 strings in 4 courses, unique fretboard pattern
 - **Banjo** — 5-string open G tuning, with the characteristic re-entrant high G drone string
 - **12-string guitar** — doubled string courses with octave/unison pairings shown
@@ -174,8 +165,6 @@ An extension of the chord quiz that presents chords broken into individual notes
 - Works with inversions so the lowest note isn't always the root
 
 ### 🧠 Additional Feature Ideas
-
-**Interval training mode** — play two notes and ask the user to identify the interval (minor 3rd, perfect 5th, tritone, etc.). Intervals are the foundation of all ear training and would complement the scale quiz naturally.
 
 **Melodic dictation** — play a short 3–5 note phrase from the current scale and ask the user to reconstruct it by clicking notes in order on the visualiser. A significant step up in difficulty that bridges passive listening and active musical memory.
 
@@ -203,7 +192,7 @@ This app was built and iterated on entirely through conversation with Claude. If
 
 ### General approach
 
-**Attach the current file to every new session.** Claude has no memory between conversations. Always paste or attach `ear-training.html` at the start of a new session, along with a brief description of what was last built. The summary at the top of the boilerplate is a good template for this context.
+**Attach the current file to every new session.** Claude has no memory between conversations. Always paste or attach `ear-trainer.html` at the start of a new session, along with a brief description of what was last built. The summary at the top of the boilerplate is a good template for this context.
 
 **Be specific about what to keep.** If you don't want something changed, say so explicitly: *"Don't change the audio engine or the quiz state logic — only modify the CSS for the card components."* Claude will otherwise optimise freely.
 
@@ -222,7 +211,7 @@ Key facts:
 - 5-theme CSS system using custom properties on [data-theme] selectors
 - localStorage persistence via savePref(key, val) / loadPrefs()
 - Modal overlay system: openModal(id) / closeModal(id)
-- Settings key: 'earTrainer_v5'
+- Settings key: `earTrainer_v6`
 
 What I want to add next: [describe the feature]
 
@@ -267,7 +256,7 @@ This is a personal project, but issues and pull requests are welcome. If you bui
 
 1. Fork the repo
 2. Create a feature branch: `git checkout -b feature/chord-quiz`
-3. Make your changes to `ear-training.html`
+3. Make your changes to `ear-trainer.html`
 4. Test in at least two browsers (Chrome and Firefox recommended)
 5. Test all 5 themes after any CSS changes
 6. Open a pull request with a clear description of what changed and why
