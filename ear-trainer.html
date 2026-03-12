@@ -1000,9 +1000,13 @@ function startIntervalQuiz(){
   document.getElementById('quizPrompt').textContent='🎵 What interval is the 2nd note '+dir+' the 1st?';
   const ctx=getCtx();
   if(document.getElementById('rootFirstToggle').checked){
-    playTone(qRefFreq,ctx.currentTime,0.8);playTone(qFreq,ctx.currentTime+1.0,1.2);
+    // Play reference (1st) note first, then the answer (2nd) note
+    playTone(qRefFreq,ctx.currentTime,0.8);
+    playTone(qFreq,ctx.currentTime+1.0,1.2);
   } else {
-    playTone(qFreq,ctx.currentTime,1.2);
+    // Play answer (2nd) note first, then the reference (1st) note for comparison
+    playTone(qFreq,ctx.currentTime,0.8);
+    playTone(qRefFreq,ctx.currentTime+1.0,1.2);
   }
   startTimer();
 }
