@@ -969,7 +969,8 @@ function checkNoteAns(note){
     document.querySelectorAll('.quiz-opt').forEach(b=>{if(b.dataset.val===qAns)b.classList.add('correct');});
   }
   updateScoreDisplay();
-  highlightNotes([{note,octave:qAnsOct}],ok?'correct':'wrong',[{note:qAns,octave:qAnsOct}]);
+  // Highlight the guessed note (user's selection) and the correct note separately
+  highlightNotes([{note: note, octave: qAnsOct}], ok ? 'correct' : 'wrong', [{note: qAns, octave: qAnsOct}]);
   setTimeout(()=>{qAnswered=false;startQuiz();},1800);
 }
 
