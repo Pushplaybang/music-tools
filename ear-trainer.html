@@ -726,7 +726,7 @@ function handleTimeout(){
     highlightChord(qChordObj.notes,'wrong');
   } else {
     if(qFreq) playTone(qFreq,getCtx().currentTime,1.2);
-    if(qMissWeights[qAns]!=null) qMissWeights[qAns]=(qMissWeights[qAns]||0)+1.2;
+    qMissWeights[qAns]=(qMissWeights[qAns]||0)+1.2;
     highlightNotes([{note:qAns,octave:qAnsOct}],'wrong',[{note:qAns,octave:qAnsOct}]);
   }
   updateScoreDisplay();
