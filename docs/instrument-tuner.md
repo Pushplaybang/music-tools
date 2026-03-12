@@ -198,7 +198,11 @@ Issues and pull requests are welcome.
 
 ## 📄 Licence
 
-MIT — free to use, modify, and distribute. Attribution appreciated but not required.
+Licensed under the **Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)**. Any commercial use — including incorporation into commercial products, revenue-generating activities, or distribution for a fee — is strictly prohibited without the express prior written permission of the copyright holder.
+
+You are free to share and adapt this work for non-commercial purposes, provided you give appropriate credit and indicate any changes made.
+
+Full licence text: [LICENSE.md](../LICENSE.md) · [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/legalcode)
 
 ---
 
