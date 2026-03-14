@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse — Visual Metronome</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+[data-theme="current"]{
+  --bg:#0d0f12; --bg-grad:radial-gradient(ellipse at 20% 0%,#1a2030 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,#0d1a14 0%,transparent 60%);
+  --surface:#161a1f; --surface2:#1e2329; --border:#2a3040;
+  --accent:#e8b84b; --accent2:#4be8b8; --text:#e8e4da; --muted:#6b7280; --wrong:#e84b4b;
+  --font-h:'DM Serif Display',serif; --font-b:'Space Mono',monospace;
+  --h1:clamp(1.5rem,5vw,2.8rem); --r:12px; --br:6px;
+  --bar-bg:#0a0c0e; --pill-active:#e8b84b; --pill-text:#0d0f12;
+  --grad:linear-gradient(90deg,#e8b84b,#4be8b8);
+  --overlay-bg:rgba(5,7,10,0.82); --overlay-surface:rgba(22,26,31,0.97);
+  --beat-accent:#e8b84b; --beat-normal:#1e2329; --beat-sub:#14181e; --beat-ring:#2a3040; --pendulum:#e8b84b;
+}
+[data-theme="minimal"]{
+  --bg:#fafaf8; --bg-grad:none;
+  --surface:#fff; --surface2:#f4f4f0; --border:#e2e2dc;
+  --accent:#1a1a1a; --accent2:#5a8a6e; --text:#1a1a1a; --muted:#999990; --wrong:#c0392b;
+  --font-h:'Instrument Serif',serif; --font-b:'Syne',sans-serif;
+  --h1:clamp(1.5rem,5vw,3.2rem); --r:2px; --br:2px;
+  --bar-bg:#f0f0ec; --pill-active:#1a1a1a; --pill-text:#fafaf8;
+  --grad:linear-gradient(90deg,#1a1a1a,#5a8a6e);
+  --overlay-bg:rgba(200,200,195,0.75); --overlay-surface:rgba(255,255,255,0.98);
+  --beat-accent:#1a1a1a; --beat-normal:#f4f4f0; --beat-sub:#e8e8e4; --beat-ring:#e2e2dc; --pendulum:#1a1a1a;
+}
+[data-theme="studio"]{
+  --bg:#0e0e0e; --bg-grad:radial-gradient(ellipse at 50% -20%,#1a0a2e 0%,transparent 60%);
+  --surface:#141414; --surface2:#1c1c1c; --border:#2a2a2a;
+  --accent:#c678f0; --accent2:#78c6f0; --text:#d4d4d4; --muted:#555; --wrong:#f07878;
+  --font-h:'Syne',sans-serif; --font-b:'Space Mono',monospace;
+  --h1:clamp(1.3rem,4.5vw,2.4rem); --r:8px; --br:4px;
+  --bar-bg:#080808; --pill-active:#c678f0; --pill-text:#0e0e0e;
+  --grad:linear-gradient(90deg,#c678f0,#78c6f0);
+  --overlay-bg:rgba(4,4,8,0.88); --overlay-surface:rgba(18,18,28,0.98);
+  --beat-accent:#c678f0; --beat-normal:#1c1c1c; --beat-sub:#141414; --beat-ring:#2a2a2a; --pendulum:#c678f0;
+}
+[data-theme="retro"]{
+  --bg:#1c1108; --bg-grad:radial-gradient(ellipse at 50% 0%,#2e1c08 0%,transparent 70%);
+  --surface:#231508; --surface2:#2e1c08; --border:#5a3d1a;
+  --accent:#d4a843; --accent2:#c47840; --text:#e8d8b0; --muted:#8a6a3a; --wrong:#c85050;
+  --font-h:'Playfair Display',serif; --font-b:'Playfair Display',serif;
+  --h1:clamp(1.5rem,5vw,3.2rem); --r:4px; --br:3px;
+  --bar-bg:#120b04; --pill-active:#d4a843; --pill-text:#1c1108;
+  --grad:linear-gradient(90deg,#d4a843,#c47840);
+  --overlay-bg:rgba(10,6,2,0.85); --overlay-surface:rgba(30,18,6,0.97);
+  --beat-accent:#d4a843; --beat-normal:#2e1c08; --beat-sub:#231508; --beat-ring:#5a3d1a; --pendulum:#d4a843;
+}
+[data-theme="playful"]{
+  --bg:#fff9f0;
+  --bg-grad:radial-gradient(ellipse at 10% 10%,#ffe8f0 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,#e8f0ff 0%,transparent 50%);
+  --surface:#fff; --surface2:#fdf5ff; --border:#e8d8f8;
+  --accent:#ff5fa0; --accent2:#5fb8ff; --text:#2a1840; --muted:#b090c8; --wrong:#ff5050;
+  --font-h:'Nunito',sans-serif; --font-b:'Nunito',sans-serif;
+  --h1:clamp(1.5rem,5vw,3rem); --r:20px; --br:50px;
+  --bar-bg:#f5e8ff; --pill-active:#ff5fa0; --pill-text:#fff;
+  --grad:linear-gradient(90deg,#ff5fa0,#5fb8ff);
+  --overlay-bg:rgba(255,220,240,0.7); --overlay-surface:rgba(255,255,255,0.98);
+  --beat-accent:#ff5fa0; --beat-normal:#fdf5ff; --beat-sub:#f5e8ff; --beat-ring:#e8d8f8; --pendulum:#ff5fa0;
+}
+
+[data-theme="current"] header h1{text-shadow:0 0 40px rgba(232,184,75,.3);}
+[data-theme="studio"]  header h1{text-transform:uppercase;letter-spacing:.14em;text-shadow:0 0 30px rgba(198,120,240,.4);font-weight:800;}
+[data-theme="retro"]   header h1{font-style:italic;}
+[data-theme="playful"] header h1{font-weight:800;}
+[data-theme="retro"]   header p,[data-theme="playful"] header p{text-transform:none;letter-spacing:0;}
+[data-theme="retro"]   header p{font-style:italic;}
+[data-theme="retro"]   button,[data-theme="playful"] button{text-transform:none;font-size:.88rem;letter-spacing:0;}
+[data-theme="playful"] button{font-weight:700;padding:9px 20px;}
+[data-theme="retro"]   .card-title{font-style:italic;text-transform:none;font-size:.85rem;letter-spacing:.06em;color:var(--accent2);}
+[data-theme="playful"] .card-title{font-size:.76rem;font-weight:700;color:var(--accent);}
+[data-theme="minimal"] .card{border-left:3px solid var(--accent);}
+[data-theme="studio"]  .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.03);}
+[data-theme="retro"]   .card{border:2px solid var(--border);box-shadow:4px 4px 0 rgba(0,0,0,.45);}
+[data-theme="playful"] .card{border:2px solid var(--border);box-shadow:0 4px 24px rgba(255,95,160,.1);}
+[data-theme="retro"]   .card::before{content:'';display:block;height:3px;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 6px,transparent 6px,transparent 12px);margin:-20px -20px 16px;opacity:.35;border-radius:var(--r) var(--r) 0 0;}
+@media(min-width:480px){[data-theme="retro"] .card::before{margin:-24px -24px 20px;}}
+[data-theme="retro"]   .control-group label{font-style:italic;text-transform:none;font-size:.78rem;}
+[data-theme="playful"] .control-group label{text-transform:none;font-size:.78rem;font-weight:700;}
+[data-theme="retro"]   .app-footer{font-style:italic;letter-spacing:0;font-size:.75rem;}
+[data-theme="playful"] .app-footer{letter-spacing:0;font-size:.72rem;}
+
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:48px;transition:background .35s,color .35s;}
+body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);pointer-events:none;z-index:0;}
+
+.theme-bar{width:100%;background:var(--bar-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:6px 16px;position:sticky;top:0;z-index:200;transition:background .35s,border-color .35s;gap:8px;}
+.bar-left{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.bar-right{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;}
+.bar-sep{width:1px;height:22px;background:var(--border);margin:0 6px;flex-shrink:0;}
+.bar-icon-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:var(--br);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:all .18s;flex-shrink:0;}
+.bar-icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+.theme-pills-desktop{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
+.theme-pill{font-family:var(--font-b);font-size:.62rem;letter-spacing:.05em;padding:6px 13px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.theme-pill:hover{color:var(--text);border-color:var(--accent);}
+.theme-pill.active{background:var(--pill-active);color:var(--pill-text);border-color:var(--pill-active);font-weight:700;}
+.theme-mobile{display:none;position:relative;}
+.theme-mobile-btn{font-family:var(--font-b);font-size:.7rem;padding:6px 12px;border-radius:50px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .2s;}
+.theme-mobile-btn .arrow{font-size:.5rem;transition:transform .2s;}
+.theme-mobile-btn.open .arrow{transform:rotate(180deg);}
+.theme-flyout{position:absolute;top:calc(100% + 8px);right:0;background:var(--bar-bg);border:1px solid var(--border);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:160px;z-index:300;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .18s,transform .18s;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.theme-flyout.open{opacity:1;pointer-events:all;transform:translateY(0);}
+.theme-flyout .theme-pill{border-radius:6px;text-align:left;font-size:.72rem;padding:8px 14px;}
+@media(max-width:640px){.theme-pills-desktop{display:none;}.theme-mobile{display:block;}}
+
+.content{position:relative;z-index:1;width:100%;max-width:900px;padding:28px 16px 0;display:flex;flex-direction:column;align-items:center;}
+header{text-align:center;margin-bottom:28px;}
+header h1{font-family:var(--font-h);font-size:var(--h1);color:var(--accent);line-height:1.1;transition:color .35s,font-size .35s;}
+header p{color:var(--muted);font-size:clamp(.6rem,.2rem + 1.5vw,.72rem);letter-spacing:.1em;text-transform:uppercase;margin-top:6px;font-family:var(--font-b);}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;width:100%;margin-bottom:16px;transition:background .35s,border-color .35s,border-radius .35s,box-shadow .35s;}
+@media(min-width:480px){.card{padding:24px;}}
+.card-title{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;font-family:var(--font-b);}
+
+.controls{display:grid;gap:12px;}
+.cols2{grid-template-columns:1fr 1fr;}
+.cols3{grid-template-columns:1fr 1fr 1fr;}
+.cols4{grid-template-columns:1fr 1fr 1fr 1fr;}
+@media(max-width:600px){.cols4{grid-template-columns:1fr 1fr;}.cols3{grid-template-columns:1fr 1fr;}}
+@media(max-width:380px){.cols4,.cols3,.cols2{grid-template-columns:1fr;}}
+.control-group label{display:block;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-family:var(--font-b);}
+select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--br);color:var(--text);font-family:var(--font-b);font-size:.84rem;padding:9px 12px;appearance:none;cursor:pointer;transition:border-color .2s,background .35s;padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+select:focus{outline:none;border-color:var(--accent);}
+input[type=range]{width:100%;height:32px;background:transparent;border:none;appearance:none;cursor:pointer;padding:4px 0;}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--border);}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);margin-top:-6px;cursor:pointer;transition:transform .15s;}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.2);}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--border);}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;}
+
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:none;border-radius:var(--br);padding:9px 16px;cursor:pointer;transition:all .15s;text-transform:uppercase;}
+.btn-primary{background:var(--accent);color:var(--pill-text);font-weight:700;}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+
+.modal-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:flex-start;justify-content:center;background:var(--overlay-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto;padding:24px 16px;}
+.modal-overlay.show{display:flex;}
+.modal-card{background:var(--overlay-surface);border:1px solid var(--border);border-radius:calc(var(--r)*1.5);padding:36px 32px 32px;width:100%;max-width:600px;box-shadow:0 24px 80px rgba(0,0,0,.5);animation:overlayPop .28s cubic-bezier(.34,1.56,.64,1);position:relative;}
+@keyframes overlayPop{from{transform:scale(.92) translateY(16px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.modal-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border:1px solid var(--border);border-radius:50%;background:transparent;color:var(--muted);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.modal-close:hover{border-color:var(--wrong);color:var(--wrong);}
+.doc-header{font-family:var(--font-h);font-size:1.5rem;color:var(--accent);margin-bottom:6px;text-align:center;}
+.doc-sub{font-family:var(--font-b);font-size:.68rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px;text-align:center;}
+.doc-body{text-align:left;font-family:var(--font-b);font-size:.8rem;color:var(--text);line-height:1.75;}
+.doc-body h3{font-family:var(--font-h);font-size:1rem;color:var(--accent2);margin:18px 0 6px;border-bottom:1px solid var(--border);padding-bottom:4px;}
+.doc-body p{margin-bottom:10px;}
+.doc-body ul{margin:6px 0 12px 18px;}
+.doc-body li{margin-bottom:5px;}
+.doc-body .tip{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 var(--br) var(--br) 0;padding:10px 14px;margin:14px 0;font-size:.78rem;color:var(--muted);}
+.app-footer{position:relative;z-index:1;font-family:var(--font-b);font-size:.62rem;color:var(--muted);opacity:.55;letter-spacing:.08em;margin-top:4px;padding-bottom:8px;text-align:center;}
+
+/* ════════════════════════
+   METRONOME STYLES
+════════════════════════ */
+.metro-visual-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px 24px 24px;width:100%;margin-bottom:16px;display:flex;flex-direction:column;align-items:center;gap:18px;transition:background .35s,border-color .35s,border-radius .35s;}
+
+.bpm-display{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.bpm-number{font-family:var(--font-h);font-size:clamp(3rem,12vw,6rem);color:var(--accent);line-height:1;transition:color .35s;cursor:default;user-select:none;letter-spacing:-2px;}
+.bpm-label{font-family:var(--font-b);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
+.bpm-tempo-name{font-family:var(--font-b);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);margin-top:2px;}
+
+.bpm-slider-wrap{width:100%;max-width:440px;display:flex;align-items:center;gap:12px;}
+.bpm-slider-wrap input[type=range]{flex:1;}
+.bpm-tap{flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:var(--br);padding:8px 14px;font-family:var(--font-b);font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.bpm-tap:hover{border-color:var(--accent);color:var(--accent);}
+.bpm-tap.tapped{background:var(--accent);color:var(--pill-text);border-color:var(--accent);}
+
+/* Canvas-based pendulum — always correct sizing */
+.pendulum-wrap{width:100%;max-width:440px;display:flex;justify-content:center;}
+.pendulum-wrap.hidden{display:none;}
+#pendulumCanvas{display:block;width:100%;height:120px;}
+
+/* Top-panel controls row */
+.panel-controls{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+.panel-chip{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:50px;padding:5px 12px 5px 8px;cursor:pointer;transition:all .2s;user-select:none;}
+.panel-chip:hover{border-color:var(--accent2);color:var(--accent2);}
+.panel-chip.active{border-color:var(--accent2);background:color-mix(in srgb,var(--accent2) 15%,var(--surface2));}
+.chip-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .2s;flex-shrink:0;}
+.panel-chip.active .chip-dot{background:var(--accent2);}
+.chip-label{font-family:var(--font-b);font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);transition:color .2s;}
+.panel-chip.active .chip-label{color:var(--accent2);}
+.rate-chip{display:flex;align-items:center;gap:0;background:var(--surface2);border:1px solid var(--border);border-radius:50px;overflow:hidden;}
+.rate-btn{font-family:var(--font-b);font-size:.58rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:transparent;border:none;padding:5px 10px;cursor:pointer;transition:all .15s;}
+.rate-btn:hover{color:var(--accent);}
+.rate-btn.active{background:var(--accent2);color:var(--bg);}
+[data-theme="minimal"] .rate-btn.active,[data-theme="retro"] .rate-btn.active,[data-theme="playful"] .rate-btn.active{color:#fff;}
+.rate-sep{width:1px;height:18px;background:var(--border);flex-shrink:0;}
+
+/* Beat grid */
+.beat-grid{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;width:100%;max-width:660px;}
+.beat-cell{display:flex;flex-direction:column;align-items:center;gap:5px;flex:0 0 auto;}
+.beat-dot{width:50px;height:50px;border-radius:50%;border:2px solid var(--beat-ring);background:var(--beat-normal);transition:background .07s,border-color .07s,transform .07s,box-shadow .07s;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.beat-dot::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.14),transparent 60%);}
+.beat-dot.accent{border-color:var(--beat-accent);background:var(--surface2);}
+.beat-dot.accent::before{content:'';position:absolute;width:9px;height:9px;border-radius:50%;background:var(--beat-accent);opacity:.5;}
+.beat-dot.sub{width:32px;height:32px;border-width:1px;background:var(--beat-sub);}
+.beat-dot.sub.accent{background:var(--surface2);}
+
+[data-theme="current"] .beat-dot.active-beat{background:var(--beat-accent)!important;border-color:var(--beat-accent)!important;transform:scale(1.13);box-shadow:0 0 24px rgba(232,184,75,.55),0 4px 12px rgba(0,0,0,.4);}
+[data-theme="studio"]  .beat-dot.active-beat{background:var(--beat-accent)!important;border-color:var(--beat-accent)!important;transform:scale(1.13);box-shadow:0 0 24px rgba(198,120,240,.55),0 4px 12px rgba(0,0,0,.4);}
+[data-theme="retro"]   .beat-dot.active-beat{background:var(--beat-accent)!important;border-color:var(--beat-accent)!important;transform:scale(1.13);box-shadow:0 0 24px rgba(212,168,67,.55),0 4px 12px rgba(0,0,0,.4);}
+[data-theme="playful"] .beat-dot.active-beat{background:var(--beat-accent)!important;border-color:var(--beat-accent)!important;transform:scale(1.13);box-shadow:0 0 24px rgba(255,95,160,.55),0 4px 12px rgba(0,0,0,.3);}
+[data-theme="minimal"] .beat-dot.active-beat{background:var(--beat-accent)!important;border-color:var(--beat-accent)!important;transform:scale(1.13);box-shadow:0 0 16px rgba(26,26,26,.25);}
+.beat-dot.active-sub{background:var(--accent2)!important;border-color:var(--accent2)!important;transform:scale(1.09);}
+.beat-dot.flash-out{transform:scale(1)!important;transition:transform .18s,background .18s,border-color .18s,box-shadow .18s!important;}
+.beat-num{font-family:var(--font-b);font-size:.54rem;color:var(--muted);letter-spacing:.04em;}
+.beat-sep{width:1px;height:42px;background:var(--border);border-radius:1px;flex-shrink:0;}
+
+/* Accent ring for level 2 */
+.accent-ring{position:absolute;inset:5px;border-radius:50%;border:2px solid var(--beat-accent);opacity:0;transition:opacity .2s;}
+.beat-dot[data-accent="2"] .accent-ring{opacity:.55;}
+
+/* Position bar */
+.position-bar{width:100%;max-width:440px;background:var(--surface2);border-radius:4px;height:5px;overflow:hidden;}
+.position-fill{height:100%;background:var(--grad);border-radius:4px;width:0%;transition:width .04s linear;}
+
+/* Transport */
+.transport{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+.transport-btn{width:50px;height:50px;border-radius:50%;border:2px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:var(--font-b);font-size:.65rem;}
+.transport-btn:hover{border-color:var(--accent);color:var(--accent);}
+.transport-btn.play-btn{width:66px;height:66px;font-size:1.3rem;background:var(--accent);color:var(--pill-text);border-color:var(--accent);}
+.transport-btn.play-btn:hover{filter:brightness(1.12);transform:scale(1.05);}
+
+/* Subdivision buttons */
+.sub-selector{display:flex;gap:5px;flex-wrap:wrap;}
+.sub-btn{font-family:var(--font-b);font-size:.56rem;letter-spacing:.03em;text-transform:none;padding:5px 9px;border-radius:var(--br);border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.3;}
+.sub-btn:hover{border-color:var(--accent);color:var(--accent);}
+.sub-btn.active{background:var(--accent2);color:var(--bg);border-color:var(--accent2);font-weight:700;}
+[data-theme="minimal"] .sub-btn.active,[data-theme="playful"] .sub-btn.active{color:#fff;}
+.sub-icon{font-size:.88rem;line-height:1;}
+
+/* Presets */
+.preset-row{display:flex;gap:5px;flex-wrap:wrap;}
+.preset-btn{font-family:var(--font-b);font-size:.65rem;letter-spacing:.04em;padding:5px 10px;border-radius:var(--br);border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;}
+.preset-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+.preset-btn.active{background:var(--accent2);color:var(--bg);border-color:var(--accent2);font-weight:700;}
+[data-theme="minimal"] .preset-btn.active,[data-theme="playful"] .preset-btn.active{color:#fff;}
+
+/* Sliders in cards */
+.slider-group{display:flex;flex-direction:column;}
+.slider-group label{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;font-family:var(--font-b);display:flex;justify-content:space-between;}
+.slider-val{color:var(--accent);}
+
+.check-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:14px;}
+.check-item{display:flex;align-items:center;gap:7px;font-size:.62rem;color:var(--muted);cursor:pointer;font-family:var(--font-b);text-transform:uppercase;letter-spacing:.05em;user-select:none;}
+.check-item input[type=checkbox]{width:14px;height:14px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+
+.beat-flash{position:fixed;inset:0;pointer-events:none;z-index:999;opacity:0;transition:opacity .08s;background:radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.07),transparent 70%);}
+.beat-flash.flash{opacity:1;transition:opacity 0s;}
+
+@media(max-width:500px){
+  .beat-dot{width:42px;height:42px;}
+  .beat-dot.sub{width:26px;height:26px;}
+  .bpm-number{font-size:clamp(2.5rem,15vw,4rem);}
+}
+</style>
+</head>
+<body data-theme="current">
+<div class="beat-flash" id="beatFlash"></div>
+
+<!-- INFO MODAL -->
+<div class="modal-overlay" id="infoOverlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('infoOverlay')">✕</button>
+    <div class="doc-header">Pulse</div>
+    <div class="doc-sub">Visual Metronome — How to Use</div>
+    <div class="doc-body">
+      <h3>Transport &amp; BPM</h3>
+      <p>Press the large play button or hit <strong>Space</strong> to start/stop. Use ±1/±10 nudge buttons or arrow keys to adjust BPM. Tap the <strong>Tap</strong> button (or press <strong>T</strong>) rhythmically to detect tempo from performance.</p>
+      <h3>Beat Visualizer</h3>
+      <p>The beat grid shows all beats in the bar. <strong>Click any beat dot</strong> to cycle through three accent levels — normal, medium accent, and strong accent. Accent level affects both click volume and visual brightness.</p>
+      <h3>Pendulum Arm</h3>
+      <p>A canvas-drawn mechanical pendulum arm swings in sync with the beat. Toggle visibility with the small <strong>Arm</strong> chip at the bottom of the main panel.</p>
+      <h3>Time Signature &amp; Feel</h3>
+      <p>Choose a preset or configure manually. The <strong>½× / 1× / 2×</strong> chip in the main panel halves or doubles the effective click speed without changing the BPM readout. <strong>Swing</strong> delays every even subdivision for a shuffle or jazz feel.</p>
+      <h3>Sound Shaping</h3>
+      <p><strong>Brightness</strong>: from a muted woody thud to a crisp sharp click. <strong>Envelope</strong>: short = punchy &amp; percussive, long = fuller &amp; rounder. <strong>Accent Boost</strong>: how much louder accented beats hit.</p>
+      <div class="tip">💡 Keyboard: Space = play/stop · Arrow keys = ±1/5 BPM · T = tap tempo</div>
+    </div>
+  </div>
+</div>
+
+<!-- THEME BAR -->
+<div class="theme-bar">
+  <div class="bar-left">
+    <button class="bar-icon-btn" onclick="openModal('infoOverlay')" title="Help">📖</button>
+  </div>
+  <div class="bar-sep"></div>
+  <div class="bar-right">
+    <div class="theme-pills-desktop">
+      <button class="theme-pill active" data-t="current">Dark Gold</button>
+      <button class="theme-pill" data-t="minimal">Clean &amp; Minimal</button>
+      <button class="theme-pill" data-t="studio">Dark Studio</button>
+      <button class="theme-pill" data-t="retro">Retro Piano</button>
+      <button class="theme-pill" data-t="playful">Bright &amp; Playful</button>
+    </div>
+    <div class="theme-mobile">
+      <button class="theme-mobile-btn" id="themeMobileBtn"><span id="themeMobileLabel">Dark Gold</span><span class="arrow">▼</span></button>
+      <div class="theme-flyout" id="themeFlyout">
+        <button class="theme-pill active" data-t="current">Dark Gold</button>
+        <button class="theme-pill" data-t="minimal">Clean &amp; Minimal</button>
+        <button class="theme-pill" data-t="studio">Dark Studio</button>
+        <button class="theme-pill" data-t="retro">Retro Piano</button>
+        <button class="theme-pill" data-t="playful">Bright &amp; Playful</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <header>
+    <h1 id="appTitle">Pulse</h1>
+    <p id="appSub">Visual Metronome</p>
+  </header>
+
+  <!-- MAIN VISUAL CARD -->
+  <div class="metro-visual-card">
+    <div class="bpm-display">
+      <div class="bpm-number" id="bpmDisplay">120</div>
+      <div class="bpm-label">BPM</div>
+      <div class="bpm-tempo-name" id="tempoName">Moderato</div>
+    </div>
+
+    <!-- Pendulum (canvas-based: arm + bob always perfectly connected) -->
+    <div class="pendulum-wrap hidden" id="pendulumWrap">
+      <canvas id="pendulumCanvas"></canvas>
+    </div>
+
+    <div class="beat-grid" id="beatGrid"></div>
+
+    <div class="position-bar"><div class="position-fill" id="positionFill"></div></div>
+
+    <div class="transport">
+      <button class="transport-btn" onclick="adjustBpm(-10)">−10</button>
+      <button class="transport-btn" onclick="adjustBpm(-1)">−1</button>
+      <button class="transport-btn play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+      <button class="transport-btn" onclick="adjustBpm(1)">+1</button>
+      <button class="transport-btn" onclick="adjustBpm(10)">+10</button>
+    </div>
+
+    <div class="bpm-slider-wrap">
+      <input type="range" id="bpmSlider" min="20" max="300" value="120" oninput="setBpm(+this.value)">
+      <button class="bpm-tap" id="tapBtn" onclick="tapTempo()">Tap</button>
+    </div>
+
+    <!-- Panel controls: arm toggle + click rate -->
+    <div class="panel-controls">
+      <div class="panel-chip" id="armChip" onclick="toggleArm()" title="Show/hide pendulum arm">
+        <span class="chip-dot"></span>
+        <span class="chip-label">Arm</span>
+      </div>
+      <div class="rate-chip" role="group" aria-label="Click rate">
+        <button class="rate-btn" id="rateHalf"   onclick="setClickRate(0.5)">½×</button>
+        <span class="rate-sep"></span>
+        <button class="rate-btn active" id="rateNormal" onclick="setClickRate(1)">1×</button>
+        <span class="rate-sep"></span>
+        <button class="rate-btn" id="rateDouble" onclick="setClickRate(2)">2×</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIG CARD -->
+  <div class="card">
+    <div class="card-title">// Time Signature &amp; Tempo</div>
+
+    <div style="margin-bottom:14px;">
+      <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;font-family:var(--font-b);">Quick Presets</div>
+      <div class="preset-row" id="presetRow">
+        <button class="preset-btn" data-beats="2" data-note="4">2/4</button>
+        <button class="preset-btn active" data-beats="4" data-note="4">4/4</button>
+        <button class="preset-btn" data-beats="3" data-note="4">3/4</button>
+        <button class="preset-btn" data-beats="6" data-note="8">6/8</button>
+        <button class="preset-btn" data-beats="5" data-note="4">5/4</button>
+        <button class="preset-btn" data-beats="7" data-note="8">7/8</button>
+        <button class="preset-btn" data-beats="9" data-note="8">9/8</button>
+        <button class="preset-btn" data-beats="12" data-note="8">12/8</button>
+      </div>
+    </div>
+
+    <div class="controls cols3" style="margin-bottom:14px;">
+      <div class="control-group">
+        <label>Beats per Bar</label>
+        <select id="beatsPerBar" onchange="applyTimeSig()">
+          <option value="2">2</option><option value="3">3</option><option value="4" selected>4</option>
+          <option value="5">5</option><option value="6">6</option><option value="7">7</option>
+          <option value="8">8</option><option value="9">9</option><option value="10">10</option>
+          <option value="11">11</option><option value="12">12</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Note Value</label>
+        <select id="noteValue" onchange="applyTimeSig()">
+          <option value="4" selected>Quarter (♩)</option>
+          <option value="8">Eighth (♪)</option>
+          <option value="2">Half (𝅗𝅥)</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Subdivision</label>
+        <!-- Using text symbols that render reliably cross-platform -->
+        <div class="sub-selector">
+          <button class="sub-btn active" data-sub="1" onclick="setSub(1)"><span class="sub-icon">♩</span>None</button>
+          <button class="sub-btn" data-sub="2" onclick="setSub(2)"><span class="sub-icon">♪♪</span>8ths</button>
+          <button class="sub-btn" data-sub="3" onclick="setSub(3)"><span class="sub-icon">♪♪♪</span>Triplets</button>
+          <button class="sub-btn" data-sub="4" onclick="setSub(4)"><span class="sub-icon">♬♬</span>16ths</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="slider-group">
+      <label>Swing <span class="slider-val" id="swingVal">0%</span></label>
+      <input type="range" id="swingSlider" min="0" max="75" value="0" oninput="updateSwingLabel()">
+    </div>
+  </div>
+
+  <!-- SOUND CARD -->
+  <div class="card">
+    <div class="card-title">// Sound Shaping</div>
+    <div class="controls cols4" style="margin-bottom:0;">
+      <div class="slider-group">
+        <label>Volume <span class="slider-val" id="volVal">80%</span></label>
+        <input type="range" id="volSlider" min="0" max="100" value="80" oninput="updateSoundLabel()">
+      </div>
+      <div class="slider-group">
+        <label>Brightness <span class="slider-val" id="brightVal">50%</span></label>
+        <input type="range" id="brightSlider" min="0" max="100" value="50" oninput="updateSoundLabel()">
+      </div>
+      <div class="slider-group">
+        <label>Envelope <span class="slider-val" id="envVal">50%</span></label>
+        <input type="range" id="envSlider" min="0" max="100" value="50" oninput="updateSoundLabel()">
+      </div>
+      <div class="slider-group">
+        <label>Accent Boost <span class="slider-val" id="accentBoostVal">+50%</span></label>
+        <input type="range" id="accentBoostSlider" min="0" max="100" value="50" oninput="updateSoundLabel()">
+      </div>
+    </div>
+    <div class="check-row">
+      <label class="check-item"><input type="checkbox" id="flashToggle" checked onchange="saveAllPrefs()">Screen Flash on Beat 1</label>
+      <label class="check-item"><input type="checkbox" id="subSoundToggle" checked onchange="saveAllPrefs()">Audible Subdivisions</label>
+    </div>
+    <div class="actions">
+      <button class="btn-secondary" onclick="resetAll()">Reset All</button>
+    </div>
+  </div>
+</div>
+
+<div class="app-footer">made with ♥ by Paul van Zyl</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  PULSE — Visual Metronome  |  localStorage: musicTool_pulse_v1
+// ══════════════════════════════════════════════════════
+
+const LS_KEY = 'musicTool_pulse_v1';
+function savePref(k,v){try{const d=JSON.parse(localStorage.getItem(LS_KEY)||'{}');d[k]=v;localStorage.setItem(LS_KEY,JSON.stringify(d));}catch(e){}}
+function loadPrefs(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){return{}}}
+
+// ── THEMES ──────────────────────────────────────────
+const THEMES={
+  current:['Pulse','Visual Metronome'],minimal:['pulse','visual metronome'],
+  studio:['PULSE','VISUAL METRONOME'],retro:['Pulse','Visual Metronome'],
+  playful:['🥁 Pulse!','Keep the beat ✨']
+};
+const THEME_LABELS={current:'Dark Gold',minimal:'Clean & Minimal',studio:'Dark Studio',retro:'Retro Piano',playful:'Bright & Playful'};
+
+function applyTheme(t,noSave){
+  document.body.dataset.theme=t;
+  const[h,s]=THEMES[t];
+  document.getElementById('appTitle').textContent=h;
+  document.getElementById('appSub').textContent=s;
+  document.getElementById('themeMobileLabel').textContent=THEME_LABELS[t];
+  document.querySelectorAll('.theme-pill').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
+  // Refresh cached colors after theme CSS is applied
+  requestAnimationFrame(()=>{
+    refreshThemeCache();
+    if(showArm&&!isPlaying) drawPendulumIdle();
+  });
+  if(!noSave) savePref('theme',t);
+}
+document.querySelectorAll('.theme-pill').forEach(btn=>btn.addEventListener('click',()=>{
+  applyTheme(btn.dataset.t);
+  document.getElementById('themeFlyout').classList.remove('open');
+  document.getElementById('themeMobileBtn').classList.remove('open');
+}));
+const mobileBtn=document.getElementById('themeMobileBtn'),flyout=document.getElementById('themeFlyout');
+mobileBtn.addEventListener('click',e=>{e.stopPropagation();const o=flyout.classList.toggle('open');mobileBtn.classList.toggle('open',o);});
+document.addEventListener('click',()=>{flyout.classList.remove('open');mobileBtn.classList.remove('open');});
+flyout.addEventListener('click',e=>e.stopPropagation());
+
+function openModal(id){document.getElementById(id).classList.add('show');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('show');document.body.style.overflow='';}
+document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)closeModal(ov.id);}));
+
+// ══ STATE ════════════════════════════════════════════
+let bpm=120, beatsPerBar=4, noteValue=4, subdivision=1;
+let accentLevels=[3,1,1,1];
+let isPlaying=false, showArm=false, clickRate=1;
+
+let audioCtx=null;
+function getCtx(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// Scheduler
+const SCHED_AHEAD=0.1, LOOK_MS=25;
+let nextNoteTime=0, currentBeatInBar=0, currentSubDiv=0, schedulerTimer=null;
+
+// Tap tempo
+let tapTimes=[];
+
+// Pendulum canvas state
+const PEND_MAX=26; // max swing degrees
+let pAngle=0;        // current angle in degrees
+let pFrom=0, pTo=PEND_MAX;
+let pSwingStart=null, pSwingDur=500;
+let pAnimFrame=null;
+
+// ══ BPM ══════════════════════════════════════════════
+const TEMPO_NAMES=[[20,39,'Larghissimo'],[40,59,'Largo'],[60,65,'Larghetto'],[66,75,'Adagio'],[76,107,'Andante'],[108,119,'Moderato'],[120,155,'Allegro'],[156,175,'Vivace'],[176,200,'Presto'],[201,300,'Prestissimo']];
+function getTempoName(b){for(const[lo,hi,n]of TEMPO_NAMES)if(b>=lo&&b<=hi)return n;return '';}
+function setBpm(val){
+  bpm=Math.max(20,Math.min(300,+val));
+  document.getElementById('bpmDisplay').textContent=bpm;
+  document.getElementById('bpmSlider').value=bpm;
+  document.getElementById('tempoName').textContent=getTempoName(bpm);
+  savePref('bpm',bpm);
+}
+function adjustBpm(d){setBpm(bpm+d);}
+
+function tapTempo(){
+  const now=performance.now();
+  if(tapTimes.length>0&&now-tapTimes[tapTimes.length-1]>3000) tapTimes=[];
+  tapTimes.push(now);
+  if(tapTimes.length>8) tapTimes.shift();
+  if(tapTimes.length>=2){
+    let s=0;for(let i=1;i<tapTimes.length;i++)s+=tapTimes[i]-tapTimes[i-1];
+    setBpm(Math.round(60000/(s/(tapTimes.length-1))));
+  }
+  const btn=document.getElementById('tapBtn');
+  btn.classList.add('tapped');setTimeout(()=>btn.classList.remove('tapped'),150);
+}
+
+// ══ TIME SIG ══════════════════════════════════════════
+function applyTimeSig(){
+  beatsPerBar=+document.getElementById('beatsPerBar').value;
+  noteValue=+document.getElementById('noteValue').value;
+  while(accentLevels.length<beatsPerBar) accentLevels.push(1);
+  accentLevels=accentLevels.slice(0,beatsPerBar);
+  if(accentLevels[0]<3) accentLevels[0]=3;
+  buildBeatGrid(); updatePresetHighlight(); saveAllPrefs();
+}
+function updatePresetHighlight(){
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('active',+b.dataset.beats===beatsPerBar&&+b.dataset.note===noteValue));
+}
+document.querySelectorAll('.preset-btn').forEach(btn=>btn.addEventListener('click',()=>{
+  document.getElementById('beatsPerBar').value=btn.dataset.beats;
+  document.getElementById('noteValue').value=btn.dataset.note;
+  applyTimeSig();
+}));
+
+// ══ SUBDIVISION ═══════════════════════════════════════
+function setSub(val){
+  subdivision=val;
+  document.querySelectorAll('.sub-btn').forEach(b=>b.classList.toggle('active',+b.dataset.sub===val));
+  buildBeatGrid(); saveAllPrefs();
+}
+
+// ══ ARM TOGGLE ═════════════════════════════════════════
+function toggleArm(){
+  showArm=!showArm;
+  document.getElementById('armChip').classList.toggle('active',showArm);
+  document.getElementById('pendulumWrap').classList.toggle('hidden',!showArm);
+  if(showArm&&!isPlaying){refreshThemeCache();requestAnimationFrame(drawPendulumIdle);}
+  saveAllPrefs();
+}
+
+// ══ CLICK RATE ═════════════════════════════════════════
+function setClickRate(r){
+  clickRate=r;
+  document.getElementById('rateHalf').classList.toggle('active',r===0.5);
+  document.getElementById('rateNormal').classList.toggle('active',r===1);
+  document.getElementById('rateDouble').classList.toggle('active',r===2);
+  saveAllPrefs();
+}
+
+// ══ BEAT GRID ═════════════════════════════════════════
+function buildBeatGrid(){
+  const grid=document.getElementById('beatGrid');
+  grid.innerHTML='';
+  for(let b=0;b<beatsPerBar;b++){
+    if(b>0){const sep=document.createElement('div');sep.className='beat-sep';grid.appendChild(sep);}
+    const cell=document.createElement('div');cell.className='beat-cell';
+    const dot=document.createElement('div');
+    const lvl=accentLevels[b]||1;
+    dot.className='beat-dot'+(lvl===3?' accent':'');
+    dot.dataset.beat=b;dot.dataset.accent=lvl;dot.id='beatDot_'+b;
+    const ring=document.createElement('div');ring.className='accent-ring';dot.appendChild(ring);
+    dot.addEventListener('click',()=>cycleAccent(b));
+    cell.appendChild(dot);
+    const num=document.createElement('div');num.className='beat-num';num.textContent=b+1;cell.appendChild(num);
+    grid.appendChild(cell);
+    if(subdivision>1){
+      for(let s=1;s<subdivision;s++){
+        const sep2=document.createElement('div');sep2.className='beat-sep';sep2.style.height='26px';grid.appendChild(sep2);
+        const sc=document.createElement('div');sc.className='beat-cell';
+        const sd=document.createElement('div');sd.className='beat-dot sub';sd.id='subDot_'+b+'_'+s;
+        sc.appendChild(sd);grid.appendChild(sc);
+      }
+    }
+  }
+}
+
+function cycleAccent(b){
+  accentLevels[b]=(accentLevels[b]%3)+1;
+  const dot=document.getElementById('beatDot_'+b);
+  if(dot){dot.dataset.accent=accentLevels[b];dot.classList.toggle('accent',accentLevels[b]===3);}
+  saveAllPrefs();
+}
+
+// ══ LABELS ════════════════════════════════════════════
+function updateSoundLabel(){
+  document.getElementById('volVal').textContent=document.getElementById('volSlider').value+'%';
+  document.getElementById('brightVal').textContent=document.getElementById('brightSlider').value+'%';
+  const ev=+document.getElementById('envSlider').value;
+  const envDesc=ev<25?'Sharp':ev<50?'Punchy':ev<75?'Balanced':'Rounded';
+  document.getElementById('envVal').textContent=ev+'% — '+envDesc;
+  document.getElementById('accentBoostVal').textContent='+'+document.getElementById('accentBoostSlider').value+'%';
+  debouncedSave();
+}
+function updateSwingLabel(){
+  const v=+document.getElementById('swingSlider').value;
+  const desc=v===0?'Straight':v<20?'Light':v<40?'Shuffle':v<60?'Swing':'Heavy swing';
+  document.getElementById('swingVal').textContent=v+'% — '+desc;
+  debouncedSave();
+}
+const getVol=()=>+document.getElementById('volSlider').value/100;
+const getBright=()=>+document.getElementById('brightSlider').value/100;
+const getEnv=()=>+document.getElementById('envSlider').value/100;
+const getBoost=()=>+document.getElementById('accentBoostSlider').value/100;
+const getSwing=()=>+document.getElementById('swingSlider').value/100;
+const getRate=()=>clickRate;
+
+// ══ CLICK SYNTHESIS ═══════════════════════════════════
+function playClick(time, accentLevel, isSub){
+  const ctx=getCtx();
+  const bright=getBright(), env=getEnv(), boost=getBoost();
+  let gain=getVol();
+  if(accentLevel===3) gain*=(1+boost);
+  else if(accentLevel===2) gain*=(1+boost*0.5);
+  if(isSub) gain*=0.4;
+  gain=Math.min(gain,1.0);
+
+  // freq: 400Hz (woody) → 2600Hz (crisp)
+  let freq;
+  if(accentLevel===3)      freq=900+bright*1700;
+  else if(accentLevel===2) freq=600+bright*1400;
+  else                     freq=400+bright*1200;
+  if(isSub) freq*=0.62;
+
+  // envelope: 0=ultra-short(0.008s) 1=longer(0.18s)
+  const decay=0.008+env*0.172;
+  const nDecay=0.006+env*0.055;
+
+  const bsize=Math.ceil(ctx.sampleRate*(0.008+env*0.065));
+  const buf=ctx.createBuffer(1,bsize,ctx.sampleRate);
+  const data=buf.getChannelData(0);
+  const tc=bsize*(0.06+env*0.25);
+  for(let i=0;i<bsize;i++) data[i]=(Math.random()*2-1)*Math.exp(-i/tc);
+
+  const noise=ctx.createBufferSource(); noise.buffer=buf;
+  const bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=freq; bp.Q.value=1.2+(1-bright)*5;
+  const osc=ctx.createOscillator(); osc.type='sine';
+  osc.frequency.setValueAtTime(freq*0.9,time);
+  osc.frequency.exponentialRampToValueAtTime(freq*0.22,time+decay);
+
+  const gN=ctx.createGain(),gO=ctx.createGain(),master=ctx.createGain();
+  gN.gain.setValueAtTime(gain*0.75,time); gN.gain.exponentialRampToValueAtTime(0.0001,time+nDecay+0.005);
+  gO.gain.setValueAtTime(gain*0.55,time); gO.gain.exponentialRampToValueAtTime(0.0001,time+decay);
+  master.gain.value=1;
+
+  noise.connect(bp);bp.connect(gN);gN.connect(master);
+  osc.connect(gO);gO.connect(master);
+  master.connect(ctx.destination);
+
+  const end=time+Math.max(nDecay+0.01,decay+0.01);
+  noise.start(time);noise.stop(end);
+  osc.start(time);osc.stop(end);
+}
+
+// ══ SCHEDULER ═════════════════════════════════════════
+function scheduler(){
+  const ctx=getCtx();
+  while(nextNoteTime<ctx.currentTime+SCHED_AHEAD){
+    scheduleNote(currentBeatInBar,currentSubDiv,nextNoteTime);
+    advance();
+  }
+}
+
+function scheduleNote(beat,sub,time){
+  const isSub=sub>0;
+  const level=isSub?1:accentLevels[beat];
+  if(!isSub||document.getElementById('subSoundToggle').checked) playClick(time,level,isSub);
+  const delay=(time-getCtx().currentTime)*1000;
+  setTimeout(()=>visualTick(beat,sub,isSub),Math.max(0,delay));
+}
+
+function advance(){
+  const rate=getRate(), swing=getSwing();
+  const spb=(60/bpm)/rate;          // seconds per beat (click-rate adjusted)
+  const sps=spb/subdivision;        // seconds per subdivision slot
+
+  // Swing: on even sub-divisions (1,3,5…) add a delay; compensate would happen naturally
+  // Simple lazy-swing: delay every ODD sub index within the beat
+  let extra=0;
+  if(subdivision>=2&&swing>0&&currentSubDiv%2===1) extra=sps*swing;
+
+  nextNoteTime+=sps+extra;
+  currentSubDiv++;
+  if(currentSubDiv>=subdivision){currentSubDiv=0;currentBeatInBar++;if(currentBeatInBar>=beatsPerBar) currentBeatInBar=0;}
+}
+
+// ══ VISUAL TICK ════════════════════════════════════════
+let lastDot=null, lastSubDot=null;
+
+function visualTick(beat,sub,isSub){
+  if(!isPlaying) return;
+  if(!isSub){
+    // Clear previous beat dot
+    if(lastDot){
+      lastDot.classList.add('flash-out');
+      lastDot.classList.remove('active-beat');
+      const prev=lastDot;
+      setTimeout(()=>prev.classList.remove('flash-out'),200);
+    }
+    const dot=document.getElementById('beatDot_'+beat);
+    if(dot){dot.classList.add('active-beat');lastDot=dot;}
+
+    // Position bar: snap to 0 on beat 1, then fill across the bar
+    const bar=document.getElementById('positionFill');
+    if(beat===0){
+      bar.style.transition='none';
+      bar.style.width='0%';
+      // Allow the reset to paint before re-enabling transition
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        bar.style.transition='width .04s linear';
+        bar.style.width=((1/beatsPerBar)*100)+'%';
+      }));
+    } else {
+      bar.style.width=((beat+1)/beatsPerBar*100)+'%';
+    }
+
+    // Pendulum: trigger new swing
+    startPendulumSwing(beat);
+
+    // Flash
+    if(beat===0&&document.getElementById('flashToggle').checked){
+      const fl=document.getElementById('beatFlash');
+      fl.classList.add('flash');
+      setTimeout(()=>fl.classList.remove('flash'),90);
+    }
+  } else {
+    if(lastSubDot) lastSubDot.classList.remove('active-sub');
+    const sd=document.getElementById('subDot_'+beat+'_'+sub);
+    if(sd){sd.classList.add('active-sub');lastSubDot=sd;}
+  }
+}
+
+// ══ PENDULUM (canvas) ══════════════════════════════════
+// Pivot is at top-centre of the canvas.
+// Arm extends downward and swings ±PEND_MAX degrees.
+// Ball (bob) sits at the tip — always connected.
+
+function startPendulumSwing(beat){
+  // Alternate: even beats swing to one side, odd to the other
+  const goRight=(beat%2===0);
+  pFrom=pAngle;
+  pTo=goRight?PEND_MAX:-PEND_MAX;
+  const rate=getRate();
+  pSwingDur=(60000/bpm)/rate;   // one beat duration in ms
+  pSwingStart=null;
+  if(!pAnimFrame) pAnimFrame=requestAnimationFrame(animPendulum);
+}
+
+function animPendulum(ts){
+  pAnimFrame=null;
+  if(!isPlaying) return;
+  if(pSwingStart===null) pSwingStart=ts;
+  const t=Math.min((ts-pSwingStart)/pSwingDur,1);
+  // Ease in-out for natural pendulum feel
+  const ease=-(Math.cos(Math.PI*t)-1)/2;
+  pAngle=pFrom+(pTo-pFrom)*ease;
+  drawPendulum(pAngle);
+  if(t<1) pAnimFrame=requestAnimationFrame(animPendulum);
+}
+
+function getThemeColor(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()||'#888';}
+
+// Cached theme colors — refresh whenever theme changes or on first draw
+let _themeCache={};
+function refreshThemeCache(){
+  _themeCache={
+    accent:  getThemeColor('--pendulum'),
+    border:  getThemeColor('--border'),
+    surf:    getThemeColor('--surface2'),
+    muted:   getThemeColor('--muted'),
+  };
+}
+
+function drawPendulum(angleDeg){
+  if(!showArm) return;
+  const canvas=document.getElementById('pendulumCanvas');
+  if(!canvas||!canvas.parentElement) return;
+  const W=canvas.parentElement.clientWidth||300;
+  const H=120;
+  const DPR=window.devicePixelRatio||1;
+  if(canvas.width!==W*DPR||canvas.height!==H*DPR){
+    canvas.width=W*DPR; canvas.height=H*DPR;
+    canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  }
+  const c=canvas.getContext('2d');
+  c.setTransform(DPR,0,0,DPR,0,0);
+  c.clearRect(0,0,W,H);
+
+  const {accent,border,surf}=_themeCache;
+  const pivotX=W/2, pivotY=12;
+  const armLen=H-30;
+
+  const rad=angleDeg*Math.PI/180;
+  const tipX=pivotX+Math.sin(rad)*armLen;
+  const tipY=pivotY+Math.cos(rad)*armLen;
+
+  // Dashed arc guide
+  const arcR=armLen;
+  const arcA1=(90-PEND_MAX-3)*Math.PI/180;
+  const arcA2=(90+PEND_MAX+3)*Math.PI/180;
+  c.beginPath();
+  c.arc(pivotX,pivotY,arcR,arcA1,arcA2);
+  c.strokeStyle=border; c.lineWidth=1.2; c.setLineDash([3,6]); c.stroke(); c.setLineDash([]);
+
+  // Arm
+  c.beginPath(); c.moveTo(pivotX,pivotY); c.lineTo(tipX,tipY);
+  c.strokeStyle=accent; c.lineWidth=2.5; c.lineCap='round'; c.stroke();
+
+  // Bob outer
+  const bobR=11;
+  c.beginPath(); c.arc(tipX,tipY,bobR,0,Math.PI*2);
+  c.fillStyle=surf; c.strokeStyle=accent; c.lineWidth=2.2;
+  c.fill(); c.stroke();
+
+  // Bob inner pip
+  c.beginPath(); c.arc(tipX,tipY,4.5,0,Math.PI*2);
+  c.fillStyle=accent; c.fill();
+
+  // Pivot cap
+  c.beginPath(); c.arc(pivotX,pivotY,5,0,Math.PI*2);
+  c.fillStyle=accent; c.fill();
+}
+
+function drawPendulumIdle(){if(showArm) drawPendulum(0);}
+
+// Debounced save — avoids hammering localStorage on every slider drag tick
+let _saveTimer=null;
+function debouncedSave(){clearTimeout(_saveTimer);_saveTimer=setTimeout(saveAllPrefs,300);}
+
+// ══ PLAY / STOP ════════════════════════════════════════
+function togglePlay(){if(isPlaying)stopMetronome();else startMetronome();}
+
+function startMetronome(){
+  isPlaying=true; getCtx().resume();
+  currentBeatInBar=0; currentSubDiv=0;
+  nextNoteTime=getCtx().currentTime+0.05;
+  schedulerTimer=setInterval(scheduler,LOOK_MS);
+  document.getElementById('playBtn').textContent='■';
+  pAngle=-PEND_MAX; pFrom=-PEND_MAX;
+  refreshThemeCache();
+}
+
+function stopMetronome(){
+  isPlaying=false;
+  clearInterval(schedulerTimer); schedulerTimer=null;
+  if(pAnimFrame){cancelAnimationFrame(pAnimFrame);pAnimFrame=null;}
+  document.getElementById('playBtn').textContent='▶';
+  document.querySelectorAll('.beat-dot').forEach(d=>d.classList.remove('active-beat','active-sub','flash-out'));
+  const bar=document.getElementById('positionFill');
+  bar.style.transition='none'; bar.style.width='0%';
+  lastDot=null; lastSubDot=null;
+  pAngle=0;
+  requestAnimationFrame(()=>{refreshThemeCache(); drawPendulumIdle();});
+}
+
+// ══ SAVE / LOAD ════════════════════════════════════════
+function saveAllPrefs(){
+  savePref('bpm',bpm); savePref('beatsPerBar',beatsPerBar); savePref('noteValue',noteValue);
+  savePref('subdivision',subdivision); savePref('accentLevels',accentLevels);
+  savePref('vol',document.getElementById('volSlider').value);
+  savePref('bright',document.getElementById('brightSlider').value);
+  savePref('env',document.getElementById('envSlider').value);
+  savePref('accentBoost',document.getElementById('accentBoostSlider').value);
+  savePref('swing',document.getElementById('swingSlider').value);
+  savePref('clickRate',clickRate);
+  savePref('flashOn',document.getElementById('flashToggle').checked);
+  savePref('subSoundOn',document.getElementById('subSoundToggle').checked);
+  savePref('showArm',showArm);
+}
+
+function resetAll(){
+  stopMetronome();
+  bpm=120;beatsPerBar=4;noteValue=4;subdivision=1;accentLevels=[3,1,1,1];showArm=false;clickRate=1;
+  setBpm(120);
+  document.getElementById('beatsPerBar').value=4; document.getElementById('noteValue').value=4;
+  document.getElementById('volSlider').value=80; document.getElementById('brightSlider').value=50;
+  document.getElementById('envSlider').value=50; document.getElementById('accentBoostSlider').value=50;
+  document.getElementById('swingSlider').value=0;
+  document.getElementById('flashToggle').checked=true; document.getElementById('subSoundToggle').checked=true;
+  document.getElementById('armChip').classList.remove('active');
+  document.getElementById('pendulumWrap').classList.add('hidden');
+  setClickRate(1);
+  updateSoundLabel(); updateSwingLabel();
+  setSub(1); applyTimeSig(); updatePresetHighlight();
+  saveAllPrefs(); // immediate save on explicit reset
+}
+
+function restoreSettings(){
+  const p=loadPrefs();
+  // 1. Theme first (sets CSS vars)
+  if(p.theme) applyTheme(p.theme,true);
+  // 2. Scalar state
+  if(p.bpm) setBpm(p.bpm);
+  if(p.beatsPerBar){beatsPerBar=+p.beatsPerBar;document.getElementById('beatsPerBar').value=beatsPerBar;}
+  if(p.noteValue){noteValue=+p.noteValue;document.getElementById('noteValue').value=noteValue;}
+  if(p.subdivision){subdivision=+p.subdivision;document.querySelectorAll('.sub-btn').forEach(b=>b.classList.toggle('active',+b.dataset.sub===subdivision));}
+  // 3. Accent levels — validate length against restored beatsPerBar
+  if(p.accentLevels&&Array.isArray(p.accentLevels)&&p.accentLevels.length===beatsPerBar){
+    accentLevels=p.accentLevels;
+  } else {
+    accentLevels=Array.from({length:beatsPerBar},(_,i)=>i===0?3:1);
+  }
+  // 4. Sound sliders
+  if(p.vol)         document.getElementById('volSlider').value=p.vol;
+  if(p.bright)      document.getElementById('brightSlider').value=p.bright;
+  if(p.env)         document.getElementById('envSlider').value=p.env;
+  if(p.accentBoost) document.getElementById('accentBoostSlider').value=p.accentBoost;
+  if(p.swing)       document.getElementById('swingSlider').value=p.swing;
+  // 5. Panel chips
+  if(p.clickRate)   setClickRate(+p.clickRate);
+  if(p.showArm!==undefined){
+    showArm=p.showArm;
+    document.getElementById('armChip').classList.toggle('active',showArm);
+    document.getElementById('pendulumWrap').classList.toggle('hidden',!showArm);
+  }
+  // 6. Checkboxes
+  if(p.flashOn!==undefined)    document.getElementById('flashToggle').checked=p.flashOn;
+  if(p.subSoundOn!==undefined) document.getElementById('subSoundToggle').checked=p.subSoundOn;
+  // 7. Update all derived UI
+  updateSoundLabel(); updateSwingLabel(); updatePresetHighlight(); buildBeatGrid();
+  // 8. Draw pendulum after a frame so CSS vars are fully resolved
+  requestAnimationFrame(()=>{refreshThemeCache(); drawPendulumIdle();});
+}
+
+// ── KEYBOARD ────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT') return;
+  if(e.code==='Space'){e.preventDefault();togglePlay();}
+  if(e.code==='ArrowUp')    adjustBpm(1);
+  if(e.code==='ArrowDown')  adjustBpm(-1);
+  if(e.code==='ArrowRight') adjustBpm(5);
+  if(e.code==='ArrowLeft')  adjustBpm(-5);
+  if(e.code==='KeyT')       tapTempo();
+});
+
+window.addEventListener('resize',()=>{if(!isPlaying&&showArm){refreshThemeCache();requestAnimationFrame(drawPendulumIdle);}});
+
+// ── INIT ────────────────────────────────────────────
+refreshThemeCache();
+restoreSettings();
+</script>
+</body>
+</html>
