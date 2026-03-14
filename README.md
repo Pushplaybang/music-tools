@@ -12,6 +12,7 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 |---|---|---|---|
 | [Ear Trainer](docs/ear-trainer.md) | `ear-trainer.html` | [▶ Open](https://pushplaybang.github.io/ear-trainer/ear-trainer.html) | Scale visualiser, interval & chord ear training quiz |
 | [Instrument Tuner](docs/instrument-tuner.md) | `tuner.html` | [▶ Open](https://pushplaybang.github.io/ear-trainer/tuner.html) | Chromatic strobe tuner for guitar, bass, ukulele & more |
+| [Pulse](docs/pulse.md) | `pulse.html` | [▶ Open](https://pushplaybang.github.io/ear-trainer/pulse.html) | Visual metronome with tap tempo, subdivisions & swing |
 
 ---
 
@@ -27,10 +28,12 @@ Download any `.html` file and open it in a modern browser. That's it — no buil
 music-tools/
 ├── ear-trainer.html              # Ear Trainer app
 ├── tuner.html                    # Instrument Tuner app
+├── pulse.html                    # Pulse Visual Metronome app
 ├── music-tools-boilerplate.html  # Shared design system starter
 ├── docs/
 │   ├── ear-trainer.md            # Ear Trainer documentation
-│   └── instrument-tuner.md      # Instrument Tuner documentation
+│   ├── instrument-tuner.md       # Instrument Tuner documentation
+│   └── pulse.md                  # Pulse documentation
 └── README.md                     # This file
 ```
 
@@ -38,7 +41,7 @@ music-tools/
 
 ## 🎨 Shared Design System
 
-Both tools share a 5-theme CSS custom property system. Themes switch instantly without a page reload and all settings persist in `localStorage` automatically.
+All three tools share a 5-theme CSS custom property system. Themes switch instantly without a page reload and all settings persist in `localStorage` automatically.
 
 | Theme | Fonts | Mood |
 |---|---|---|
