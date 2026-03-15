@@ -713,6 +713,7 @@ function toggleSpeedTrainer(){
   if(!stEnabled&&stRunning) stopSpeedRun();
   saveAllPrefs();
 }
+let lastSpeedTrainerBpm = null;
 function setStMode(m){
   stMode=m;
   document.getElementById('stModeBars').classList.toggle('active',m==='bars');
@@ -745,6 +746,7 @@ function startSpeedRun(){
 }
 function stopSpeedRun(){
   stRunning=false;
+  lastSpeedTrainerBpm = null;
   document.getElementById('stStartBtn').textContent='▶ Start';
   document.getElementById('stProgressWrap').style.display='none';
   document.getElementById('stProgressFill').style.width='0%';
@@ -754,7 +756,10 @@ function updateSpeedTrainer(){
   const elapsed=getCtx().currentTime-stStartTime;
   const progress=Math.min(elapsed/stTotalDuration,1);
   const newBpm=Math.round(stStartBpm+(stEndBpm-stStartBpm)*progress);
-  setBpm(newBpm);
+  if(newBpm!==lastSpeedTrainerBpm){
+    setBpm(newBpm);
+    lastSpeedTrainerBpm = newBpm;
+  }
   document.getElementById('stProgressFill').style.width=(progress*100)+'%';
   if(progress>=1) stopSpeedRun();
 }
