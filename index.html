@@ -361,6 +361,59 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
       </div>
     </div>
 
+    <!-- ── Rhythm ── -->
+    <div class="tool-card card">
+      <div class="tool-illo" aria-hidden="true">
+        <svg viewBox="0 0 190 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background glow -->
+          <circle cx="95" cy="75" r="52" fill="var(--surface2)" opacity="0.5"/>
+          <!-- Grid lines (bar) -->
+          <line x1="24" y1="55" x2="24" y2="95" stroke="var(--border)" stroke-width="2.5"/>
+          <line x1="166" y1="55" x2="166" y2="95" stroke="var(--border)" stroke-width="2.5"/>
+          <line x1="59.5" y1="58" x2="59.5" y2="92" stroke="var(--border)" stroke-width="1" opacity="0.5"/>
+          <line x1="95" y1="58" x2="95" y2="92" stroke="var(--border)" stroke-width="1" opacity="0.5"/>
+          <line x1="130.5" y1="58" x2="130.5" y2="92" stroke="var(--border)" stroke-width="1" opacity="0.5"/>
+          <!-- Down arrow beat 1 (accented) -->
+          <polygon points="38,62 46,62 42,78" fill="var(--accent)" opacity="0.95"/>
+          <!-- Up arrow (and of 1) -->
+          <polygon points="50,82 58,82 54,68" fill="var(--accent2)" opacity="0.7"/>
+          <!-- Down arrow beat 2 -->
+          <polygon points="67,66 73,66 70,78" fill="var(--muted)" opacity="0.7"/>
+          <!-- Up arrow (and of 2) -->
+          <polygon points="81,80 87,80 84,68" fill="var(--muted)" opacity="0.6"/>
+          <!-- Rest dot beat 3 -->
+          <circle cx="106" cy="75" r="2.5" fill="var(--muted)" opacity="0.4"/>
+          <!-- Up arrow (and of 3) -->
+          <polygon points="115,80 121,80 118,68" fill="var(--muted)" opacity="0.6"/>
+          <!-- Down arrow beat 4 -->
+          <polygon points="133,66 139,66 136,78" fill="var(--muted)" opacity="0.7"/>
+          <!-- Up arrow (and of 4) -->
+          <polygon points="147,80 153,80 150,68" fill="var(--muted)" opacity="0.6"/>
+          <!-- Highlight cursor on beat 1 -->
+          <rect x="30" y="56" width="28" height="38" rx="4" fill="var(--accent)" opacity="0.12"/>
+          <!-- Beat numbers -->
+          <text x="42" y="108" text-anchor="middle" font-size="10" font-family="'Space Mono',monospace" fill="var(--accent)">1</text>
+          <text x="77" y="108" text-anchor="middle" font-size="10" font-family="'Space Mono',monospace" fill="var(--muted)">2</text>
+          <text x="113" y="108" text-anchor="middle" font-size="10" font-family="'Space Mono',monospace" fill="var(--muted)">3</text>
+          <text x="148" y="108" text-anchor="middle" font-size="10" font-family="'Space Mono',monospace" fill="var(--muted)">4</text>
+          <!-- Sound waves below -->
+          <path d="M62 126 Q78.5 116 95 126 Q111.5 136 128 126" stroke="var(--accent2)" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M50 126 Q72.5 110 95 126 Q117.5 142 140 126" stroke="var(--accent2)" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="tool-body">
+        <div class="tool-name">Rhythm</div>
+        <p class="tool-desc">Learn strumming patterns, grooves, and rhythmic feels across 9 genres. Visual rhythm grid with play-along and call-and-response modes. 30 patterns from beginner to advanced.</p>
+        <div class="tool-tags">
+          <span class="tool-tag">Strumming</span>
+          <span class="tool-tag">Rhythm</span>
+          <span class="tool-tag">Groove</span>
+          <span class="tool-tag">Patterns</span>
+        </div>
+        <a href="src/rhythm.html" class="tool-launch">Launch Rhythm →</a>
+      </div>
+    </div>
+
   </div><!-- /tools-grid -->
 
   <!-- ── Links / meta ── -->
@@ -373,6 +426,7 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
     <a class="link-pill" href="docs/ear-trainer.md">📖 Ear Trainer Docs</a>
     <a class="link-pill" href="docs/instrument-tuner.md">📖 Tuner Docs</a>
     <a class="link-pill" href="docs/pulse.md">📖 Pulse Docs</a>
+    <a class="link-pill" href="docs/rhythm.md">📖 Rhythm Docs</a>
   </div>
 
 </div><!-- /content -->
