@@ -18,7 +18,6 @@
   --bar-bg:#0a0c0e;--pill-active:#e8b84b;--pill-text:#0d0f12;
   --grad:linear-gradient(90deg,#e8b84b,#4be8b8);
   --overlay-bg:rgba(5,7,10,0.82);--overlay-surface:rgba(22,26,31,0.97);
-  --strobe-a:#e8b84b;--strobe-b:#4be8b8;--strobe-neutral:#3a4050;
   --needle:#e8b84b;--meter-bg:#0a0c0e;--meter-track:#1e2329;
   --note-disp:#e8e4da;--cents-sharp:#e84b4b;--cents-flat:#4b8ae8;--cents-in:#4be8b8;
   --led-on:#4be8b8;--led-off:#1a2a28;
@@ -32,7 +31,6 @@
   --bar-bg:#f0f0ec;--pill-active:#1a1a1a;--pill-text:#fafaf8;
   --grad:linear-gradient(90deg,#1a1a1a,#5a8a6e);
   --overlay-bg:rgba(200,200,195,0.75);--overlay-surface:rgba(255,255,255,0.98);
-  --strobe-a:#1a1a1a;--strobe-b:#5a8a6e;--strobe-neutral:#e0e0d8;
   --needle:#1a1a1a;--meter-bg:#f0f0ec;--meter-track:#e0e0d8;
   --note-disp:#1a1a1a;--cents-sharp:#c0392b;--cents-flat:#2980b9;--cents-in:#5a8a6e;
   --led-on:#5a8a6e;--led-off:#d0d8d0;
@@ -47,7 +45,6 @@
   --bar-bg:#080808;--pill-active:#c678f0;--pill-text:#0e0e0e;
   --grad:linear-gradient(90deg,#c678f0,#78c6f0);
   --overlay-bg:rgba(4,4,8,0.88);--overlay-surface:rgba(18,18,28,0.98);
-  --strobe-a:#c678f0;--strobe-b:#78c6f0;--strobe-neutral:#2a2a3a;
   --needle:#c678f0;--meter-bg:#080808;--meter-track:#1c1c1c;
   --note-disp:#d4d4d4;--cents-sharp:#f07878;--cents-flat:#78c6f0;--cents-in:#c678f0;
   --led-on:#c678f0;--led-off:#2a1a3a;
@@ -62,7 +59,6 @@
   --bar-bg:#120b04;--pill-active:#d4a843;--pill-text:#1c1108;
   --grad:linear-gradient(90deg,#d4a843,#c47840);
   --overlay-bg:rgba(10,6,2,0.85);--overlay-surface:rgba(30,18,6,0.97);
-  --strobe-a:#d4a843;--strobe-b:#c47840;--strobe-neutral:#3a2810;
   --needle:#d4a843;--meter-bg:#120b04;--meter-track:#2e1c08;
   --note-disp:#e8d8b0;--cents-sharp:#c85050;--cents-flat:#5078c8;--cents-in:#78b878;
   --led-on:#d4a843;--led-off:#2a1808;
@@ -77,7 +73,6 @@
   --bar-bg:#f5e8ff;--pill-active:#ff5fa0;--pill-text:#fff;
   --grad:linear-gradient(90deg,#ff5fa0,#5fb8ff);
   --overlay-bg:rgba(255,220,240,0.7);--overlay-surface:rgba(255,255,255,0.98);
-  --strobe-a:#ff5fa0;--strobe-b:#5fb8ff;--strobe-neutral:#f0e0ff;
   --needle:#ff5fa0;--meter-bg:#f5e8ff;--meter-track:#e8d8f8;
   --note-disp:#2a1840;--cents-sharp:#ff5050;--cents-flat:#5fb8ff;--cents-in:#38d88a;
   --led-on:#38d88a;--led-off:#d8f0e8;
@@ -134,9 +129,11 @@ header p{color:var(--muted);font-size:clamp(.6rem,.2rem + 1.5vw,.72rem);letter-s
 [data-theme="retro"] .tuner-display{border:2px solid var(--border);box-shadow:4px 4px 0 rgba(0,0,0,.5);}
 [data-theme="playful"] .tuner-display{border:2px solid var(--border);}
 
-/* ── STROBE DISPLAY ── */
-.strobe-container{position:relative;height:72px;overflow:hidden;background:var(--meter-bg);border-bottom:1px solid var(--border);}
+/* ── PITCH TRACE ── */
+.strobe-container{position:relative;height:72px;overflow:hidden;background:var(--meter-bg);}
 .strobe-canvas{display:block;width:100%;height:100%;}
+.level-bar{height:4px;background:var(--meter-track);border-radius:0;overflow:hidden;border-bottom:1px solid var(--border);}
+.level-fill{height:100%;border-radius:0;transition:width .05s,background .15s;width:0%;}
 
 /* ── NOTE + CENTS READOUT ── */
 .note-readout{display:flex;align-items:center;justify-content:center;gap:0;padding:18px 20px 14px;position:relative;}
@@ -155,7 +152,7 @@ header p{color:var(--muted);font-size:clamp(.6rem,.2rem + 1.5vw,.72rem);letter-s
 .meter-zone-flat{position:absolute;left:0;top:0;width:45%;height:100%;background:linear-gradient(90deg,transparent,rgba(75,138,232,0.18));border-radius:4px 0 0 4px;}
 .meter-zone-sharp{position:absolute;right:0;top:0;width:45%;height:100%;background:linear-gradient(90deg,rgba(232,75,75,0.18),transparent);border-radius:0 4px 4px 0;}
 .meter-zone-center{position:absolute;left:50%;transform:translateX(-50%);top:-2px;height:12px;width:16px;border-radius:2px;background:var(--correct);opacity:.25;}
-.meter-needle{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:var(--needle);transform:translate(-50%,-50%);transition:left .08s cubic-bezier(.25,.46,.45,.94),background .3s;box-shadow:0 0 0 2px var(--meter-bg),0 0 8px var(--needle);}
+.meter-needle{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:var(--needle);transform:translate(-50%,-50%);transition:left .05s cubic-bezier(.25,.46,.45,.94),background .3s;box-shadow:0 0 0 2px var(--meter-bg),0 0 8px var(--needle);}
 .cents-readout{text-align:center;margin-top:10px;font-family:var(--font-b);font-size:.78rem;letter-spacing:.06em;height:18px;transition:color .2s;}
 .cents-readout.in-tune{color:var(--cents-in);}
 .cents-readout.sharp{color:var(--cents-sharp);}
@@ -234,6 +231,12 @@ select:focus{outline:none;border-color:var(--accent);}
 .doc-body ul{margin-left:18px;}
 .doc-body li{margin-bottom:5px;}
 
+.play-ref-btn{font-family:var(--font-b);font-size:.65rem;padding:6px 11px;border-radius:var(--br);border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;margin-left:auto;letter-spacing:.04em;white-space:nowrap;text-transform:none;}
+.play-ref-btn:hover{border-color:var(--accent);color:var(--accent);}
+.play-ref-btn.playing{background:var(--accent);color:var(--pill-text);border-color:var(--accent);}
+.play-ref-btn:disabled{opacity:.45;cursor:not-allowed;}
+[data-theme="retro"] .play-ref-btn,[data-theme="playful"] .play-ref-btn{font-size:.78rem;}
+@media(max-width:600px){.play-ref-btn{min-height:44px;}}
 .app-footer{font-family:var(--font-b);font-size:.62rem;color:var(--muted);letter-spacing:.1em;text-align:center;padding:16px 0 8px;opacity:.55;position:relative;z-index:1;}
 
 button{font-family:var(--font-b);cursor:pointer;}
@@ -269,10 +272,14 @@ button{font-family:var(--font-b);cursor:pointer;}
     <div class="doc-header">📖 How Instrument Tuner Works</div>
     <div class="doc-sub">Features &amp; guide</div>
     <div class="doc-body">
-      <h3>The Strobe Display</h3>
-      <p>The animated strobe bands are inspired by professional Peterson strobe tuners. When your note is <strong>sharp</strong>, the bands scroll right. When <strong>flat</strong>, they scroll left. When <strong>in tune</strong>, the bands appear stationary — the slower the movement, the closer you are.</p>
+      <h3>Pitch History</h3>
+      <p>The scrolling trace shows your pitch deviation over the last ~4 seconds. The centre dashed line is perfect pitch (0 ¢); the faint green band is the ±2 ¢ in-tune zone. The trace is drawn in <span style="color:var(--correct)">green</span> when within ±5 ¢ and <span style="color:var(--accent)">accent colour</span> when further out. The oldest portion fades to transparent on the left for a clean visual trail. Gaps appear when no pitch is detected.</p>
       <h3>Needle Meter</h3>
-      <p>The needle meter shows your tuning offset in cents (100 cents = 1 semitone). The green zone in the centre means you're within ±2 cents — professional tuning accuracy.</p>
+      <p>The needle shows your current tuning offset in cents (100 cents = 1 semitone). The green zone in the centre means you're within ±2 cents — professional tuning accuracy. The needle is smoothed to reduce jitter; the text readout below uses the raw detected value for precision.</p>
+      <h3>Reference Tone</h3>
+      <p>Press <strong>🔊 Play</strong> in the Target box to hear the target note through your speakers. Useful for double-checking pitch by ear without a separate reference instrument. The button glows while the tone plays and is disabled to prevent stacking.</p>
+      <h3>Input Level</h3>
+      <p>The thin bar directly below the pitch trace shows your microphone input volume. <span style="color:var(--muted)">Grey</span> = silent, <span style="color:var(--accent)">accent colour</span> = good level, <span style="color:var(--wrong)">red</span> = too loud and may cause inaccurate pitch readings. Aim to keep it in the accent range.</p>
       <h3>Autodetect Mode</h3>
       <p>When <strong>Autodetect nearest note</strong> is on (default), the tuner automatically identifies the closest note to what it hears and measures your offset from that note — no need to select a string. When off, it measures offset from your manually selected target string/note only.</p>
       <h3>Instrument &amp; Tuning</h3>
@@ -323,10 +330,11 @@ button{font-family:var(--font-b);cursor:pointer;}
   <!-- MAIN TUNER DISPLAY -->
   <div class="tuner-display">
     <div class="in-tune-ring" id="inTuneLed"></div>
-    <!-- Strobe -->
+    <!-- Pitch history trace -->
     <div class="strobe-container">
       <canvas class="strobe-canvas" id="strobeCanvas"></canvas>
     </div>
+    <div class="level-bar"><div class="level-fill" id="levelFill"></div></div>
     <!-- Note readout -->
     <div class="note-readout">
       <div id="noteDisplay" class="note-name">—</div>
@@ -402,6 +410,7 @@ button{font-family:var(--font-b);cursor:pointer;}
         <div class="ref-note-val" id="refNoteVal">—</div>
       </div>
       <div class="ref-freq-val" id="refFreqVal">— Hz</div>
+      <button class="play-ref-btn" id="playRefBtn" onclick="playRefTone()" title="Play reference tone">🔊 Play</button>
     </div>
     <!-- A4 Calibration -->
     <div class="calib-row">
@@ -526,7 +535,10 @@ let a4=440;
 let micActive=false;
 let audioCtx=null,analyser=null,mediaStream=null,rafHandle=null;
 let detectedCents=0,detectedFreq=0,detectedNote='',detectedOct=0;
-let strobeOffset=0,strobeSpeed=0,strobeActive=false;
+let smoothedCents=0;
+const TRACE_SIZE=240;
+let traceBuffer=new Array(TRACE_SIZE).fill(null);
+let traceHead=0;
 
 // ══ A4 CALIBRATION ══
 function adjustA4(d){setA4(a4+d);}
@@ -651,7 +663,7 @@ async function toggleMic(){
     document.getElementById('micStatus').textContent='Microphone active';
     savePref('micPref',true);
     detectLoop();
-    startStrobeLoop();
+    startTraceLoop();
   } catch(e){
     document.getElementById('micStatus').textContent='Mic permission denied';
     document.getElementById('micBtnLabel').textContent='TAP TO LISTEN';
@@ -667,7 +679,8 @@ function stopMic(){
   document.getElementById('micBtnLabel').textContent='TAP TO LISTEN';
   document.getElementById('micStatus').textContent='';
   resetDisplay();
-  strobeActive=false;strobeSpeed=0;
+  traceBuffer.fill(null);traceHead=0;smoothedCents=0;
+  const lf=document.getElementById('levelFill');if(lf)lf.style.width='0%';
   savePref('micPref',false);
 }
 function resetDisplay(){
@@ -681,6 +694,18 @@ function detectLoop(){
   if(!micActive){return;}
   const buf=new Float32Array(analyser.fftSize);
   analyser.getFloatTimeDomainData(buf);
+  // Level meter RMS (use a simple loop for performance on typed arrays)
+  let sumSquares=0;
+  for(let i=0;i<buf.length;i++){
+    const sample=buf[i];
+    sumSquares+=sample*sample;
+  }
+  const rms=Math.sqrt(sumSquares/buf.length);
+  const lf=document.getElementById('levelFill');
+  if(lf){
+    lf.style.width=Math.min(100,Math.round(rms/0.3*100))+'%';
+    lf.style.background=rms<0.01?'var(--muted)':rms<0.15?'var(--accent)':'var(--wrong)';
+  }
   const freq=autoCorrelate(buf,audioCtx.sampleRate);
   const autodetect=document.getElementById('autodetectToggle').checked;
   if(freq>30&&freq<5000){
@@ -691,29 +716,32 @@ function detectLoop(){
     detectedOct=noteOctave(nearestMidi);
     let displayCents;
     if(autodetect){
-      // Measure offset from nearest chromatic note
       displayCents=Math.round((midi-nearestMidi)*100);
       document.getElementById('autodetectNote').textContent='';
     } else {
-      // Measure offset from selected target
       if(targetFreq){
         displayCents=Math.round(Math.log2(freq/targetFreq)*1200);
-        // Clamp to ±50 for display; if way off, still show direction
         displayCents=Math.max(-50,Math.min(50,displayCents));
       } else {
         displayCents=Math.round((midi-nearestMidi)*100);
       }
     }
     detectedCents=Math.max(-50,Math.min(50,displayCents));
-    updateTunerDisplay(detectedNote,detectedOct,freq,detectedCents,autodetect);
-    strobeSpeed=detectedCents*0.6;strobeActive=true;
+    smoothedCents+=(detectedCents-smoothedCents)*0.15;
+    traceBuffer[traceHead]=smoothedCents;
+    traceHead=(traceHead+1)%TRACE_SIZE;
+    updateTunerDisplay(detectedNote,detectedOct,freq,detectedCents,autodetect,smoothedCents);
   } else {
-    strobeSpeed*=0.92;if(Math.abs(strobeSpeed)<0.1){strobeActive=false;strobeSpeed=0;}
+    smoothedCents+=(0-smoothedCents)*0.15;
+    traceBuffer[traceHead]=null;
+    traceHead=(traceHead+1)%TRACE_SIZE;
+    // Drift needle back to centre
+    document.getElementById('meterNeedle').style.left=(50+smoothedCents)+'%';
   }
   rafHandle=requestAnimationFrame(detectLoop);
 }
-function updateTunerDisplay(note,oct,freq,cents,autodetect){
-  const raw=note;const parts=raw.split('#');
+function updateTunerDisplay(note,oct,freq,cents,autodetect,smoothed){
+  const parts=note.split('#');
   if(parts.length>1){
     document.getElementById('noteDisplay').innerHTML=parts[0]+'<span class="note-sharp">♯</span>';
   } else {
@@ -724,54 +752,25 @@ function updateTunerDisplay(note,oct,freq,cents,autodetect){
   if(autodetect){
     document.getElementById('autodetectNote').textContent='Nearest: '+displayNote(note)+oct;
   }
-  // Needle
-  const pct=50+cents;
-  document.getElementById('meterNeedle').style.left=pct+'%';
+  // Needle position uses smoothed value; colour and LED use raw cents
+  document.getElementById('meterNeedle').style.left=(50+(smoothed ?? cents))+'%';
   const needle=document.getElementById('meterNeedle');
   const inTune=Math.abs(cents)<=2;
   if(inTune){needle.style.background='var(--cents-in)';needle.style.boxShadow='0 0 0 2px var(--meter-bg),0 0 12px var(--cents-in)';}
   else if(cents>0){needle.style.background='var(--cents-sharp)';needle.style.boxShadow='0 0 0 2px var(--meter-bg),0 0 8px var(--cents-sharp)';}
   else{needle.style.background='var(--cents-flat)';needle.style.boxShadow='0 0 0 2px var(--meter-bg),0 0 8px var(--cents-flat)';}
-  // Cents text
+  // Cents text uses raw rounded integer
   const cd=document.getElementById('centsDisplay');
   if(inTune){cd.textContent='✓ IN TUNE';cd.className='cents-readout in-tune';}
   else if(cents>0){cd.textContent='+'+cents+'¢ sharp';cd.className='cents-readout sharp';}
   else{cd.textContent=cents+'¢ flat';cd.className='cents-readout flat';}
-  // LED
   document.getElementById('inTuneLed').classList.toggle('lit',inTune);
-  // Auto-advance string
-  if(inTune&&currentInstrument!=='Manual'){
-    // Optional: could auto-advance here
-  }
 }
 
-// ══ STROBE CANVAS ══
+// ══ PITCH TRACE CANVAS ══
 const canvas=document.getElementById('strobeCanvas');
-let strobeAnimFrame=null;
-let bandCount=14,bandPhase=0;
-// Smoothly interpolated alpha so the strobe fades in/out gently
-let strobeAlpha=0;
+let traceAnimFrame=null;
 
-// Parse a CSS hex colour and return {r,g,b}
-function hexToRgb(h){
-  h=h.trim().replace('#','');
-  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
-  const n=parseInt(h,16);
-  return{r:(n>>16)&255,g:(n>>8)&255,b:n&255};
-}
-// Blend colour toward white (t=1) or black (t=-1)
-function tintHex(h,t){
-  const {r,g,b}=hexToRgb(h);
-  const blend=(c,target)=>Math.round(c+(target-c)*Math.abs(t));
-  const target=t>0?255:0;
-  const nr=blend(r,target),ng=blend(g,target),nb=blend(b,target);
-  return`rgb(${nr},${ng},${nb})`;
-}
-function getStrobeColor(){
-  const cs=getComputedStyle(document.body);
-  // Use --strobe-a as the single source colour
-  return cs.getPropertyValue('--strobe-a').trim();
-}
 function resizeCanvas(){
   const dpr=window.devicePixelRatio||1;
   const W=canvas.offsetWidth,H=canvas.offsetHeight;
@@ -781,78 +780,128 @@ function resizeCanvas(){
     canvas.height=Math.round(H*dpr);
   }
 }
-function drawStrobe(){
+
+let cachedClrAccent;
+let cachedClrCorrect;
+let cachedClrBorder;
+
+function updateTraceThemeColors(){
+  const cs = getComputedStyle(document.body);
+  cachedClrAccent = cs.getPropertyValue('--accent').trim();
+  cachedClrCorrect = cs.getPropertyValue('--correct').trim();
+  cachedClrBorder = cs.getPropertyValue('--border').trim();
+}
+
+const traceThemeObserver = new MutationObserver((mutationsList) => {
+  for (const mutation of mutationsList) {
+    if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+      updateTraceThemeColors();
+      break;
+    }
+  }
+});
+
+traceThemeObserver.observe(document.documentElement || document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});
+
+// Initialize cached colors based on the current theme
+updateTraceThemeColors();
+
+function drawPitchTrace(){
   resizeCanvas();
   const dpr=window.devicePixelRatio||1;
   const W=canvas.offsetWidth,H=canvas.offsetHeight;
   if(!W||!H){
-    if(micActive||strobeAlpha>0.005){strobeAnimFrame=requestAnimationFrame(drawStrobe);}
-    else{strobeAnimFrame=null;}
+    if(micActive){traceAnimFrame=requestAnimationFrame(drawPitchTrace);}
+    else{traceAnimFrame=null;}
     return;
   }
   const ctx=canvas.getContext('2d');
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,W,H);
 
-  const active=strobeActive&&micActive;
-  // Ease strobeAlpha toward target — slow ease for gentle fade
-  const targetAlpha=active?1:0;
-  strobeAlpha+=(targetAlpha-strobeAlpha)*0.04;
+  const clrAccent=cachedClrAccent;
+  const clrCorrect=cachedClrCorrect;
+  const clrBorder=cachedClrBorder;
 
-  const baseCol=getStrobeColor();
-  // Light band: tint toward white; dark band: tint toward black
-  const lightBand=tintHex(baseCol, 0.35);
-  const darkBand =tintHex(baseCol,-0.45);
+  const yMid=H/2,pxPerCent=H/100;
 
-  const bw=W/bandCount;
-  // Larger travel: multiplier increased from 0.035 → 0.08
-  bandPhase+=strobeSpeed*0.08;
-  const offset=((bandPhase%bw)+bw)%bw;
+  // In-tune band: ±2 cents
+  ctx.fillStyle=clrCorrect;ctx.globalAlpha=0.15;
+  ctx.fillRect(0,yMid-2*pxPerCent,W,4*pxPerCent);
+  ctx.globalAlpha=1;
 
-  for(let i=-1;i<bandCount+2;i++){
-    const x=i*bw+offset;
-    const idx=((i+Math.floor(bandPhase/bw))%2+4)%2;
-    ctx.globalAlpha=strobeAlpha*0.9;
-    ctx.fillStyle=idx===0?lightBand:darkBand;
-    ctx.fillRect(x,0,bw-1,H);
+  // Centre reference line (dashed)
+  ctx.strokeStyle=clrBorder;ctx.lineWidth=0.5;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(0,yMid);ctx.lineTo(W,yMid);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Pitch trace — draw each segment with fade and colour by pitch accuracy
+  const bw=W/TRACE_SIZE;
+  const FADE=Math.floor(TRACE_SIZE*0.2);
+  ctx.lineWidth=1.5;ctx.lineCap='round';
+  for(let i=0;i<TRACE_SIZE-1;i++){
+    const v0=traceBuffer[(traceHead+i)%TRACE_SIZE];
+    const v1=traceBuffer[(traceHead+i+1)%TRACE_SIZE];
+    if(v0===null||v1===null)continue;
+    const x0=(i+0.5)*bw,x1=(i+1.5)*bw;
+    const y0=yMid-(v0/50)*(H/2),y1=yMid-(v1/50)*(H/2);
+    const a=i<FADE?(i/FADE):1;
+    ctx.globalAlpha=a*0.88;
+    ctx.strokeStyle=Math.abs((v0+v1)/2)<=5?clrCorrect:clrAccent;
+    ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();
   }
   ctx.globalAlpha=1;
 
-  // In-tune glow — fades in as strobe stills, fades out with strobeAlpha
-  if(strobeAlpha>0.05&&Math.abs(strobeSpeed)<3){
-    const glowStrength=Math.max(0,(3-Math.abs(strobeSpeed))/3)*strobeAlpha*0.45;
-    const g=ctx.createLinearGradient(0,0,W,0);
-    g.addColorStop(0,'transparent');
-    g.addColorStop(0.5,baseCol);
-    g.addColorStop(1,'transparent');
-    ctx.globalAlpha=glowStrength;
-    ctx.fillStyle=g;
-    ctx.fillRect(0,0,W,H);
-    ctx.globalAlpha=1;
-  }
+  if(micActive){traceAnimFrame=requestAnimationFrame(drawPitchTrace);}
+  else{traceAnimFrame=null;}
+}
 
-  // Keep looping while mic is active or the fade-out animation is still visible;
-  // otherwise let the loop end to avoid unnecessary CPU/battery usage.
-  if(micActive||strobeAlpha>0.005){
-    strobeAnimFrame=requestAnimationFrame(drawStrobe);
-  } else {
-    strobeAlpha=0;
-    ctx.clearRect(0,0,W,H);
-    strobeAnimFrame=null;
-  }
+function startTraceLoop(){
+  if(!traceAnimFrame){traceAnimFrame=requestAnimationFrame(drawPitchTrace);}
 }
-// Helper: start the strobe loop only when it is not already running.
-function startStrobeLoop(){
-  if(!strobeAnimFrame){strobeAnimFrame=requestAnimationFrame(drawStrobe);}
-}
-// Pause the loop when the tab is hidden; resume when it becomes visible again.
+
+// Pause when tab hidden; resume when visible
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){
-    if(strobeAnimFrame){cancelAnimationFrame(strobeAnimFrame);strobeAnimFrame=null;}
-  } else if(micActive||strobeAlpha>0.005){
-    startStrobeLoop();
+    if(traceAnimFrame){cancelAnimationFrame(traceAnimFrame);traceAnimFrame=null;}
+  } else if(micActive){
+    startTraceLoop();
   }
 });
+
+// ══ REFERENCE TONE ══
+function playRefTone(){
+  if(!targetFreq)return;
+  const btn=document.getElementById('playRefBtn');
+  btn.disabled=true;btn.classList.add('playing');
+  let refCtx=null;
+  try{
+    refCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const osc=refCtx.createOscillator(),g=refCtx.createGain();
+    osc.type='sine';osc.frequency.value=targetFreq;
+    const t=refCtx.currentTime;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(0.3,t+0.02);
+    g.gain.setValueAtTime(0.3,t+1.8);
+    g.gain.linearRampToValueAtTime(0,t+2.0);
+    osc.connect(g);g.connect(refCtx.destination);
+    osc.start(t);osc.stop(t+2.05);
+    osc.onended=()=>{refCtx.close();btn.disabled=false;btn.classList.remove('playing');};
+  }catch(e){
+    if(refCtx){
+      try{refCtx.close();}catch(_){}
+    }
+    btn.disabled=false;
+    btn.classList.remove('playing');
+    if(window&&window.console&&console.error){
+      console.error('Failed to play reference tone:',e);
+    }
+  }
+}
 
 // ══ INIT SELECTS ══
 function buildAll(){

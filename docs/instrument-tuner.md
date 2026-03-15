@@ -1,17 +1,17 @@
 # 🎸 Instrument Tuner
 
-A free, open-source browser-based chromatic strobe tuner for guitar, bass, ukulele, and any other instrument. No account, no installation, no server — just a single HTML file that runs entirely in your browser.
+A free, open-source browser-based chromatic tuner for guitar, bass, ukulele, and any other instrument. No account, no installation, no server — just a single HTML file that runs entirely in your browser.
 
 Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API and the microphone input from your device.
-
-![Instrument Tuner screenshot placeholder](https://via.placeholder.com/860x480/0d0f12/e8b84b?text=Instrument+Tuner)
 
 ---
 
 ## ✨ Features
 
-- **Chromatic strobe display** — animated strobe bands inspired by professional Peterson strobe tuners; bands move right when sharp, left when flat, and appear stationary when in tune
-- **Needle cent meter** — shows your tuning offset in cents (100 cents = 1 semitone); the green zone indicates you're within ±2 cents (professional accuracy)
+- **Pitch history trace** — scrolling graph of pitch deviation over the last ~4 seconds; the in-tune zone is highlighted and the trace colour shifts green when you're within ±5 ¢
+- **Needle cent meter** — shows your tuning offset in cents (100 cents = 1 semitone); the green zone indicates you're within ±2 cents (professional accuracy). The needle is EMA-smoothed to eliminate jitter; the text readout uses the raw detected value.
+- **Input level bar** — thin bar below the trace shows microphone input volume (grey → amber → red); keep it in the amber range for accurate readings
+- **Reference tone** — press 🔊 Play in the Target box to hear the target note through your speakers
 - **In-tune indicator** — glowing dot in the top-left of the display lights up when you're within ±2 cents of your target note
 - **Autodetect nearest note** — automatically identifies the closest note to the incoming pitch and measures offset from it; can be disabled to lock onto a specific target
 - **3 instruments** — Guitar, Bass, Ukulele, plus a free-form Manual mode
@@ -81,13 +81,17 @@ No build step. No `npm install`. No server required.
 3. Select a **tuning preset** if applicable.
 4. Play a note on your instrument and watch the display:
    - The large **note name** shows the closest detected pitch.
-   - The **strobe bands** show the direction and amount of detuning — stationary means in tune.
+   - The **pitch history trace** scrolls left, showing your deviation over time — aim to keep the line in the green band.
    - The **cent meter needle** points left for flat, right for sharp, and centres when in tune.
-5. Tune your string until the strobe bands stop moving and the glowing dot lights up (±2 cents).
+5. Tune your string until the trace sits in the green band and the glowing dot lights up (±2 cents).
 
 ### Locking onto a specific string
 
 Click a **string button** (e.g. `E`, `A`, `D`) to lock the target to that string's pitch. The target note and frequency are shown in the reference box. The autodetect label below the string buttons confirms what the tuner is measuring.
+
+### Hearing the target note
+
+Press **🔊 Play** in the Target box to hear the target pitch through your speakers. Useful for double-checking by ear.
 
 ### Autodetect mode
 
@@ -99,15 +103,18 @@ Select **Manual** from the instrument dropdown to enter free-form mode. Use the 
 
 ---
 
-## 🔬 How the Strobe Works
+## 🔬 How the Pitch Trace Works
 
-The animated strobe bands are inspired by professional Peterson strobe tuners, which are the gold standard for intonation work. The principle:
+The scrolling pitch history graph shows your deviation from the target (or nearest chromatic note) over the last ~4 seconds:
 
-- When your note is **sharp**, the bands scroll **right**
-- When your note is **flat**, the bands scroll **left**
-- When your note is **in tune**, the bands appear **stationary**
+- **Y axis** — −50 to +50 cents (flat at bottom, sharp at top)
+- **Centre dashed line** — perfect pitch (0 ¢)
+- **Faint green band** — ±2 ¢ in-tune zone
+- **Trace colour** — green when within ±5 ¢, accent colour when further out
+- **Fade** — the oldest 20 % of the trace fades to transparent for a clean visual trail
+- **Gaps** — appear when no pitch is detected (silence or noise below threshold)
 
-The slower the movement, the closer you are to pitch. Once the bands appear motionless, you're within the tolerance shown by the cent meter. The ±2 cent green zone is the standard used by professional instrument technicians.
+The needle uses an exponential moving average (α = 0.15) to smooth out jitter. The text readout (+3¢ sharp) uses the raw detected value for precision.
 
 ---
 
@@ -150,8 +157,8 @@ Settings are stored under the key `musicTool_StrobeTuner_v1` in `localStorage`.
 ### Starting a new session
 
 ```
-I'm continuing development on my Instrument Tuner web app — a single-file HTML/CSS/JS 
-tool using the Web Audio API and getUserMedia for microphone input. I'm attaching the 
+I'm continuing development on my Instrument Tuner web app — a single-file HTML/CSS/JS
+tool using the Web Audio API and getUserMedia for microphone input. I'm attaching the
 current file.
 
 Key facts:
@@ -161,11 +168,13 @@ Key facts:
 - Modal overlay system: openModal(id) / closeModal(id)
 - Settings key: `musicTool_StrobeTuner_v1`
 - Pitch detection via autocorrelation (autoCorrelate function)
-- Strobe animation via requestAnimationFrame (drawStrobe function)
+- Pitch history trace via requestAnimationFrame (drawPitchTrace function)
+- Ring buffer: traceBuffer[TRACE_SIZE=240], traceHead index
+- Needle smoothing: smoothedCents EMA (α=0.15)
 
 What I want to add next: [describe the feature]
 
-Please [rewrite the full file / make surgical edits / explain the approach 
+Please [rewrite the full file / make surgical edits / explain the approach
 before coding].
 ```
 
@@ -177,9 +186,9 @@ The Web Audio API requires a user gesture before creating or resuming an `AudioC
 2. `getUserMedia` is called only after the context is created
 3. The pitch detection loop (`detectLoop`) is started after mic stream is connected
 
-### Strobe performance
+### Pitch trace performance
 
-The strobe uses `requestAnimationFrame` and self-terminates when `micActive` is false and `strobeAlpha` fades to near zero. When making changes to `drawStrobe`, preserve this self-terminating loop pattern to avoid background CPU usage when the mic is off.
+The trace uses `requestAnimationFrame` and self-terminates when `micActive` is false. When making changes to `drawPitchTrace`, preserve this self-terminating loop pattern to avoid background CPU usage when the mic is off. The ring buffer holds 240 samples; each frame draws up to 239 line segments with per-segment globalAlpha.
 
 ---
 
