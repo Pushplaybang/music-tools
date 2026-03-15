@@ -52,12 +52,13 @@ jobs:
         id: notes
         run: |
           TAG="${{ steps.latest_tag.outputs.tag }}"
+          DELIMITER="NOTES_$(openssl rand -hex 8)"
 
           {
-            echo "notes<<EOF"
+            echo "notes<<${DELIMITER}"
             git log "${TAG}..HEAD" --pretty=format:"- %s" 2>/dev/null || git log --max-count=50 --pretty=format:"- %s"
             echo ""
-            echo "EOF"
+            echo "${DELIMITER}"
           } >> $GITHUB_OUTPUT
 
       - name: Create release

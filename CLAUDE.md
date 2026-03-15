@@ -88,6 +88,33 @@ const noteToMidi = (note, oct) => (oct + 1) * 12 + NOTES.indexOf(note);
 - Theme pills collapse to mobile flyout at 640px
 - Horizontal scroll OK for piano and fretboards
 
+## Git & commit conventions — ALWAYS follow these
+
+All commits **must** use [Conventional Commits](https://www.conventionalcommits.org/) format:
+
+```
+type(scope): short description
+```
+
+**Valid types** (CI enforced): `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+
+**Valid scopes** (optional): `ear-trainer`, `tuner`, `pulse`, `chord-ref`, `rhythm`, `progressions`, `practice-timer`, `drone`, `practice-guide`, `songbook`, `server`, `ci`
+
+**Examples:**
+- `feat(ear-trainer): add melodic interval drill mode`
+- `fix(tuner): correct A4 reference frequency default`
+- `docs: update architecture overview`
+- `chore: bump dev server port`
+
+**Breaking changes** — append `!` before the colon:
+- `feat(pulse)!: remove legacy BPM tap API`
+
+**Why this matters:**
+- `commit-lint.yml` validates every commit in every PR — non-conventional messages will fail CI and block merge.
+- `release.yml` uses commit types to determine the semver bump (`feat` → minor, `feat!`/`fix!` → major, everything else → patch) and generates release notes from commit subjects on every merge to `main`.
+
+Non-conventional commits that somehow reach `main` will not break the release workflow — they are treated as patch-level changes and appear verbatim in the release notes. The CI gate on PRs is the primary enforcement mechanism.
+
 ## Testing checklist (verify before completing ANY task)
 1. All 5 themes render correctly (especially retro italic+stripe, studio uppercase)
 2. Mobile layout at 375px width — no horizontal overflow, no tiny touch targets
