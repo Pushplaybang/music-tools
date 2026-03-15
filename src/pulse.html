@@ -920,6 +920,10 @@ function scheduleNote(beat,sub,time){
         // Reset mute bar state at end of count-in
         muteBarPhase='play'; muteBarCounter=0;
         document.getElementById('beatGrid').classList.remove('muted');
+        // Restart speed-trainer timing so duration excludes count-in
+        if(typeof stRunning!=='undefined'&&stRunning&&typeof stStartTime!=='undefined'){
+          stStartTime=getCtx().currentTime;
+        }
       }
     }
     return;
@@ -937,8 +941,8 @@ function scheduleNote(beat,sub,time){
 function advance(){
   const rate=getRate(), swing=getSwing();
 
-  // Speed trainer: interpolate BPM on each beat
-  if(stRunning) updateSpeedTrainer();
+  // Speed trainer: interpolate BPM on each beat, but only after count-in
+  if(stRunning&&countInRemaining<=0) updateSpeedTrainer();
 
   const spb=(60/bpm)/rate;          // seconds per beat (click-rate adjusted)
   const sps=spb/subdivision;        // seconds per subdivision slot
