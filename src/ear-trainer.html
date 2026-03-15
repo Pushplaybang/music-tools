@@ -101,7 +101,7 @@ body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);pointer
 .theme-flyout.open{opacity:1;pointer-events:all;transform:translateY(0);}
 .theme-flyout .theme-pill{border-radius:6px;text-align:left;font-size:.72rem;padding:8px 14px;}
 @media(max-width:640px){.theme-pills-desktop{display:none;}.theme-mobile{display:block;}}
-.content{position:relative;z-index:1;width:100%;max-width:860px;padding:28px 16px 0;display:flex;flex-direction:column;align-items:center;}
+.content{position:relative;z-index:1;width:100%;max-width:860px;padding:28px 16px 0;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
 header{text-align:center;margin-bottom:28px;}
 header h1{font-family:var(--font-h);font-size:var(--h1);color:var(--accent);line-height:1.1;transition:color .35s,font-size .35s;}
 [data-theme="current"] header h1{text-shadow:0 0 40px rgba(232,184,75,.3);}
@@ -253,6 +253,18 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
 .step-num{background:var(--accent);color:var(--pill-text);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-top:2px;}
 .step-text{font-size:.82rem;line-height:1.6;color:var(--text);}
 .app-footer{font-family:var(--font-b);font-size:.62rem;color:var(--muted);letter-spacing:.1em;text-align:center;padding:16px 0 8px;opacity:.55;}
+@media(max-width:600px){
+  .bar-icon-btn{width:44px;height:44px;}
+  .vis-tab{min-height:44px;}
+  .quiz-mode-btn{min-height:44px;}
+  .theme-flyout .theme-pill{min-height:44px;}
+  .quiz-opt{min-height:44px;}
+}
+@media(max-width:480px){
+  .white-key{min-width:36px;}
+  .modal-card{padding:20px 16px;}
+  .doc-body{overflow-y:auto;max-height:60vh;}
+}
 </style>
 </head>
 <body data-theme="current">

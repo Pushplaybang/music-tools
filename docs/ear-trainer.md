@@ -11,7 +11,7 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 ## ✨ Features
 
 - **15 scales & modes** — Major, Natural/Harmonic/Melodic Minor, all 7 diatonic modes, Pentatonic Major/Minor, Blues, Whole Tone, Diminished, and Chromatic
-- **5 visualisers** — Piano keyboard, Treble staff with key signatures, Guitar fretboard, Bass fretboard, Ukulele fretboard
+- **4 visualisers** — Piano keyboard, Guitar fretboard (8 tunings), Bass fretboard (4 tunings including 5-string), Ukulele fretboard (5 tunings)
 - **Alternative tunings** — 8 guitar tunings (Standard, Drop D, Open G/D/E/A, DADGAD, Eb), 4 bass tunings (Standard EADG, Drop D, Half Step Down, 5-String BEADG), and 5 ukulele tunings (Soprano re-entrant GCEA, Low G, Baritone, D Tuning, Open C)
 - **3 ear training quiz modes**:
   - **Note Names** — hear a single note and identify it from the scale

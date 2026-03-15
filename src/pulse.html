@@ -108,7 +108,7 @@ body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);pointer
 .theme-flyout .theme-pill{border-radius:6px;text-align:left;font-size:.72rem;padding:8px 14px;}
 @media(max-width:640px){.theme-pills-desktop{display:none;}.theme-mobile{display:block;}}
 
-.content{position:relative;z-index:1;width:100%;max-width:900px;padding:28px 16px 0;display:flex;flex-direction:column;align-items:center;}
+.content{position:relative;z-index:1;width:100%;max-width:900px;padding:28px 16px 0;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
 header{text-align:center;margin-bottom:28px;}
 header h1{font-family:var(--font-h);font-size:var(--h1);color:var(--accent);line-height:1.1;transition:color .35s,font-size .35s;}
 header p{color:var(--muted);font-size:clamp(.6rem,.2rem + 1.5vw,.72rem);letter-spacing:.1em;text-transform:uppercase;margin-top:6px;font-family:var(--font-b);}
@@ -257,9 +257,17 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
 .beat-flash.flash{opacity:1;transition:opacity 0s;}
 
 @media(max-width:500px){
-  .beat-dot{width:42px;height:42px;}
-  .beat-dot.sub{width:26px;height:26px;}
+  .beat-dot{width:44px;height:44px;}
+  .beat-dot.sub{width:36px;height:36px;}
   .bpm-number{font-size:clamp(2.5rem,15vw,4rem);}
+}
+@media(max-width:600px){
+  .bar-icon-btn{width:44px;height:44px;}
+  .sub-btn{min-height:44px;min-width:44px;}
+}
+@media(max-width:480px){
+  .modal-card{padding:20px 16px;}
+  .doc-body{overflow-y:auto;max-height:60vh;}
 }
 </style>
 </head>
