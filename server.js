@@ -51,19 +51,22 @@ try {
 
 // --- Resolve URL path to filesystem path ---
 function resolvePath(reqPath) {
+  let resolvedPath = null;
   if (reqPath === '/') {
-    return path.join(ROOT, 'index.html');
+    resolvedPath = path.join(ROOT, 'index.html');
+  } else if (reqPath.startsWith('/src/')) {
+    resolvedPath = path.join(ROOT, reqPath);
+  } else if (reqPath.startsWith('/docs/')) {
+    resolvedPath = path.join(ROOT, reqPath);
+  } else if (reqPath === '/music-tools-boilerplate.html') {
+    resolvedPath = path.join(ROOT, 'music-tools-boilerplate.html');
   }
-  if (reqPath.startsWith('/src/')) {
-    return path.join(ROOT, reqPath);
-  }
-  if (reqPath.startsWith('/docs/')) {
-    return path.join(ROOT, reqPath);
-  }
-  if (reqPath === '/music-tools-boilerplate.html') {
-    return path.join(ROOT, 'music-tools-boilerplate.html');
-  }
-  return null;
+
+  if (!resolvedPath) return null;
+
+  const absolutePath = path.resolve(resolvedPath);
+  const rootPrefix = path.resolve(ROOT) + path.sep;
+  return absolutePath.startsWith(rootPrefix) ? absolutePath : null;
 }
 
 // --- HTTP server ---
