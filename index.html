@@ -361,6 +361,50 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
       </div>
     </div>
 
+    <!-- ── Practice Timer ── -->
+    <div class="tool-card card">
+      <div class="tool-illo" aria-hidden="true">
+        <svg viewBox="0 0 190 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Stopwatch body -->
+          <circle cx="95" cy="82" r="52" fill="var(--surface2)" stroke="var(--border)" stroke-width="2.5"/>
+          <!-- Inner ring -->
+          <circle cx="95" cy="82" r="44" fill="none" stroke="var(--border)" stroke-width="1.5" opacity="0.5"/>
+          <!-- Crown/button top -->
+          <rect x="89" y="24" width="12" height="10" rx="3" fill="var(--border)" stroke="var(--muted)" stroke-width="1.5"/>
+          <!-- Crown stem -->
+          <line x1="95" y1="30" x2="95" y2="24" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/>
+          <!-- Hour markers -->
+          <line x1="95" y1="40" x2="95" y2="46" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="95" y1="118" x2="95" y2="124" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="49" y1="82" x2="55" y2="82" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="135" y1="82" x2="141" y2="82" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/>
+          <!-- Minute hand -->
+          <line x1="95" y1="82" x2="95" y2="50" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Second hand -->
+          <line x1="95" y1="82" x2="118" y2="65" stroke="var(--accent2)" stroke-width="1.5" stroke-linecap="round"/>
+          <!-- Centre dot -->
+          <circle cx="95" cy="82" r="3.5" fill="var(--accent)"/>
+          <!-- Time display -->
+          <text x="95" y="105" text-anchor="middle" font-size="13" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent)">25:00</text>
+          <!-- Coloured session blocks below -->
+          <rect x="30" y="140" width="32" height="6" rx="2" fill="var(--accent)" opacity="0.85"/>
+          <rect x="66" y="140" width="50" height="6" rx="2" fill="var(--accent2)" opacity="0.85"/>
+          <rect x="120" y="140" width="40" height="6" rx="2" fill="var(--muted)" opacity="0.6"/>
+        </svg>
+      </div>
+      <div class="tool-body">
+        <div class="tool-name">Practice Timer</div>
+        <p class="tool-desc">A structured practice session planner and countdown timer. Build sessions from timed blocks, use template presets, track your practice history with streak tracking and a 14-day chart.</p>
+        <div class="tool-tags">
+          <span class="tool-tag">Timer</span>
+          <span class="tool-tag">Practice</span>
+          <span class="tool-tag">Sessions</span>
+          <span class="tool-tag">Tracking</span>
+        </div>
+        <a href="src/practice-timer.html" class="tool-launch">Launch Practice Timer →</a>
+      </div>
+    </div>
+
   </div><!-- /tools-grid -->
 
   <!-- ── Links / meta ── -->
@@ -373,6 +417,7 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
     <a class="link-pill" href="docs/ear-trainer.md">📖 Ear Trainer Docs</a>
     <a class="link-pill" href="docs/instrument-tuner.md">📖 Tuner Docs</a>
     <a class="link-pill" href="docs/pulse.md">📖 Pulse Docs</a>
+    <a class="link-pill" href="docs/practice-timer.md">📖 Practice Timer Docs</a>
   </div>
 
 </div><!-- /content -->
