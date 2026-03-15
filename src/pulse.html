@@ -256,6 +256,25 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
 .beat-flash{position:fixed;inset:0;pointer-events:none;z-index:999;opacity:0;transition:opacity .08s;background:radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.07),transparent 70%);}
 .beat-flash.flash{opacity:1;transition:opacity 0s;}
 
+/* Mute-bar dimming */
+.beat-grid.muted{opacity:.6;transition:opacity .25s;}
+
+/* Speed Trainer card */
+.st-card-body{overflow:hidden;max-height:0;opacity:0;transition:max-height .35s ease,opacity .25s ease;padding:0;}
+.st-card-body.open{max-height:600px;opacity:1;padding-top:14px;}
+.st-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.st-row label{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:var(--font-b);white-space:nowrap;}
+.st-num{width:72px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--br);color:var(--text);font-family:var(--font-b);font-size:.82rem;padding:7px 10px;text-align:center;transition:border-color .2s,background .35s;}
+.st-num:focus{outline:none;border-color:var(--accent);}
+.st-progress{width:100%;height:5px;background:var(--surface2);border-radius:4px;overflow:hidden;margin-top:6px;}
+.st-progress-fill{height:100%;background:var(--grad);border-radius:4px;width:0%;transition:width .3s linear;}
+
+/* Number stepper for mute bars */
+.num-stepper{display:flex;align-items:center;gap:0;background:var(--surface2);border:1px solid var(--border);border-radius:50px;overflow:hidden;}
+.num-stepper-btn{width:28px;height:28px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-family:var(--font-b);font-size:.8rem;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0;}
+.num-stepper-btn:hover{color:var(--accent);}
+.num-stepper-val{font-family:var(--font-b);font-size:.62rem;color:var(--text);min-width:20px;text-align:center;letter-spacing:.04em;}
+
 @media(max-width:500px){
   .beat-dot{width:44px;height:44px;}
   .beat-dot.sub{width:36px;height:36px;}
@@ -292,6 +311,12 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
       <p>Choose a preset or configure manually. The <strong>½× / 1× / 2×</strong> chip in the main panel halves or doubles the effective click speed without changing the BPM readout. <strong>Swing</strong> delays every even subdivision for a shuffle or jazz feel.</p>
       <h3>Sound Shaping</h3>
       <p><strong>Brightness</strong>: from a muted woody thud to a crisp sharp click. <strong>Envelope</strong>: short = punchy &amp; percussive, long = fuller &amp; rounder. <strong>Accent Boost</strong>: how much louder accented beats hit.</p>
+      <h3>Speed Trainer</h3>
+      <p>Enable the <strong>Speed Trainer</strong> card to practice gradual tempo increases. Set a start and end BPM, choose <strong>Bars</strong> or <strong>Minutes</strong> mode, and press <strong>▶ Start</strong>. The metronome ramps linearly from start to end BPM. A progress bar shows how far through the ramp you are. When complete, the metronome stays at the end BPM.</p>
+      <h3>Count-In</h3>
+      <p>Toggle <strong>Count-in</strong> to get one bar of clicks before normal operation begins. During the count-in bar the beat grid stays still so you can prepare, and <em>Count-in…</em> appears in the tempo display.</p>
+      <h3>Mute-Bar Training</h3>
+      <p>Toggle <strong>Mute bars</strong> to alternate between audible and silent bars. Use the stepper to set how many bars play before the same number are muted. During silent bars the beat dots still animate so you can check your internal timing — the grid dims slightly as a visual cue.</p>
       <div class="tip">💡 Keyboard: Space = play/stop · Arrow keys = ±1/5 BPM · T = tap tempo</div>
     </div>
   </div>
@@ -360,11 +385,24 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
       <button class="bpm-tap" id="tapBtn" onclick="tapTempo()">Tap</button>
     </div>
 
-    <!-- Panel controls: arm toggle + click rate -->
+    <!-- Panel controls: arm toggle, count-in, mute bars, click rate -->
     <div class="panel-controls">
       <div class="panel-chip" id="armChip" onclick="toggleArm()" title="Show/hide pendulum arm">
         <span class="chip-dot"></span>
         <span class="chip-label">Arm</span>
+      </div>
+      <div class="panel-chip" id="countInChip" onclick="toggleCountIn()" title="Play a count-in bar before starting">
+        <span class="chip-dot"></span>
+        <span class="chip-label">Count-in</span>
+      </div>
+      <div class="panel-chip" id="muteBarChip" onclick="toggleMuteBar()" title="Alternate between audible and silent bars">
+        <span class="chip-dot"></span>
+        <span class="chip-label">Mute bars</span>
+      </div>
+      <div class="num-stepper" id="muteStepper" style="display:none;" title="Number of bars per phase">
+        <button class="num-stepper-btn" onclick="adjustMuteCount(-1)">−</button>
+        <span class="num-stepper-val" id="muteCountVal">2</span>
+        <button class="num-stepper-btn" onclick="adjustMuteCount(1)">+</button>
       </div>
       <div class="rate-chip" role="group" aria-label="Click rate">
         <button class="rate-btn" id="rateHalf"   onclick="setClickRate(0.5)">½×</button>
@@ -459,6 +497,41 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
       <button class="btn-secondary" onclick="resetAll()">Reset All</button>
     </div>
   </div>
+
+  <!-- SPEED TRAINER CARD -->
+  <div class="card">
+    <div class="card-title">// Speed Trainer</div>
+    <div class="panel-controls" style="justify-content:flex-start;margin-bottom:0;">
+      <div class="panel-chip" id="stEnableChip" onclick="toggleSpeedTrainer()" title="Enable progressive tempo ramp">
+        <span class="chip-dot"></span>
+        <span class="chip-label">Enable</span>
+      </div>
+    </div>
+    <div class="st-card-body" id="stBody">
+      <div class="st-row">
+        <label>Start BPM</label>
+        <input type="number" class="st-num" id="stStartBpm" min="20" max="300" value="100" onchange="saveAllPrefs()">
+        <label>End BPM</label>
+        <input type="number" class="st-num" id="stEndBpm" min="20" max="300" value="120" onchange="saveAllPrefs()">
+      </div>
+      <div class="st-row">
+        <div class="rate-chip" role="group" aria-label="Speed trainer mode">
+          <button class="rate-btn active" id="stModeBars" onclick="setStMode('bars')">Bars</button>
+          <span class="rate-sep"></span>
+          <button class="rate-btn" id="stModeMinutes" onclick="setStMode('minutes')">Minutes</button>
+        </div>
+        <label>Duration</label>
+        <input type="number" class="st-num" id="stDuration" min="1" max="999" value="16" onchange="saveAllPrefs()">
+        <span style="font-size:.58rem;color:var(--muted);font-family:var(--font-b);text-transform:uppercase;" id="stDurationUnit">bars</span>
+      </div>
+      <div class="st-row">
+        <button class="btn-primary" id="stStartBtn" onclick="toggleSpeedRun()">▶ Start</button>
+      </div>
+      <div class="st-progress" id="stProgressWrap" style="display:none;">
+        <div class="st-progress-fill" id="stProgressFill"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="app-footer">made with ♥ by Paul van Zyl</div>
@@ -512,6 +585,18 @@ document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('cli
 let bpm=120, beatsPerBar=4, noteValue=4, subdivision=1;
 let accentLevels=[3,1,1,1];
 let isPlaying=false, showArm=false, clickRate=1;
+
+// Count-in state
+let countInEnabled=false, countInRemaining=0;
+
+// Mute-bar state
+let muteBarEnabled=false, muteBarCount=2;
+let muteBarPhase='play', muteBarCounter=0;
+
+// Speed trainer state
+let stEnabled=false, stMode='bars', stRunning=false;
+let stStartBpm=100, stEndBpm=120, stDuration=16;
+let stStartTime=0, stTotalDuration=0;
 
 let audioCtx=null;
 function getCtx(){
@@ -591,6 +676,84 @@ function toggleArm(){
   document.getElementById('pendulumWrap').classList.toggle('hidden',!showArm);
   if(showArm&&!isPlaying){refreshThemeCache();requestAnimationFrame(drawPendulumIdle);}
   saveAllPrefs();
+}
+
+// ══ COUNT-IN TOGGLE ════════════════════════════════════
+function toggleCountIn(){
+  countInEnabled=!countInEnabled;
+  document.getElementById('countInChip').classList.toggle('active',countInEnabled);
+  saveAllPrefs();
+}
+
+// ══ MUTE-BAR TOGGLE ════════════════════════════════════
+function toggleMuteBar(){
+  muteBarEnabled=!muteBarEnabled;
+  document.getElementById('muteBarChip').classList.toggle('active',muteBarEnabled);
+  document.getElementById('muteStepper').style.display=muteBarEnabled?'flex':'none';
+  if(!muteBarEnabled){
+    document.getElementById('beatGrid').classList.remove('muted');
+    muteBarPhase='play'; muteBarCounter=0;
+  }
+  saveAllPrefs();
+}
+function adjustMuteCount(d){
+  muteBarCount=Math.max(1,Math.min(8,muteBarCount+d));
+  document.getElementById('muteCountVal').textContent=muteBarCount;
+  saveAllPrefs();
+}
+
+// ══ SPEED TRAINER ══════════════════════════════════════
+function toggleSpeedTrainer(){
+  stEnabled=!stEnabled;
+  document.getElementById('stEnableChip').classList.toggle('active',stEnabled);
+  document.getElementById('stBody').classList.toggle('open',stEnabled);
+  if(!stEnabled&&stRunning) stopSpeedRun();
+  saveAllPrefs();
+}
+function setStMode(m){
+  stMode=m;
+  document.getElementById('stModeBars').classList.toggle('active',m==='bars');
+  document.getElementById('stModeMinutes').classList.toggle('active',m==='minutes');
+  document.getElementById('stDurationUnit').textContent=m==='bars'?'bars':'min';
+  document.getElementById('stDuration').value=m==='bars'?16:2;
+  saveAllPrefs();
+}
+function toggleSpeedRun(){
+  if(stRunning) stopSpeedRun();
+  else startSpeedRun();
+}
+function startSpeedRun(){
+  stStartBpm=Math.max(20,Math.min(300,+document.getElementById('stStartBpm').value));
+  stEndBpm=Math.max(20,Math.min(300,+document.getElementById('stEndBpm').value));
+  stDuration=Math.max(1,+document.getElementById('stDuration').value);
+  if(stMode==='minutes'){
+    stTotalDuration=stDuration*60;
+  } else {
+    const avgBpm=(stStartBpm+stEndBpm)/2;
+    stTotalDuration=stDuration*beatsPerBar*60/avgBpm;
+  }
+  stStartTime=getCtx().currentTime;
+  stRunning=true;
+  setBpm(stStartBpm);
+  document.getElementById('stStartBtn').textContent='■ Stop';
+  document.getElementById('stProgressWrap').style.display='block';
+  document.getElementById('stProgressFill').style.width='0%';
+  if(!isPlaying) startMetronome();
+}
+function stopSpeedRun(){
+  stRunning=false;
+  document.getElementById('stStartBtn').textContent='▶ Start';
+  document.getElementById('stProgressWrap').style.display='none';
+  document.getElementById('stProgressFill').style.width='0%';
+}
+function updateSpeedTrainer(){
+  if(!stRunning) return;
+  const elapsed=getCtx().currentTime-stStartTime;
+  const progress=Math.min(elapsed/stTotalDuration,1);
+  const newBpm=Math.round(stStartBpm+(stEndBpm-stStartBpm)*progress);
+  setBpm(newBpm);
+  document.getElementById('stProgressFill').style.width=(progress*100)+'%';
+  if(progress>=1) stopSpeedRun();
 }
 
 // ══ CLICK RATE ═════════════════════════════════════════
@@ -718,13 +881,39 @@ function scheduler(){
 function scheduleNote(beat,sub,time){
   const isSub=sub>0;
   const level=isSub?1:accentLevels[beat];
-  if(!isSub||document.getElementById('subSoundToggle').checked) playClick(time,level,isSub);
+
+  // Count-in: play click but skip visual
+  if(countInRemaining>0){
+    if(!isSub){
+      playClick(time,level,false);
+      countInRemaining--;
+      if(countInRemaining>0){
+        document.getElementById('tempoName').textContent='Count-in\u2026';
+      } else {
+        document.getElementById('tempoName').textContent=getTempoName(bpm);
+        // Reset mute bar state at end of count-in
+        muteBarPhase='play'; muteBarCounter=0;
+        document.getElementById('beatGrid').classList.remove('muted');
+      }
+    }
+    return;
+  }
+
+  // Mute-bar: skip audio during mute phase, keep visual
+  const muted=muteBarEnabled&&muteBarPhase==='mute';
+  if(!muted){
+    if(!isSub||document.getElementById('subSoundToggle').checked) playClick(time,level,isSub);
+  }
   const delay=(time-getCtx().currentTime)*1000;
   setTimeout(()=>visualTick(beat,sub,isSub),Math.max(0,delay));
 }
 
 function advance(){
   const rate=getRate(), swing=getSwing();
+
+  // Speed trainer: interpolate BPM on each beat
+  if(stRunning) updateSpeedTrainer();
+
   const spb=(60/bpm)/rate;          // seconds per beat (click-rate adjusted)
   const sps=spb/subdivision;        // seconds per subdivision slot
 
@@ -744,7 +933,22 @@ function advance(){
 
   nextNoteTime+=interval;
   currentSubDiv++;
-  if(currentSubDiv>=subdivision){currentSubDiv=0;currentBeatInBar++;if(currentBeatInBar>=beatsPerBar) currentBeatInBar=0;}
+  if(currentSubDiv>=subdivision){
+    currentSubDiv=0;
+    currentBeatInBar++;
+    if(currentBeatInBar>=beatsPerBar){
+      currentBeatInBar=0;
+      // Mute-bar: track bar completion and toggle phase
+      if(muteBarEnabled&&countInRemaining<=0){
+        muteBarCounter++;
+        if(muteBarCounter>=muteBarCount){
+          muteBarCounter=0;
+          muteBarPhase=muteBarPhase==='play'?'mute':'play';
+          document.getElementById('beatGrid').classList.toggle('muted',muteBarPhase==='mute');
+        }
+      }
+    }
+  }
 }
 
 // ══ VISUAL TICK ════════════════════════════════════════
@@ -896,6 +1100,14 @@ function togglePlay(){if(isPlaying)stopMetronome();else startMetronome();}
 function startMetronome(){
   isPlaying=true; getCtx().resume();
   currentBeatInBar=0; currentSubDiv=0;
+  // Count-in
+  if(countInEnabled) {
+    countInRemaining=beatsPerBar;
+    document.getElementById('tempoName').textContent='Count-in\u2026';
+  }
+  // Reset mute bar state
+  muteBarPhase='play'; muteBarCounter=0;
+  document.getElementById('beatGrid').classList.remove('muted');
   nextNoteTime=getCtx().currentTime+0.05;
   schedulerTimer=setInterval(scheduler,LOOK_MS);
   document.getElementById('playBtn').textContent='■';
@@ -913,6 +1125,14 @@ function stopMetronome(){
   bar.style.transition='none'; bar.style.width='0%';
   lastDot=null; lastSubDot=null;
   pAngle=0;
+  // Reset count-in
+  countInRemaining=0;
+  document.getElementById('tempoName').textContent=getTempoName(bpm);
+  // Reset mute bar visual
+  muteBarPhase='play'; muteBarCounter=0;
+  document.getElementById('beatGrid').classList.remove('muted');
+  // Stop speed trainer if running
+  if(stRunning) stopSpeedRun();
   requestAnimationFrame(()=>{refreshThemeCache(); drawPendulumIdle();});
 }
 
@@ -929,11 +1149,42 @@ function saveAllPrefs(){
   savePref('flashOn',document.getElementById('flashToggle').checked);
   savePref('subSoundOn',document.getElementById('subSoundToggle').checked);
   savePref('showArm',showArm);
+  // Count-in
+  savePref('countInEnabled',countInEnabled);
+  // Mute-bar
+  savePref('muteBarEnabled',muteBarEnabled);
+  savePref('muteBarCount',muteBarCount);
+  // Speed trainer (settings only, not running state)
+  savePref('stEnabled',stEnabled);
+  savePref('stMode',stMode);
+  savePref('stStartBpm',+document.getElementById('stStartBpm').value);
+  savePref('stEndBpm',+document.getElementById('stEndBpm').value);
+  savePref('stDuration',+document.getElementById('stDuration').value);
 }
 
 function resetAll(){
   stopMetronome();
   bpm=120;beatsPerBar=4;noteValue=4;subdivision=1;accentLevels=[3,1,1,1];showArm=false;clickRate=1;
+  // Reset count-in
+  countInEnabled=false;countInRemaining=0;
+  document.getElementById('countInChip').classList.remove('active');
+  // Reset mute-bar
+  muteBarEnabled=false;muteBarCount=2;muteBarPhase='play';muteBarCounter=0;
+  document.getElementById('muteBarChip').classList.remove('active');
+  document.getElementById('muteStepper').style.display='none';
+  document.getElementById('muteCountVal').textContent='2';
+  document.getElementById('beatGrid').classList.remove('muted');
+  // Reset speed trainer
+  stEnabled=false;stRunning=false;stMode='bars';
+  document.getElementById('stEnableChip').classList.remove('active');
+  document.getElementById('stBody').classList.remove('open');
+  document.getElementById('stStartBpm').value=100;
+  document.getElementById('stEndBpm').value=120;
+  document.getElementById('stDuration').value=16;
+  document.getElementById('stStartBtn').textContent='▶ Start';
+  document.getElementById('stProgressWrap').style.display='none';
+  setStMode('bars');
+  // Existing resets
   setBpm(120);
   document.getElementById('beatsPerBar').value=4; document.getElementById('noteValue').value=4;
   document.getElementById('volSlider').value=80; document.getElementById('brightSlider').value=50;
@@ -945,7 +1196,7 @@ function resetAll(){
   setClickRate(1);
   updateSoundLabel(); updateSwingLabel();
   setSub(1); applyTimeSig(); updatePresetHighlight();
-  saveAllPrefs(); // immediate save on explicit reset
+  saveAllPrefs();
 }
 
 function restoreSettings(){
@@ -979,6 +1230,31 @@ function restoreSettings(){
   // 6. Checkboxes
   if(p.flashOn!==undefined)    document.getElementById('flashToggle').checked=p.flashOn;
   if(p.subSoundOn!==undefined) document.getElementById('subSoundToggle').checked=p.subSoundOn;
+  // 6b. Count-in
+  if(p.countInEnabled!==undefined){
+    countInEnabled=p.countInEnabled;
+    document.getElementById('countInChip').classList.toggle('active',countInEnabled);
+  }
+  // 6c. Mute-bar
+  if(p.muteBarEnabled!==undefined){
+    muteBarEnabled=p.muteBarEnabled;
+    document.getElementById('muteBarChip').classList.toggle('active',muteBarEnabled);
+    document.getElementById('muteStepper').style.display=muteBarEnabled?'flex':'none';
+  }
+  if(p.muteBarCount!=null){
+    muteBarCount=Math.max(1,Math.min(8,+p.muteBarCount));
+    document.getElementById('muteCountVal').textContent=muteBarCount;
+  }
+  // 6d. Speed trainer
+  if(p.stEnabled!==undefined){
+    stEnabled=p.stEnabled;
+    document.getElementById('stEnableChip').classList.toggle('active',stEnabled);
+    document.getElementById('stBody').classList.toggle('open',stEnabled);
+  }
+  if(p.stMode) setStMode(p.stMode);
+  if(p.stStartBpm!=null) document.getElementById('stStartBpm').value=p.stStartBpm;
+  if(p.stEndBpm!=null) document.getElementById('stEndBpm').value=p.stEndBpm;
+  if(p.stDuration!=null) document.getElementById('stDuration').value=p.stDuration;
   // 7. Update all derived UI
   updateSoundLabel(); updateSwingLabel(); updatePresetHighlight(); buildBeatGrid();
   // 8. Draw pendulum after a frame so CSS vars are fully resolved
