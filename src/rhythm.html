@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rhythm — Strumming Patterns</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+[data-theme="current"]{
+  --bg:#0d0f12;
+  --bg-grad:radial-gradient(ellipse at 20% 0%,#1a2030 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,#0d1a14 0%,transparent 60%);
+  --surface:#161a1f;--surface2:#1e2329;--border:#2a3040;
+  --accent:#e8b84b;--accent2:#4be8b8;
+  --text:#e8e4da;--muted:#6b7280;
+  --correct:#4be8b8;--wrong:#e84b4b;
+  --font-h:'DM Serif Display',serif;--font-b:'Space Mono',monospace;
+  --h1:clamp(1.5rem,5vw,2.8rem);--r:12px;--br:6px;
+  --bar-bg:#0a0c0e;--pill-active:#e8b84b;--pill-text:#0d0f12;
+  --grad:linear-gradient(90deg,#e8b84b,#4be8b8);
+  --overlay-bg:rgba(5,7,10,0.82);--overlay-surface:rgba(22,26,31,0.97);
+}
+[data-theme="minimal"]{
+  --bg:#fafaf8;--bg-grad:none;
+  --surface:#fff;--surface2:#f4f4f0;--border:#e2e2dc;
+  --accent:#1a1a1a;--accent2:#5a8a6e;
+  --text:#1a1a1a;--muted:#999990;
+  --correct:#5a8a6e;--wrong:#c0392b;
+  --font-h:'Instrument Serif',serif;--font-b:'Syne',sans-serif;
+  --h1:clamp(1.5rem,5vw,3.2rem);--r:2px;--br:2px;
+  --bar-bg:#f0f0ec;--pill-active:#1a1a1a;--pill-text:#fafaf8;
+  --grad:linear-gradient(90deg,#1a1a1a,#5a8a6e);
+  --overlay-bg:rgba(200,200,195,0.75);--overlay-surface:rgba(255,255,255,0.98);
+}
+[data-theme="studio"]{
+  --bg:#0e0e0e;--bg-grad:radial-gradient(ellipse at 50% -20%,#1a0a2e 0%,transparent 60%);
+  --surface:#141414;--surface2:#1c1c1c;--border:#2a2a2a;
+  --accent:#c678f0;--accent2:#78c6f0;
+  --text:#d4d4d4;--muted:#555;
+  --correct:#78c6f0;--wrong:#f07878;
+  --font-h:'Syne',sans-serif;--font-b:'Space Mono',monospace;
+  --h1:clamp(1.3rem,4.5vw,2.4rem);--r:8px;--br:4px;
+  --bar-bg:#080808;--pill-active:#c678f0;--pill-text:#0e0e0e;
+  --grad:linear-gradient(90deg,#c678f0,#78c6f0);
+  --overlay-bg:rgba(4,4,8,0.88);--overlay-surface:rgba(18,18,28,0.98);
+}
+[data-theme="retro"]{
+  --bg:#1c1108;--bg-grad:radial-gradient(ellipse at 50% 0%,#2e1c08 0%,transparent 70%);
+  --surface:#231508;--surface2:#2e1c08;--border:#5a3d1a;
+  --accent:#d4a843;--accent2:#c47840;
+  --text:#e8d8b0;--muted:#8a6a3a;
+  --correct:#78b878;--wrong:#c85050;
+  --font-h:'Playfair Display',serif;--font-b:'Playfair Display',serif;
+  --h1:clamp(1.5rem,5vw,3.2rem);--r:4px;--br:3px;
+  --bar-bg:#120b04;--pill-active:#d4a843;--pill-text:#1c1108;
+  --grad:linear-gradient(90deg,#d4a843,#c47840);
+  --overlay-bg:rgba(10,6,2,0.85);--overlay-surface:rgba(30,18,6,0.97);
+}
+[data-theme="playful"]{
+  --bg:#fff9f0;--bg-grad:radial-gradient(ellipse at 10% 10%,#ffe8f0 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,#e8f0ff 0%,transparent 50%);
+  --surface:#fff;--surface2:#fdf5ff;--border:#e8d8f8;
+  --accent:#ff5fa0;--accent2:#5fb8ff;
+  --text:#2a1840;--muted:#b090c8;
+  --correct:#38d88a;--wrong:#ff5050;
+  --font-h:'Nunito',sans-serif;--font-b:'Nunito',sans-serif;
+  --h1:clamp(1.5rem,5vw,3rem);--r:20px;--br:50px;
+  --bar-bg:#f5e8ff;--pill-active:#ff5fa0;--pill-text:#fff;
+  --grad:linear-gradient(90deg,#ff5fa0,#5fb8ff);
+  --overlay-bg:rgba(255,220,240,0.7);--overlay-surface:rgba(255,255,255,0.98);
+}
+
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:48px;transition:background .35s,color .35s;}
+body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);pointer-events:none;z-index:0;}
+
+.theme-bar{width:100%;background:var(--bar-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:6px 16px;position:sticky;top:0;z-index:200;transition:background .35s,border-color .35s;gap:8px;}
+.bar-left{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.bar-right{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;}
+.bar-sep{width:1px;height:22px;background:var(--border);margin:0 6px;flex-shrink:0;}
+.bar-icon-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:var(--br);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:all .18s;flex-shrink:0;}
+.bar-icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+.theme-pills-desktop{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
+.theme-pill{font-family:var(--font-b);font-size:.62rem;letter-spacing:.05em;padding:6px 13px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.theme-pill:hover{color:var(--text);border-color:var(--accent);}
+.theme-pill.active{background:var(--pill-active);color:var(--pill-text);border-color:var(--pill-active);font-weight:700;}
+.theme-mobile{display:none;position:relative;}
+.theme-mobile-btn{font-family:var(--font-b);font-size:.7rem;padding:6px 12px;border-radius:50px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .2s;}
+.theme-mobile-btn .arrow{font-size:.5rem;transition:transform .2s;}
+.theme-mobile-btn.open .arrow{transform:rotate(180deg);}
+.theme-flyout{position:absolute;top:calc(100% + 8px);right:0;background:var(--bar-bg);border:1px solid var(--border);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:160px;z-index:300;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .18s,transform .18s;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.theme-flyout.open{opacity:1;pointer-events:all;transform:translateY(0);}
+.theme-flyout .theme-pill{border-radius:6px;text-align:left;font-size:.72rem;padding:8px 14px;}
+@media(max-width:640px){.theme-pills-desktop{display:none;}.theme-mobile{display:block;}}
+
+.content{position:relative;z-index:1;width:100%;max-width:900px;padding:28px 16px 0;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+
+header{text-align:center;margin-bottom:28px;}
+header h1{font-family:var(--font-h);font-size:var(--h1);color:var(--accent);line-height:1.1;transition:color .35s,font-size .35s;}
+header p{color:var(--muted);font-size:clamp(.6rem,.2rem + 1.5vw,.72rem);letter-spacing:.1em;text-transform:uppercase;margin-top:6px;font-family:var(--font-b);}
+
+[data-theme="current"] header h1{text-shadow:0 0 40px rgba(232,184,75,.3);}
+[data-theme="studio"] header h1{text-transform:uppercase;letter-spacing:.14em;text-shadow:0 0 30px rgba(198,120,240,.4);font-weight:800;}
+[data-theme="retro"] header h1{font-style:italic;}
+[data-theme="playful"] header h1{font-weight:800;}
+[data-theme="retro"] header p{font-style:italic;text-transform:none;}
+[data-theme="playful"] header p{text-transform:none;letter-spacing:0;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;width:100%;margin-bottom:16px;transition:background .35s,border-color .35s,border-radius .35s,box-shadow .35s;}
+@media(min-width:480px){.card{padding:24px;}}
+.card-title{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;font-family:var(--font-b);}
+
+[data-theme="retro"] .card-title{font-style:italic;text-transform:none;font-size:.85rem;letter-spacing:.06em;color:var(--accent2);}
+[data-theme="playful"] .card-title{font-size:.76rem;font-weight:700;color:var(--accent);}
+[data-theme="minimal"] .card{border-left:3px solid var(--accent);}
+[data-theme="studio"] .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.03);}
+[data-theme="retro"] .card{border:2px solid var(--border);box-shadow:4px 4px 0 rgba(0,0,0,.45);}
+[data-theme="playful"] .card{border:2px solid var(--border);box-shadow:0 4px 24px rgba(255,95,160,.1);}
+[data-theme="retro"] .card::before{content:'';display:block;height:3px;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 6px,transparent 6px,transparent 12px);margin:-20px -20px 16px;opacity:.35;border-radius:var(--r) var(--r) 0 0;}
+@media(min-width:480px){[data-theme="retro"] .card::before{margin:-24px -24px 20px;}}
+
+.controls{display:grid;gap:12px;}
+.cols2{grid-template-columns:1fr 1fr;}
+.cols3{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:600px){.cols3{grid-template-columns:1fr 1fr;}}
+@media(max-width:380px){.cols3,.cols2{grid-template-columns:1fr;}}
+
+.control-group label{display:block;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-family:var(--font-b);}
+
+select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--br);color:var(--text);font-family:var(--font-b);font-size:.84rem;padding:9px 12px;appearance:none;cursor:pointer;transition:border-color .2s,background .35s;padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+select:focus{outline:none;border-color:var(--accent);}
+
+input[type=range]{width:100%;height:32px;background:transparent;border:none;appearance:none;cursor:pointer;padding:4px 0;}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--border);}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);margin-top:-6px;cursor:pointer;transition:transform .15s;}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.2);}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--border);}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;}
+
+button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:none;border-radius:var(--br);padding:9px 16px;cursor:pointer;transition:all .15s;text-transform:uppercase;}
+.btn-primary{background:var(--accent);color:var(--pill-text);font-weight:700;}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+/* Difficulty segmented buttons */
+.seg-group{display:flex;gap:0;}
+.seg-btn{background:var(--surface2);color:var(--muted);border:1px solid var(--border);padding:8px 12px;font-family:var(--font-b);font-size:.72rem;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
+.seg-btn:first-child{border-radius:var(--br) 0 0 var(--br);}
+.seg-btn:last-child{border-radius:0 var(--br) var(--br) 0;}
+.seg-btn:not(:first-child){border-left:none;}
+.seg-btn.active{background:var(--accent);color:var(--pill-text);border-color:var(--accent);font-weight:700;}
+.seg-btn:hover:not(.active){color:var(--text);border-color:var(--accent);}
+
+/* Mode buttons */
+.mode-group{display:flex;gap:8px;flex-wrap:wrap;}
+.mode-btn{background:var(--surface2);color:var(--muted);border:1px solid var(--border);padding:10px 18px;font-family:var(--font-b);font-size:.74rem;cursor:pointer;transition:all .15s;border-radius:var(--br);letter-spacing:.04em;text-transform:uppercase;}
+.mode-btn.active{background:var(--accent);color:var(--pill-text);border-color:var(--accent);font-weight:700;}
+.mode-btn:hover:not(.active){border-color:var(--accent);color:var(--accent);}
+
+/* Bars before response control */
+.bars-control{display:flex;align-items:center;gap:8px;margin-top:10px;}
+.bars-control label{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:var(--font-b);white-space:nowrap;}
+.bars-btn{width:36px;height:36px;background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:var(--br);font-family:var(--font-b);font-size:.8rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.bars-btn.active{background:var(--accent);color:var(--pill-text);border-color:var(--accent);font-weight:700;}
+.bars-btn:hover:not(.active){border-color:var(--accent);color:var(--accent);}
+
+/* Transport */
+.transport{display:flex;justify-content:center;margin:16px 0;}
+.play-btn{width:64px;height:64px;border-radius:50%;background:var(--accent);color:var(--pill-text);font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;transition:all .15s;padding:0;}
+.play-btn:hover{filter:brightness(1.1);transform:scale(1.05);}
+.play-btn.playing{background:var(--wrong);}
+
+/* BPM display */
+.bpm-row{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:8px;flex-wrap:wrap;}
+.bpm-display{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.bpm-number{font-family:var(--font-h);font-size:clamp(2.5rem,10vw,4.5rem);color:var(--accent);line-height:1;transition:color .35s;cursor:default;user-select:none;letter-spacing:-2px;}
+.bpm-label{font-family:var(--font-b);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
+.bpm-tempo-name{font-family:var(--font-b);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);margin-top:2px;}
+.bpm-slider-wrap{width:100%;max-width:440px;display:flex;align-items:center;gap:12px;margin-top:8px;}
+.bpm-slider-wrap input[type=range]{flex:1;}
+.bpm-tap{flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:var(--br);padding:8px 14px;font-family:var(--font-b);font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.bpm-tap:hover{border-color:var(--accent);color:var(--accent);}
+.bpm-tap.tapped{background:var(--accent);color:var(--pill-text);border-color:var(--accent);}
+
+/* Volume controls */
+.vol-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:8px;}
+.vol-group{flex:1;min-width:120px;}
+.vol-group label{display:block;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;font-family:var(--font-b);}
+
+/* Pattern display card */
+.pattern-info{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.genre-tag{font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);background:var(--surface2);border:1px solid var(--border);border-radius:var(--br);padding:3px 10px;font-family:var(--font-b);}
+.diff-stars{color:var(--accent);font-size:.8rem;}
+.pattern-desc{font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+.time-sig{font-size:.6rem;color:var(--muted);font-family:var(--font-b);letter-spacing:.06em;}
+
+/* SVG rhythm grid */
+.grid-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;}
+.grid-scroll::-webkit-scrollbar{height:4px;}
+.grid-scroll::-webkit-scrollbar-track{background:var(--surface2);border-radius:2px;}
+.grid-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.grid-scroll svg{display:block;}
+
+/* Call & Response indicator */
+.cr-indicator{text-align:center;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-family:var(--font-b);margin-top:8px;min-height:1.2em;}
+.cr-call{color:var(--accent);}
+.cr-response{color:var(--accent2);}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:flex-start;justify-content:center;background:var(--overlay-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto;padding:24px 16px;}
+.modal-overlay.show{display:flex;}
+.modal-card{position:relative;background:var(--overlay-surface);border:1px solid var(--border);border-radius:var(--r);width:100%;max-width:560px;padding:24px 20px;margin-top:20px;margin-bottom:20px;}
+.modal-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border:1px solid var(--border);border-radius:50%;background:transparent;color:var(--muted);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.modal-close:hover{border-color:var(--accent);color:var(--accent);}
+.doc-body{text-align:left;font-family:var(--font-b);font-size:.8rem;color:var(--text);line-height:1.75;}
+.doc-body h2{font-family:var(--font-h);font-size:1.1rem;color:var(--accent);margin:18px 0 8px;}
+.doc-body h3{font-size:.82rem;color:var(--accent2);margin:14px 0 6px;letter-spacing:.06em;text-transform:uppercase;}
+.doc-body p{margin-bottom:10px;}
+.doc-body ul{margin:0 0 12px 18px;}
+.doc-body li{margin-bottom:4px;}
+.doc-body kbd{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:1px 6px;font-size:.75rem;}
+
+[data-theme="retro"] .app-footer{font-style:italic;letter-spacing:0;font-size:.75rem;}
+[data-theme="playful"] .app-footer{letter-spacing:0;font-size:.72rem;}
+.app-footer{position:relative;z-index:1;font-family:var(--font-b);font-size:.62rem;color:var(--muted);opacity:.55;letter-spacing:.08em;margin-top:4px;padding-bottom:8px;text-align:center;}
+</style>
+</head>
+<body data-theme="current">
+
+<div class="theme-bar">
+  <div class="bar-left">
+    <button class="bar-icon-btn" onclick="openModal('helpModal')" title="Help">📖</button>
+  </div>
+  <div class="bar-sep"></div>
+  <div class="bar-right">
+    <div class="theme-pills-desktop">
+      <button class="theme-pill active" data-t="current">Dark Gold</button>
+      <button class="theme-pill" data-t="minimal">Clean &amp; Minimal</button>
+      <button class="theme-pill" data-t="studio">Dark Studio</button>
+      <button class="theme-pill" data-t="retro">Retro Piano</button>
+      <button class="theme-pill" data-t="playful">Bright &amp; Playful</button>
+    </div>
+    <div class="theme-mobile">
+      <button class="theme-mobile-btn" id="themeMobileBtn"><span id="themeMobileLabel">Dark Gold</span><span class="arrow">▼</span></button>
+      <div class="theme-flyout" id="themeFlyout">
+        <button class="theme-pill active" data-t="current">Dark Gold</button>
+        <button class="theme-pill" data-t="minimal">Clean &amp; Minimal</button>
+        <button class="theme-pill" data-t="studio">Dark Studio</button>
+        <button class="theme-pill" data-t="retro">Retro Piano</button>
+        <button class="theme-pill" data-t="playful">Bright &amp; Playful</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <header>
+    <h1 id="appTitle">Rhythm</h1>
+    <p id="appSub">Strumming Patterns · Groove · Feel</p>
+  </header>
+
+  <!-- CONFIG CARD -->
+  <div class="card">
+    <div class="card-title">Pattern Selection</div>
+    <div class="controls cols3">
+      <div class="control-group">
+        <label>Genre</label>
+        <select id="genreSelect" onchange="filterPatterns()">
+          <option value="All">All</option>
+          <option value="Folk">Folk</option>
+          <option value="Rock">Rock</option>
+          <option value="Pop">Pop</option>
+          <option value="Blues">Blues</option>
+          <option value="Jazz">Jazz</option>
+          <option value="Latin">Latin</option>
+          <option value="Reggae">Reggae</option>
+          <option value="Country">Country</option>
+          <option value="Funk">Funk</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Difficulty</label>
+        <div class="seg-group">
+          <button class="seg-btn active" data-diff="0" onclick="setDifficulty(0)">All</button>
+          <button class="seg-btn" data-diff="1" onclick="setDifficulty(1)">⭐</button>
+          <button class="seg-btn" data-diff="2" onclick="setDifficulty(2)">⭐⭐</button>
+          <button class="seg-btn" data-diff="3" onclick="setDifficulty(3)">⭐⭐⭐</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Pattern</label>
+        <select id="patternSelect" onchange="selectPattern()"></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODE CARD -->
+  <div class="card">
+    <div class="card-title">Mode</div>
+    <div class="mode-group">
+      <button class="mode-btn active" data-mode="along" onclick="setMode('along')">Play Along</button>
+      <button class="mode-btn" data-mode="callresp" onclick="setMode('callresp')">Call &amp; Response</button>
+    </div>
+    <div class="bars-control" id="barsControl" style="display:none;">
+      <label>Bars before response:</label>
+      <button class="bars-btn active" data-bars="1" onclick="setBarsBeforeResp(1)">1</button>
+      <button class="bars-btn" data-bars="2" onclick="setBarsBeforeResp(2)">2</button>
+      <button class="bars-btn" data-bars="4" onclick="setBarsBeforeResp(4)">4</button>
+    </div>
+  </div>
+
+  <!-- DISPLAY CARD -->
+  <div class="card">
+    <div class="card-title">Pattern</div>
+    <div class="pattern-info">
+      <span class="genre-tag" id="genreTag">Folk</span>
+      <span class="diff-stars" id="diffStars">⭐</span>
+      <span class="time-sig" id="timeSig">4/4</span>
+    </div>
+    <div class="pattern-desc" id="patternDesc">—</div>
+    <div class="grid-scroll" id="gridScroll">
+      <svg id="rhythmSvg" width="400" height="100"></svg>
+    </div>
+    <div class="cr-indicator" id="crIndicator"></div>
+  </div>
+
+  <!-- TRANSPORT CARD -->
+  <div class="card" style="display:flex;flex-direction:column;align-items:center;">
+    <div class="bpm-display">
+      <div class="bpm-number" id="bpmDisplay">100</div>
+      <div class="bpm-label">BPM</div>
+      <div class="bpm-tempo-name" id="tempoName">Andante</div>
+    </div>
+    <div class="bpm-slider-wrap">
+      <input type="range" id="bpmSlider" min="20" max="300" value="100" oninput="setBpm(+this.value)">
+      <button class="bpm-tap" id="tapBtn" onclick="tapTempo()">Tap</button>
+    </div>
+    <div class="transport">
+      <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+    </div>
+    <div class="vol-row">
+      <div class="vol-group">
+        <label>Click Vol</label>
+        <input type="range" id="clickVol" min="0" max="100" value="70" oninput="setClickVol(+this.value)">
+      </div>
+      <div class="vol-group">
+        <label>Pattern Vol</label>
+        <input type="range" id="patternVol" min="0" max="100" value="80" oninput="setPatternVol(+this.value)">
+      </div>
+    </div>
+  </div>
+
+  <div class="app-footer">made with ♥ by Paul van Zyl</div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal-overlay" id="helpModal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('helpModal')">×</button>
+    <div class="doc-body">
+      <h2>Rhythm — Strumming Patterns</h2>
+      <p>Learn and practice guitar strumming patterns, grooves, and rhythmic feels across multiple genres.</p>
+
+      <h3>Reading the Grid</h3>
+      <ul>
+        <li><strong>▼</strong> — Downstroke (strum towards the floor)</li>
+        <li><strong>▲</strong> — Upstroke (strum towards the ceiling)</li>
+        <li><strong>×</strong> — Mute (damp strings with palm)</li>
+        <li><strong>◆</strong> — Tap (a lighter percussive hit, used in fingerpicking patterns)</li>
+        <li><strong>·</strong> — Rest (silent — skip this beat)</li>
+        <li><strong>Larger / bolder</strong> symbols are accented (play louder)</li>
+        <li>Numbers below show beat positions (1, 2, 3, 4…)</li>
+        <li>The <strong>+</strong> symbol marks the "and" of each beat</li>
+      </ul>
+
+      <h3>Play Along Mode</h3>
+      <p>The pattern loops continuously with a click track. Match your strumming to the highlighted grid position. Start slow, then increase BPM as you get comfortable.</p>
+
+      <h3>Call &amp; Response Mode</h3>
+      <p>The tool plays the pattern for a set number of bars (the "call"), then goes silent for one bar (the "response") while the grid shows faded positions. Play the pattern from memory during the silent bar. Great for building muscle memory.</p>
+
+      <h3>Practice Tips</h3>
+      <ul>
+        <li>Start at a slow tempo (60–80 BPM) and increase gradually</li>
+        <li>Tap your foot on each beat to lock in the pulse</li>
+        <li>Count subdivisions aloud: "1 and 2 and 3 and 4 and"</li>
+        <li>Keep your strumming hand moving in a constant down-up motion, even on rests</li>
+        <li>Gradually reduce the pattern volume to test your internalization</li>
+        <li>Use the genre filter to focus on one style at a time</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── localStorage ── */
+const LS_KEY = 'musicTool_rhythm_v1';
+function savePref(k, v) {
+  try { const d = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); d[k] = v; localStorage.setItem(LS_KEY, JSON.stringify(d)); } catch(e) {}
+}
+function loadPrefs() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch(e) { return {}; }
+}
+
+/* ── Audio engine ── */
+let audioCtx = null;
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+/* ── Theme system ── */
+const THEME_LABELS = {current:'Dark Gold',minimal:'Clean & Minimal',studio:'Dark Studio',retro:'Retro Piano',playful:'Bright & Playful'};
+const TITLES = {current:'Rhythm',minimal:'rhythm',studio:'RHYTHM',retro:'Rhythm',playful:'🎵 Rhythm!'};
+const SUBS = {current:'Strumming Patterns · Groove · Feel',minimal:'strumming patterns · groove · feel',studio:'STRUMMING PATTERNS / GROOVE / FEEL',retro:'Strumming Patterns · Groove · Feel',playful:'Strumming Patterns · Groove · Feel ✨'};
+
+function applyTheme(t, noSave) {
+  document.body.dataset.theme = t;
+  document.getElementById('appTitle').textContent = TITLES[t];
+  document.getElementById('appSub').textContent = SUBS[t];
+  document.getElementById('themeMobileLabel').textContent = THEME_LABELS[t];
+  document.querySelectorAll('.theme-pill').forEach(b => b.classList.toggle('active', b.dataset.t === t));
+  if (!noSave) savePref('theme', t);
+  renderGrid();
+}
+
+document.querySelectorAll('.theme-pill').forEach(btn => btn.addEventListener('click', () => {
+  applyTheme(btn.dataset.t);
+  document.getElementById('themeFlyout').classList.remove('open');
+  document.getElementById('themeMobileBtn').classList.remove('open');
+}));
+const mobileBtn = document.getElementById('themeMobileBtn'), flyout = document.getElementById('themeFlyout');
+mobileBtn.addEventListener('click', e => { e.stopPropagation(); const o = flyout.classList.toggle('open'); mobileBtn.classList.toggle('open', o); });
+document.addEventListener('click', () => { flyout.classList.remove('open'); mobileBtn.classList.remove('open'); });
+flyout.addEventListener('click', e => e.stopPropagation());
+
+/* ── Modal ── */
+function openModal(id) { document.getElementById(id).classList.add('show'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); document.body.style.overflow = ''; }
+document.querySelectorAll('.modal-overlay').forEach(ov => ov.addEventListener('click', e => { if (e.target === ov) closeModal(ov.id); }));
+
+/* ── Pattern Library ── */
+const PATTERNS = [
+  // Beginner (difficulty 1)
+  { id:'all-down-4', name:'All Downstrokes 4/4', genre:'Rock', difficulty:1, timeSignature:[4,4], bpm:90, description:'The simplest pattern — one downstroke per beat. Great for punk rock and power chords.', subdivisions:4, pattern:[{type:'down',accent:true},{type:'down',accent:false},{type:'down',accent:false},{type:'down',accent:false}] },
+  { id:'waltz-basic', name:'Basic Waltz 3/4', genre:'Folk', difficulty:1, timeSignature:[3,4], bpm:100, description:'Three downstrokes per bar in waltz time. Emphasize beat 1.', subdivisions:3, pattern:[{type:'down',accent:true},{type:'down',accent:false},{type:'down',accent:false}] },
+  { id:'folk-basic', name:'Basic Folk Strum', genre:'Folk', difficulty:1, timeSignature:[4,4], bpm:100, description:'The foundation strum for acoustic guitar — used in thousands of songs. D DU UDU.', subdivisions:8, pattern:[{type:'down',accent:true},{type:'rest'},{type:'down',accent:false},{type:'up',accent:false},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'up',accent:false}] },
+  { id:'pop-simple', name:'Simple Pop Strum', genre:'Pop', difficulty:1, timeSignature:[4,4], bpm:110, description:'A bright, clean pop pattern. D DU DU — perfect for campfire singalongs.', subdivisions:8, pattern:[{type:'down',accent:true},{type:'rest'},{type:'down',accent:false},{type:'up',accent:false},{type:'rest'},{type:'down',accent:false},{type:'up',accent:false},{type:'rest'}] },
+  { id:'boom-chick', name:'Boom-Chick Country', genre:'Country', difficulty:1, timeSignature:[4,4], bpm:105, description:'Classic boom-chick alternating bass note feel. Down on beats, up on the ands.', subdivisions:8, pattern:[{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'rest'},{type:'up',accent:false}] },
+  { id:'eighth-continuous', name:'Continuous Eighth Notes', genre:'Pop', difficulty:1, timeSignature:[4,4], bpm:95, description:'Non-stop down-up alternation — builds strumming stamina and consistency.', subdivisions:8, pattern:[{type:'down',accent:true},{type:'up',accent:false},{type:'down',accent:false},{type:'up',accent:false},{type:'down',accent:false},{type:'up',accent:false},{type:'down',accent:false},{type:'up',accent:false}] },
+
+  // Intermediate (difficulty 2)
+  { id:'travis-pick', name:'Travis Picking Rhythm', genre:'Folk', difficulty:2, timeSignature:[4,4], bpm:90, description:'The rhythmic skeleton of Travis picking — alternating bass with syncopated melody hits.', subdivisions:8, pattern:[{type:'down',accent:true},{type:'rest'},{type:'tap',accent:false},{type:'up',accent:false},{type:'down',accent:false},{type:'tap',accent:false},{type:'rest'},{type:'up',accent:false}] },
+  { id:'reggae-skank', name:'Reggae Offbeat Skank', genre:'Reggae', difficulty:2, timeSignature:[4,4], bpm:80, description:'The signature reggae rhythm — play on the offbeats (ands) only. Rest on the downbeats.', subdivisions:8, pattern:[{type:'rest'},{type:'down',accent:false},{type:'rest'},{type:'down',accent:true},{type:'rest'},{type:'down',accent:false},{type:'rest'},{type:'down',accent:true}] },
+  { id:'blues-shuffle', name:'Blues Shuffle', genre:'Blues', difficulty:2, timeSignature:[4,4], bpm:100, description:'Classic 12-bar blues feel with triplet-based shuffle. Swing those eighth notes!', subdivisions:12, pattern:[{type:'down',accent:true},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false}] },
+  { id:'bossa-basic', name:'Bossa Nova Basic', genre:'Latin', difficulty:2, timeSignature:[4,4], bpm:130, description:'The gentle syncopated pulse of bossa nova — emphasizes the "and" of beat 2.', subdivisions:16, pattern:[{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'up',accent:false},{type:'rest'},{type:'rest'},{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false},{type:'rest'},{type:'rest'},{type:'down',accent:false},{type:'rest'}] },
+  { id:'rock-muted', name:'Rock Power Strum', genre:'Rock', difficulty:2, timeSignature:[4,4], bpm:120, description:'Driving rock pattern with muted upstrokes for a tight, chunky feel.', subdivisions:8, pattern:[{type:'down',accent:true},{type:'mute'},{type:'down',accent:false},{type:'mute'},{type:'down',accent:true},{type:'mute'},{type:'down',accent:false},{type:'mute'}] },
+  { id:'swing-comp', name:'Swing Jazz Comping', genre:'Jazz', difficulty:2, timeSignature:[4,4], bpm:140, description:'Swing-feel jazz guitar comping. Triplet grid with the classic long-short phrasing.', subdivisions:12, pattern:[{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'rest'},{type:'rest'},{type:'down',accent:false},{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'rest'},{type:'rest'},{type:'down',accent:false}] },
+  { id:'funk-basic-16', name:'Basic Funk 16th', genre:'Funk', difficulty:2, timeSignature:[4,4], bpm:100, description:'Entry-level funk with 16th-note strumming and ghost mutes.', subdivisions:16, pattern:[{type:'down',accent:true},{type:'mute'},{type:'up',accent:false},{type:'mute'},{type:'rest'},{type:'mute'},{type:'up',accent:false},{type:'mute'},{type:'down',accent:true},{type:'mute'},{type:'up',accent:false},{type:'mute'},{type:'rest'},{type:'mute'},{type:'up',accent:false},{type:'mute'}] },
+  { id:'country-train', name:'Country Train Beat', genre:'Country', difficulty:2, timeSignature:[4,4], bpm:115, description:'The clickety-clack rhythm of a train — driving 16th-note country groove.', subdivisions:16, pattern:[{type:'down',accent:true},{type:'up',accent:false},{type:'mute'},{type:'up',accent:false},{type:'down',accent:false},{type:'up',accent:false},{type:'mute'},{type:'up',accent:false},{type:'down',accent:true},{type:'up',accent:false},{type:'mute'},{type:'up',accent:false},{type:'down',accent:false},{type:'up',accent:false},{type:'mute'},{type:'up',accent:false}] },
+  { id:'calypso', name:'Calypso Strum', genre:'Latin', difficulty:2, timeSignature:[4,4], bpm:120, description:'Sunny Caribbean feel with syncopated accents. Think island vibes.', subdivisions:8, pattern:[{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'down',accent:false},{type:'up',accent:false},{type:'rest'},{type:'down',accent:true},{type:'up',accent:false}] },
+  { id:'motown', name:'Motown Groove', genre:'Funk', difficulty:2, timeSignature:[4,4], bpm:108, description:'The smooth, driving Motown rhythm — keeps the body moving.', subdivisions:16, pattern:[{type:'down',accent:true},{type:'rest'},{type:'up',accent:false},{type:'rest'},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false},{type:'rest'},{type:'down',accent:true},{type:'rest'},{type:'up',accent:false},{type:'rest'},{type:'down',accent:false}] },
+  { id:'six-eight', name:'6/8 Time Basic', genre:'Folk', difficulty:2, timeSignature:[6,8], bpm:80, description:'Six-eight feel — two groups of three. Common in ballads and Irish music.', subdivisions:6, pattern:[{type:'down',accent:true},{type:'up',accent:false},{type:'up',accent:false},{type:'down',accent:true},{type:'up',accent:false},{type:'up',accent:false}] },
+  { id:'waltz-bass-alt', name:'Waltz Bass Alternation', genre:'Folk', difficulty:2, timeSignature:[3,4], bpm:110, description:'Waltz with bass note on 1, then chord on 2 and 3 with upstroke fills.', subdivisions:6, pattern:[{type:'down',accent:true},{type:'rest'},{type:'up',accent:false},{type:'rest'},{type:'down',accent:false},{type:'up',accent:false}] },
+
+  // Advanced (difficulty 3)
+  { id:'funk-full', name:'Full Funk 16th', genre:'Funk', difficulty:3, timeSignature:[4,4], bpm:96, description:'All-out 16th-note funk with ghost mutes and dynamic accents. Channel your inner Nile Rodgers.', subdivisions:16, pattern:[{type:'down',accent:true},{type:'mute'},{type:'up',accent:false},{type:'mute'},{type:'down',accent:false},{type:'up',accent:true},{type:'mute'},{type:'up',accent:false},{type:'mute'},{type:'down',accent:false},{type:'up',accent:false},{type:'mute'},{type:'down',accent:true},{type:'mute'},{type:'up',accent:false},{type:'mute'}] },
+  { id:'flamenco-ras', name:'Flamenco Rasgueado', genre:'Latin', difficulty:3, timeSignature:[4,4], bpm:100, description:'Rapid multi-finger strum pattern. Each subdivision is a different finger rolling across the strings.', subdivisions:16, pattern:[{type:'down',accent:true},{type:'up',accent:false},{type:'down',accent:false},{type:'up',accent:false},{type:'down',accent:true},{type:'rest'},{type:'down',accent:false},{type:'up',accent:false},{type:'down',accent:true},{type:'up',accent:false},{type:'down',accent:false},{type:'up',accent:false},{type:'down',accent:true},{type:'rest'},{type:'mute'},{type:'rest'}] },
+  { id:'bossa-sync', name:'Bossa Nova Syncopated', genre:'Latin', difficulty:3, timeSignature:[4,4], bpm:135, description:'Advanced bossa nova with full syncopation. The heartbeat of João Gilberto.', subdivisions:16, pattern:[{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false},{type:'rest'},{type:'down',accent:true},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false},{type:'rest'},{type:'down',accent:false},{type:'rest'}] },
+  { id:'jazz-antic', name:'Jazz Swing Anticipations', genre:'Jazz', difficulty:3, timeSignature:[4,4], bpm:150, description:'Swing comping with push anticipations — hitting chords before the beat for forward motion.', subdivisions:12, pattern:[{type:'rest'},{type:'rest'},{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'rest'},{type:'down',accent:false},{type:'rest'},{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'down',accent:false}] },
+  { id:'afrobeat', name:'Afrobeat Pattern', genre:'Funk', difficulty:3, timeSignature:[4,4], bpm:110, description:'Fela Kuti-inspired rhythm — interlocking accents create a hypnotic African groove.', subdivisions:16, pattern:[{type:'down',accent:true},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:true},{type:'rest'},{type:'down',accent:false},{type:'up',accent:false},{type:'rest'},{type:'down',accent:true},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false}] },
+  { id:'reggae-drop', name:'Reggae One Drop', genre:'Reggae', difficulty:3, timeSignature:[4,4], bpm:75, description:'The one drop — beat 1 is empty, creating deep space. The soul of roots reggae.', subdivisions:8, pattern:[{type:'rest'},{type:'rest'},{type:'rest'},{type:'down',accent:true},{type:'rest'},{type:'mute'},{type:'rest'},{type:'down',accent:true}] },
+  { id:'prog-78', name:'Progressive 7/8', genre:'Rock', difficulty:3, timeSignature:[7,8], bpm:140, description:'Odd-meter groove in 7/8 — feels like 4/4 with a beat chopped off. Think prog rock.', subdivisions:7, pattern:[{type:'down',accent:true},{type:'up',accent:false},{type:'down',accent:false},{type:'up',accent:false},{type:'down',accent:true},{type:'up',accent:false},{type:'down',accent:false}] },
+  { id:'samba', name:'Samba Pattern', genre:'Latin', difficulty:3, timeSignature:[4,4], bpm:100, description:'Brazilian samba rhythm — the surdo-like bass pulse with the tamborim syncopation.', subdivisions:16, pattern:[{type:'down',accent:true},{type:'rest'},{type:'up',accent:false},{type:'rest'},{type:'down',accent:false},{type:'up',accent:false},{type:'rest'},{type:'down',accent:true},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false},{type:'rest'},{type:'down',accent:false},{type:'up',accent:false}] },
+  { id:'second-line', name:'New Orleans Second Line', genre:'Funk', difficulty:3, timeSignature:[4,4], bpm:110, description:'The bouncing parade rhythm of New Orleans — syncopated and festive.', subdivisions:16, pattern:[{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'up',accent:false},{type:'rest'},{type:'down',accent:true},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false},{type:'rest'},{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'up',accent:false}] },
+  { id:'twelve-eight-blues', name:'12/8 Blues', genre:'Blues', difficulty:3, timeSignature:[12,8], bpm:60, description:'Slow, deep 12/8 blues — each beat subdivided into triplets. Thick, soulful feel.', subdivisions:12, pattern:[{type:'down',accent:true},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false},{type:'down',accent:true},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false}] },
+  { id:'shuffle-triplet', name:'Shuffle Triplet Feel', genre:'Blues', difficulty:3, timeSignature:[4,4], bpm:110, description:'Full triplet shuffle with accented offbeats. Drives hard-blues and boogie rock.', subdivisions:12, pattern:[{type:'down',accent:true},{type:'rest'},{type:'down',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:true},{type:'down',accent:false},{type:'rest'},{type:'down',accent:false},{type:'down',accent:false},{type:'rest'},{type:'up',accent:true}] },
+  { id:'montuno', name:'Latin Montuno', genre:'Latin', difficulty:3, timeSignature:[4,4], bpm:120, description:'Piano montuno rhythm adapted for guitar — the engine of salsa and son music.', subdivisions:16, pattern:[{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'down',accent:false},{type:'up',accent:false},{type:'rest'},{type:'down',accent:true},{type:'rest'},{type:'rest'},{type:'down',accent:false},{type:'rest'},{type:'up',accent:false},{type:'down',accent:false},{type:'rest'},{type:'down',accent:true},{type:'rest'}] },
+];
+
+/* ── State ── */
+let currentPattern = PATTERNS[0];
+let bpm = 100;
+let diffFilter = 0;
+let isPlaying = false;
+let mode = 'along'; // 'along' or 'callresp'
+let barsBeforeResp = 1;
+let clickVol = 0.7;
+let patternVol = 0.8;
+let tapTimes = [];
+let currentSlot = -1;
+let barCount = 0;
+let isResponseBar = false;
+
+/* ── Scheduler state ── */
+const SCHED_AHEAD = 0.1, LOOK_MS = 25;
+let nextNoteTime = 0;
+let currentSubIdx = 0;
+let schedulerTimer = null;
+
+/* ── Tempo names ── */
+const TEMPO_NAMES = [[20,39,'Larghissimo'],[40,59,'Largo'],[60,65,'Larghetto'],[66,75,'Adagio'],[76,107,'Andante'],[108,119,'Moderato'],[120,155,'Allegro'],[156,175,'Vivace'],[176,200,'Presto'],[201,300,'Prestissimo']];
+function getTempoName(b) { for (const [lo,hi,n] of TEMPO_NAMES) if (b >= lo && b <= hi) return n; return ''; }
+
+/* ── BPM ── */
+function setBpm(val) {
+  bpm = Math.max(20, Math.min(300, +val));
+  document.getElementById('bpmDisplay').textContent = bpm;
+  document.getElementById('bpmSlider').value = bpm;
+  document.getElementById('tempoName').textContent = getTempoName(bpm);
+  savePref('bpm', bpm);
+}
+
+function tapTempo() {
+  const now = performance.now();
+  if (tapTimes.length > 0 && now - tapTimes[tapTimes.length - 1] > 3000) tapTimes = [];
+  tapTimes.push(now);
+  if (tapTimes.length > 8) tapTimes.shift();
+  if (tapTimes.length >= 2) {
+    let s = 0; for (let i = 1; i < tapTimes.length; i++) s += tapTimes[i] - tapTimes[i - 1];
+    setBpm(Math.round(60000 / (s / (tapTimes.length - 1))));
+  }
+  const btn = document.getElementById('tapBtn');
+  btn.classList.add('tapped'); setTimeout(() => btn.classList.remove('tapped'), 150);
+}
+
+/* ── Volume ── */
+function setClickVol(v) { clickVol = v / 100; savePref('clickVol', v); }
+function setPatternVol(v) { patternVol = v / 100; savePref('patternVol', v); }
+
+/* ── Filtering & Selection ── */
+function filterPatterns() {
+  const genre = document.getElementById('genreSelect').value;
+  const sel = document.getElementById('patternSelect');
+  sel.innerHTML = '';
+  const filtered = PATTERNS.filter(p => {
+    if (genre !== 'All' && p.genre !== genre) return false;
+    if (diffFilter > 0 && p.difficulty !== diffFilter) return false;
+    return true;
+  });
+  if (filtered.length === 0) {
+    sel.innerHTML = '<option value="">No patterns match</option>';
+    return;
+  }
+  filtered.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.name;
+    sel.appendChild(opt);
+  });
+  selectPattern();
+}
+
+function setDifficulty(d) {
+  diffFilter = d;
+  document.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', +b.dataset.diff === d));
+  savePref('difficulty', d);
+  filterPatterns();
+}
+
+function selectPattern() {
+  const id = document.getElementById('patternSelect').value;
+  const p = PATTERNS.find(x => x.id === id);
+  if (!p) return;
+  currentPattern = p;
+  setBpm(p.bpm);
+  updatePatternDisplay();
+  savePref('pattern', id);
+  if (isPlaying) { stopPlay(); startPlay(); }
+}
+
+function updatePatternDisplay() {
+  const p = currentPattern;
+  document.getElementById('genreTag').textContent = p.genre;
+  document.getElementById('diffStars').textContent = '⭐'.repeat(p.difficulty);
+  document.getElementById('timeSig').textContent = p.timeSignature[0] + '/' + p.timeSignature[1];
+  document.getElementById('patternDesc').textContent = p.description;
+  currentSlot = -1;
+  renderGrid();
+}
+
+/* ── Mode ── */
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  document.getElementById('barsControl').style.display = m === 'callresp' ? 'flex' : 'none';
+  document.getElementById('crIndicator').textContent = '';
+  savePref('mode', m);
+  if (isPlaying) { stopPlay(); startPlay(); }
+}
+
+function setBarsBeforeResp(n) {
+  barsBeforeResp = n;
+  document.querySelectorAll('.bars-btn').forEach(b => b.classList.toggle('active', +b.dataset.bars === n));
+  savePref('barsBeforeResp', n);
+}
+
+/* ── SVG Rhythm Grid ── */
+function renderGrid() {
+  const p = currentPattern;
+  const subs = p.subdivisions;
+  const beatsPerBar = p.timeSignature[0];
+  const subsPerBeat = subs / beatsPerBar;
+  const cellW = 36;
+  const cellH = 60;
+  const labelH = 20;
+  const subLabelH = 16;
+  const padX = 8;
+  const totalW = subs * cellW + padX * 2;
+  const totalH = cellH + labelH + subLabelH + 10;
+
+  const svg = document.getElementById('rhythmSvg');
+  svg.setAttribute('width', totalW);
+  svg.setAttribute('height', totalH);
+  svg.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
+
+  const cs = getComputedStyle(document.body);
+  const accent = cs.getPropertyValue('--accent').trim();
+  const accent2 = cs.getPropertyValue('--accent2').trim();
+  const muted = cs.getPropertyValue('--muted').trim();
+  const surface2 = cs.getPropertyValue('--surface2').trim();
+  const border = cs.getPropertyValue('--border').trim();
+  const text = cs.getPropertyValue('--text').trim();
+
+  let html = '';
+
+  // Background cells
+  for (let i = 0; i < subs; i++) {
+    const x = padX + i * cellW;
+    const isCurrent = i === currentSlot;
+    const ghost = isResponseBar && isCurrent;
+    let fill = 'transparent';
+    if (isCurrent && !isResponseBar) fill = accent;
+    else if (ghost) fill = surface2;
+    html += `<rect x="${x}" y="0" width="${cellW}" height="${cellH}" rx="4" fill="${fill}" opacity="${isCurrent && !isResponseBar ? 0.2 : ghost ? 0.5 : 0}"/>`;
+  }
+
+  // Beat separator lines
+  for (let b = 0; b <= beatsPerBar; b++) {
+    const x = padX + b * subsPerBeat * cellW;
+    const thick = b === 0 || b === beatsPerBar;
+    html += `<line x1="${x}" y1="0" x2="${x}" y2="${cellH}" stroke="${border}" stroke-width="${thick ? 2 : 1}" opacity="${thick ? 0.8 : 0.4}"/>`;
+  }
+
+  // Pattern symbols
+  for (let i = 0; i < subs; i++) {
+    const slot = p.pattern[i];
+    if (!slot) continue;
+    const cx = padX + i * cellW + cellW / 2;
+    const cy = cellH / 2;
+    const isCurrent = i === currentSlot;
+    const ghosted = isResponseBar;
+    const opacity = ghosted ? 0.25 : 1;
+    const isAccent = slot.accent;
+    const sz = isAccent ? 1.3 : 1;
+    const color = isCurrent && !isResponseBar ? accent : (isAccent ? accent : text);
+
+    if (slot.type === 'down') {
+      // Down arrow ▼
+      const h = 10 * sz, w = 8 * sz;
+      html += `<polygon points="${cx - w},${cy - h / 2} ${cx + w},${cy - h / 2} ${cx},${cy + h / 2}" fill="${color}" opacity="${opacity}"/>`;
+    } else if (slot.type === 'up') {
+      // Up arrow ▲
+      const h = 10 * sz, w = 8 * sz;
+      html += `<polygon points="${cx - w},${cy + h / 2} ${cx + w},${cy + h / 2} ${cx},${cy - h / 2}" fill="${color}" opacity="${opacity}"/>`;
+    } else if (slot.type === 'mute') {
+      // × symbol
+      const s = 7 * sz;
+      html += `<text x="${cx}" y="${cy + 4}" text-anchor="middle" fill="${color}" opacity="${opacity}" font-family="var(--font-b)" font-size="${14 * sz}" font-weight="${isAccent ? 700 : 400}">×</text>`;
+    } else if (slot.type === 'rest') {
+      // · dot
+      html += `<circle cx="${cx}" cy="${cy}" r="${3 * sz}" fill="${muted}" opacity="${opacity * 0.5}"/>`;
+    } else if (slot.type === 'tap') {
+      // Tap — diamond shape
+      const s = 7 * sz;
+      html += `<polygon points="${cx},${cy - s} ${cx + s},${cy} ${cx},${cy + s} ${cx - s},${cy}" fill="${color}" opacity="${opacity}"/>`;
+    }
+  }
+
+  // Beat numbers
+  for (let b = 0; b < beatsPerBar; b++) {
+    const x = padX + b * subsPerBeat * cellW + (subsPerBeat * cellW) / 2;
+    html += `<text x="${x}" y="${cellH + labelH - 4}" text-anchor="middle" fill="${muted}" font-family="var(--font-b)" font-size="11">${b + 1}</text>`;
+  }
+
+  // Subdivision labels
+  if (subsPerBeat >= 2) {
+    for (let i = 0; i < subs; i++) {
+      const posInBeat = i % subsPerBeat;
+      let label = '';
+      if (subsPerBeat === 2) {
+        if (posInBeat === 1) label = '+';
+      } else if (subsPerBeat === 3) {
+        if (posInBeat === 1) label = '+';
+        else if (posInBeat === 2) label = 'a';
+      } else if (subsPerBeat === 4) {
+        if (posInBeat === 1) label = 'e';
+        else if (posInBeat === 2) label = '+';
+        else if (posInBeat === 3) label = 'a';
+      }
+      if (label) {
+        const x = padX + i * cellW + cellW / 2;
+        html += `<text x="${x}" y="${cellH + labelH + subLabelH - 6}" text-anchor="middle" fill="${muted}" font-family="var(--font-b)" font-size="9" opacity="0.6">${label}</text>`;
+      }
+    }
+  }
+
+  svg.innerHTML = html;
+}
+
+/* ── Audio: Click sound ── */
+function playClick(time, isAccent) {
+  const ctx = getCtx();
+  const gain = clickVol * (isAccent ? 1.0 : 0.6);
+  if (gain < 0.001) return;
+  const freq = isAccent ? 1800 : 1200;
+  const decay = 0.025;
+
+  const bsize = Math.ceil(ctx.sampleRate * 0.03);
+  const buf = ctx.createBuffer(1, bsize, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  const tc = bsize * 0.15;
+  for (let i = 0; i < bsize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / tc);
+
+  const noise = ctx.createBufferSource(); noise.buffer = buf;
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = 2;
+  const osc = ctx.createOscillator(); osc.type = 'sine';
+  osc.frequency.setValueAtTime(freq, time);
+  osc.frequency.exponentialRampToValueAtTime(freq * 0.3, time + decay);
+
+  const gN = ctx.createGain(), gO = ctx.createGain(), master = ctx.createGain();
+  gN.gain.setValueAtTime(gain * 0.7, time);
+  gN.gain.exponentialRampToValueAtTime(0.0001, time + 0.02);
+  gO.gain.setValueAtTime(gain * 0.5, time);
+  gO.gain.exponentialRampToValueAtTime(0.0001, time + decay);
+  master.gain.value = 1;
+
+  noise.connect(bp); bp.connect(gN); gN.connect(master);
+  osc.connect(gO); gO.connect(master);
+  master.connect(ctx.destination);
+
+  const end = time + decay + 0.01;
+  noise.start(time); noise.stop(end);
+  osc.start(time); osc.stop(end);
+}
+
+/* ── Audio: Pattern sounds ── */
+function playPatternSound(time, slot) {
+  if (!slot || slot.type === 'rest') return;
+  const ctx = getCtx();
+  const baseGain = patternVol * (slot.accent ? 1.4 : 1.0);
+  if (baseGain < 0.001) return;
+
+  let freq, dur;
+  if (slot.type === 'down') { freq = 300; dur = 0.04; }
+  else if (slot.type === 'up') { freq = 500; dur = 0.03; }
+  else if (slot.type === 'mute') { freq = 800; dur = 0.015; }
+  else if (slot.type === 'tap') { freq = 400; dur = 0.035; }
+  else return;
+
+  const bsize = Math.ceil(ctx.sampleRate * (dur + 0.01));
+  const buf = ctx.createBuffer(1, bsize, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  const tc = bsize * 0.2;
+  for (let i = 0; i < bsize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / tc);
+
+  const noise = ctx.createBufferSource(); noise.buffer = buf;
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = 1.5;
+  const gN = ctx.createGain();
+  gN.gain.setValueAtTime(baseGain * 0.8, time);
+  gN.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+
+  noise.connect(bp); bp.connect(gN); gN.connect(ctx.destination);
+  noise.start(time); noise.stop(time + dur + 0.01);
+}
+
+/* ── Scheduler ── */
+function scheduleNote(subIdx, time) {
+  const p = currentPattern;
+  const subsPerBeat = p.subdivisions / p.timeSignature[0];
+  const isDownbeat = subIdx % subsPerBeat === 0;
+  const beatNum = Math.floor(subIdx / subsPerBeat);
+
+  // Click on main beats
+  if (isDownbeat) {
+    playClick(time, beatNum === 0);
+  }
+
+  // Pattern sound (unless response bar)
+  if (!isResponseBar) {
+    const slot = p.pattern[subIdx];
+    if (slot) playPatternSound(time, slot);
+  }
+
+  // Schedule visual update
+  const delay = (time - getCtx().currentTime) * 1000;
+  setTimeout(() => {
+    currentSlot = subIdx;
+    renderGrid();
+    updateCRIndicator();
+  }, Math.max(0, delay));
+}
+
+function advance() {
+  const p = currentPattern;
+  const secPerSub = (60 / bpm) / (p.subdivisions / p.timeSignature[0]);
+  nextNoteTime += secPerSub;
+  currentSubIdx++;
+  if (currentSubIdx >= p.subdivisions) {
+    currentSubIdx = 0;
+    barCount++;
+    if (mode === 'callresp') {
+      if (isResponseBar) {
+        isResponseBar = false;
+        barCount = 0;
+      } else if (barCount >= barsBeforeResp) {
+        isResponseBar = true;
+        barCount = 0;
+      }
+    }
+  }
+}
+
+function scheduler() {
+  const ctx = getCtx();
+  while (nextNoteTime < ctx.currentTime + SCHED_AHEAD) {
+    scheduleNote(currentSubIdx, nextNoteTime);
+    advance();
+  }
+}
+
+/* ── Transport ── */
+function startPlay() {
+  const ctx = getCtx();
+  currentSubIdx = 0;
+  barCount = 0;
+  isResponseBar = false;
+  nextNoteTime = ctx.currentTime + 0.05;
+  schedulerTimer = setInterval(scheduler, LOOK_MS);
+  isPlaying = true;
+  const btn = document.getElementById('playBtn');
+  btn.textContent = '■';
+  btn.classList.add('playing');
+}
+
+function stopPlay() {
+  if (schedulerTimer) { clearInterval(schedulerTimer); schedulerTimer = null; }
+  isPlaying = false;
+  currentSlot = -1;
+  isResponseBar = false;
+  const btn = document.getElementById('playBtn');
+  btn.textContent = '▶';
+  btn.classList.remove('playing');
+  document.getElementById('crIndicator').textContent = '';
+  renderGrid();
+}
+
+function togglePlay() {
+  if (isPlaying) stopPlay(); else startPlay();
+}
+
+function updateCRIndicator() {
+  if (mode !== 'callresp') return;
+  const el = document.getElementById('crIndicator');
+  if (isResponseBar) {
+    el.innerHTML = '<span class="cr-response">Your turn — play!</span>';
+  } else {
+    el.innerHTML = '<span class="cr-call">Listen…</span>';
+  }
+}
+
+/* ── Init ── */
+function init() {
+  const prefs = loadPrefs();
+  if (prefs.theme) applyTheme(prefs.theme, true);
+  else applyTheme('current', true);
+
+  if (prefs.difficulty !== undefined) {
+    diffFilter = prefs.difficulty;
+    document.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', +b.dataset.diff === diffFilter));
+  }
+
+  filterPatterns();
+
+  if (prefs.pattern) {
+    const sel = document.getElementById('patternSelect');
+    if ([...sel.options].some(o => o.value === prefs.pattern)) {
+      sel.value = prefs.pattern;
+      selectPattern();
+    }
+  }
+
+  if (prefs.bpm) setBpm(prefs.bpm);
+  if (prefs.mode) setMode(prefs.mode);
+  if (prefs.barsBeforeResp) setBarsBeforeResp(prefs.barsBeforeResp);
+  if (prefs.clickVol !== undefined) { clickVol = prefs.clickVol / 100; document.getElementById('clickVol').value = prefs.clickVol; }
+  if (prefs.patternVol !== undefined) { patternVol = prefs.patternVol / 100; document.getElementById('patternVol').value = prefs.patternVol; }
+
+  renderGrid();
+}
+
+init();
+</script>
+</body>
+</html>
