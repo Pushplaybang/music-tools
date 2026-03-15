@@ -285,7 +285,7 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
       <h3>Transport &amp; BPM</h3>
       <p>Press the large play button or hit <strong>Space</strong> to start/stop. Use ±1/±10 nudge buttons or arrow keys to adjust BPM. Tap the <strong>Tap</strong> button (or press <strong>T</strong>) rhythmically to detect tempo from performance.</p>
       <h3>Beat Visualizer</h3>
-      <p>The beat grid shows all beats in the bar. <strong>Click any beat dot</strong> to cycle through three accent levels — normal, medium accent, and strong accent. Accent level affects both click volume and visual brightness.</p>
+      <p>The beat grid shows all beats in the bar. <strong>Click any beat dot</strong> to cycle through three accent levels — normal, medium accent, and strong accent. Accent level affects both click volume and visual brightness. <strong>Subdivision dots can also be clicked</strong> to accent them independently: level 1 = 0.4× volume (quiet), level 2 = 0.7× (medium), level 3 = full volume (same as a main accented beat).</p>
       <h3>Pendulum Arm</h3>
       <p>A canvas-drawn mechanical pendulum arm swings in sync with the beat. Toggle visibility with the small <strong>Arm</strong> chip at the bottom of the main panel.</p>
       <h3>Time Signature &amp; Feel</h3>
@@ -511,6 +511,7 @@ document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('cli
 // ══ STATE ════════════════════════════════════════════
 let bpm=120, beatsPerBar=4, noteValue=4, subdivision=1;
 let accentLevels=[3,1,1,1];
+let subAccentLevels=[];  // subAccentLevels[beat][subIdx] = 1|2|3
 let isPlaying=false, showArm=false, clickRate=1;
 
 let audioCtx=null;
@@ -566,6 +567,7 @@ function applyTimeSig(){
   while(accentLevels.length<beatsPerBar) accentLevels.push(1);
   accentLevels=accentLevels.slice(0,beatsPerBar);
   if(accentLevels[0]<3) accentLevels[0]=3;
+  subAccentLevels=Array.from({length:beatsPerBar},()=>new Array(Math.max(0,subdivision-1)).fill(1));
   buildBeatGrid(); updatePresetHighlight(); saveAllPrefs();
 }
 function updatePresetHighlight(){
@@ -581,6 +583,7 @@ document.querySelectorAll('.preset-btn').forEach(btn=>btn.addEventListener('clic
 function setSub(val){
   subdivision=val;
   document.querySelectorAll('.sub-btn').forEach(b=>b.classList.toggle('active',+b.dataset.sub===val));
+  subAccentLevels=Array.from({length:beatsPerBar},()=>new Array(Math.max(0,subdivision-1)).fill(1));
   buildBeatGrid(); saveAllPrefs();
 }
 
@@ -619,10 +622,19 @@ function buildBeatGrid(){
     const num=document.createElement('div');num.className='beat-num';num.textContent=b+1;cell.appendChild(num);
     grid.appendChild(cell);
     if(subdivision>1){
+      if(!subAccentLevels[b]||subAccentLevels[b].length!==subdivision-1)
+        subAccentLevels[b]=new Array(subdivision-1).fill(1);
       for(let s=1;s<subdivision;s++){
         const sep2=document.createElement('div');sep2.className='beat-sep';sep2.style.height='26px';grid.appendChild(sep2);
         const sc=document.createElement('div');sc.className='beat-cell';
-        const sd=document.createElement('div');sd.className='beat-dot sub';sd.id='subDot_'+b+'_'+s;
+        const sd=document.createElement('div');
+        const subIdx=s-1;
+        const subLvl=subAccentLevels[b][subIdx]||1;
+        sd.className='beat-dot sub'+(subLvl===3?' accent':'');
+        sd.id='subDot_'+b+'_'+s;
+        sd.dataset.accent=subLvl;
+        const subRing=document.createElement('div');subRing.className='accent-ring';sd.appendChild(subRing);
+        sd.addEventListener('click',()=>cycleSubAccent(b,s-1));
         sc.appendChild(sd);grid.appendChild(sc);
       }
     }
@@ -633,6 +645,15 @@ function cycleAccent(b){
   accentLevels[b]=(accentLevels[b]%3)+1;
   const dot=document.getElementById('beatDot_'+b);
   if(dot){dot.dataset.accent=accentLevels[b];dot.classList.toggle('accent',accentLevels[b]===3);}
+  saveAllPrefs();
+}
+
+function cycleSubAccent(beat,subIdx){
+  if(!subAccentLevels[beat]) subAccentLevels[beat]=new Array(subdivision-1).fill(1);
+  subAccentLevels[beat][subIdx]=(subAccentLevels[beat][subIdx]%3)+1;
+  const lvl=subAccentLevels[beat][subIdx];
+  const sd=document.getElementById('subDot_'+beat+'_'+(subIdx+1));
+  if(sd){sd.dataset.accent=lvl;sd.classList.toggle('accent',lvl===3);}
   saveAllPrefs();
 }
 
@@ -666,7 +687,7 @@ function playClick(time, accentLevel, isSub){
   let gain=getVol();
   if(accentLevel===3) gain*=(1+boost);
   else if(accentLevel===2) gain*=(1+boost*0.5);
-  if(isSub) gain*=0.4;
+  if(isSub) gain*=(accentLevel===3?1.0:accentLevel===2?0.7:0.4);
   gain=Math.min(gain,1.0);
 
   // freq: 400Hz (woody) → 2600Hz (crisp)
@@ -717,7 +738,7 @@ function scheduler(){
 
 function scheduleNote(beat,sub,time){
   const isSub=sub>0;
-  const level=isSub?1:accentLevels[beat];
+  const level=isSub?(subAccentLevels[beat]?subAccentLevels[beat][sub-1]||1:1):accentLevels[beat];
   if(!isSub||document.getElementById('subSoundToggle').checked) playClick(time,level,isSub);
   const delay=(time-getCtx().currentTime)*1000;
   setTimeout(()=>visualTick(beat,sub,isSub),Math.max(0,delay));
@@ -919,7 +940,7 @@ function stopMetronome(){
 // ══ SAVE / LOAD ════════════════════════════════════════
 function saveAllPrefs(){
   savePref('bpm',bpm); savePref('beatsPerBar',beatsPerBar); savePref('noteValue',noteValue);
-  savePref('subdivision',subdivision); savePref('accentLevels',accentLevels);
+  savePref('subdivision',subdivision); savePref('accentLevels',accentLevels); savePref('subAccentLevels',subAccentLevels);
   savePref('vol',document.getElementById('volSlider').value);
   savePref('bright',document.getElementById('brightSlider').value);
   savePref('env',document.getElementById('envSlider').value);
@@ -933,7 +954,7 @@ function saveAllPrefs(){
 
 function resetAll(){
   stopMetronome();
-  bpm=120;beatsPerBar=4;noteValue=4;subdivision=1;accentLevels=[3,1,1,1];showArm=false;clickRate=1;
+  bpm=120;beatsPerBar=4;noteValue=4;subdivision=1;accentLevels=[3,1,1,1];subAccentLevels=[];showArm=false;clickRate=1;
   setBpm(120);
   document.getElementById('beatsPerBar').value=4; document.getElementById('noteValue').value=4;
   document.getElementById('volSlider').value=80; document.getElementById('brightSlider').value=50;
@@ -962,6 +983,14 @@ function restoreSettings(){
     accentLevels=p.accentLevels;
   } else {
     accentLevels=Array.from({length:beatsPerBar},(_,i)=>i===0?3:1);
+  }
+  // 3b. Sub-beat accent levels — validate both dimensions
+  const subLen=Math.max(0,subdivision-1);
+  if(p.subAccentLevels&&Array.isArray(p.subAccentLevels)&&p.subAccentLevels.length===beatsPerBar&&
+     p.subAccentLevels.every(a=>Array.isArray(a)&&a.length===subLen)){
+    subAccentLevels=p.subAccentLevels;
+  } else {
+    subAccentLevels=Array.from({length:beatsPerBar},()=>new Array(subLen).fill(1));
   }
   // 4. Sound sliders
   if(p.vol != null)         document.getElementById('volSlider').value=p.vol;
