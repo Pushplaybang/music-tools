@@ -65,8 +65,9 @@ function resolvePath(reqPath) {
   if (!resolvedPath) return null;
 
   const absolutePath = path.resolve(resolvedPath);
-  const rootPrefix = path.resolve(ROOT) + path.sep;
-  return absolutePath.startsWith(rootPrefix) ? absolutePath : null;
+  const rootPath = path.resolve(ROOT);
+  const rootPrefix = rootPath + path.sep;
+  return absolutePath === rootPath || absolutePath.startsWith(rootPrefix) ? absolutePath : null;
 }
 
 // --- HTTP server ---
