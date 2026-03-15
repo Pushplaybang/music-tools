@@ -888,7 +888,7 @@ function scheduleNote(beat,sub,time){
       playClick(time,level,false);
       countInRemaining--;
       if(countInRemaining>0){
-        document.getElementById('tempoName').textContent='Count-in\u2026';
+        document.getElementById('tempoName').textContent='Count-in…';
       } else {
         document.getElementById('tempoName').textContent=getTempoName(bpm);
         // Reset mute bar state at end of count-in
@@ -1103,7 +1103,7 @@ function startMetronome(){
   // Count-in
   if(countInEnabled) {
     countInRemaining=beatsPerBar;
-    document.getElementById('tempoName').textContent='Count-in\u2026';
+    document.getElementById('tempoName').textContent='Count-in…';
   }
   // Reset mute bar state
   muteBarPhase='play'; muteBarCounter=0;
