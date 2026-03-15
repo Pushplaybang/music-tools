@@ -320,7 +320,7 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
     <div class="doc-sub">Features &amp; functionality guide</div>
     <div class="doc-body">
       <h3>Configuration</h3>
-      <p><strong>Root Note</strong> sets the tonic. <strong>Scale / Mode</strong> selects from 15 scales. <strong>Octave</strong> shifts the register — Octave 4 contains Middle C. With Guitar, Bass, or Ukulele active, a <strong>Tuning</strong> selector appears with alternative tunings.</p>
+      <p><strong>Root Note</strong> sets the tonic. <strong>Scale / Mode</strong> selects from 15 scales. <strong>Octave</strong> shifts the register — Octave 4 contains Middle C. <strong>Range</strong> (1–3 Octaves) expands the note pool across additional octaves above the starting octave; the piano visualiser widens to match. With Guitar, Bass, or Ukulele active, a <strong>Tuning</strong> selector appears with alternative tunings.</p>
       <p>Press <span class="badge">▶ Play Scale</span> or <span class="badge">▼ Descending</span> to hear the scale. Clicking either button while the scale is already playing re-triggers it from the start. Use <span class="badge">⚄ Randomise</span> for a surprise combination — tuning is never randomised.</p>
       <h3>Visualiser</h3>
       <ul>
@@ -391,6 +391,7 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
       <div class="control-group"><label>Root Note</label><select id="rootSelect"></select></div>
       <div class="control-group"><label>Scale / Mode</label><select id="scaleSelect"></select></div>
       <div class="control-group"><label>Octave</label><select id="octaveSelect"></select></div>
+      <div class="control-group"><label>Range</label><select id="rangeSelect"></select></div>
       <div class="control-group" id="tuningGroup" style="display:none"><label id="tuningLabel">Tuning</label><select id="tuningSelect"></select></div>
     </div>
     <div class="actions">
@@ -607,9 +608,13 @@ const CHORD_TYPES=[
   {name:'Minor Maj 7th',semis:[0,3,7,11]},
 ];
 
+function getRange(){const s=document.getElementById('rangeSelect');return s?parseInt(s.value)||1:1;}
 function getScaleNotes(){
   const root=document.getElementById('rootSelect').value,sn=document.getElementById('scaleSelect').value,oct=parseInt(document.getElementById('octaveSelect').value),ri=NOTES.indexOf(root);
-  return SCALES[sn].map(i=>{const ts=ri+i;return{note:NOTES[ts%12],octave:oct+Math.floor(ts/12),semis:i};});
+  const range=getRange(),pat=SCALES[sn].slice(0,-1),expanded=[];
+  for(let r=0;r<range;r++) pat.forEach(i=>expanded.push(i+r*12));
+  expanded.push(range*12);
+  return expanded.map(i=>{const ts=ri+i;return{note:NOTES[ts%12],octave:oct+Math.floor(ts/12),semis:i};});
 }
 function getScalePCs(){return new Set(getScaleNotes().map(n=>NOTES.indexOf(n.note)));}
 
@@ -643,14 +648,20 @@ function buildSelects(){
   const os=document.getElementById('octaveSelect');
   for(let o=2;o<=6;o++){const e=document.createElement('option');e.value=o;e.textContent='Octave '+o+(o===4?' (Middle C)':'');os.appendChild(e);}
   os.value=4;
+  const rangeEl=document.getElementById('rangeSelect');
+  ['1 Octave','2 Octaves','3 Octaves'].forEach((t,i)=>{const o=document.createElement('option');o.value=i+1;o.textContent=t;rangeEl.appendChild(o);});
+  rangeEl.value=1;
   rs.addEventListener('change',()=>{render();savePref('root',rs.value);});
   ss.addEventListener('change',()=>{render();savePref('scale',ss.value);});
   os.addEventListener('change',()=>{render();savePref('octave',os.value);});
+  rangeEl.addEventListener('change',()=>{render();savePref('range',parseInt(rangeEl.value));});
 }
 
 // ══ QUIZ MODE ══
 let currentQuizMode='notes';
 document.querySelectorAll('.quiz-mode-btn').forEach(btn=>btn.addEventListener('click',()=>{
+  if(btn.dataset.mode===currentQuizMode) return;
+  if(qTotal>0&&!confirm('Switch mode? This will reset your score.')) return;
   currentQuizMode=btn.dataset.mode;
   document.querySelectorAll('.quiz-mode-btn').forEach(b=>b.classList.toggle('active',b===btn));
   doReset();savePref('quizMode',currentQuizMode);
@@ -662,6 +673,7 @@ function restoreSettings(){
   if(p.root) document.getElementById('rootSelect').value=p.root;
   if(p.scale) document.getElementById('scaleSelect').value=p.scale;
   if(p.octave) document.getElementById('octaveSelect').value=p.octave;
+  if(p.range) document.getElementById('rangeSelect').value=p.range;
   if(p.rootFirst) document.getElementById('rootFirstToggle').checked=true;
   if(p.timerOn){document.getElementById('timerToggle').checked=true;document.getElementById('timerWrap').classList.add('active');}
   if(p.vis){
@@ -690,14 +702,16 @@ function randomiseConfig(){
 // ══ QUIZ STATE ══
 let qCorrect=0,qTotal=0,qWrong=0,qTimeouts=0,qVisWrong=0;
 let qAns=null,qAnsOct=null,qFreq=null,qRefFreq=null,qAnswered=false;
-let qLastNote=null,qMissWeights={};
+let qRecentNotes=[],qLastIntervalAns=null,qLastChordRoot=null,qMissWeights={};
 let qIntervalSemis=null,qRefNote=null,qRefOct=null;
 let qChordObj=null;
 
 function pickNote(pool){
-  const unique=[...new Set(pool.map(n=>n.note))];
-  const eligible=unique.length>1?pool.filter(n=>n.note!==qLastNote):pool;
-  const weights=eligible.map(n=>1+(qMissWeights[n.note]||0));
+  const uniqueKeys=[...new Set(pool.map(n=>n.note+n.octave))];
+  const maxExclude=uniqueKeys.length<=3?1:2;
+  const recentExclude=new Set(qRecentNotes.slice(-maxExclude));
+  const eligible=uniqueKeys.length>maxExclude?pool.filter(n=>!recentExclude.has(n.note+n.octave)):pool;
+  const weights=eligible.map(n=>1+(qMissWeights[n.note+n.octave]||0));
   const total=weights.reduce((a,b)=>a+b,0);
   let r=Math.random()*total;
   for(let i=0;i<eligible.length;i++){r-=weights[i];if(r<=0)return eligible[i];}
@@ -740,7 +754,7 @@ function handleTimeout(){
     highlightChord(qChordObj.notes,'wrong');
   } else {
     if(qFreq) playTone(qFreq,getCtx().currentTime,1.2);
-    qMissWeights[qAns]=(qMissWeights[qAns]||0)+1.2;
+    qMissWeights[qAns+qAnsOct]=(qMissWeights[qAns+qAnsOct]||0)+1.2;
     highlightNotes([{note:qAns,octave:qAnsOct}],'wrong',[{note:qAns,octave:qAnsOct}]);
   }
   updateScoreDisplay();
@@ -781,7 +795,7 @@ function showOverlay(){
 function dismissOverlay(){closeModal('scoreOverlay');doReset();}
 function doReset(){
   stopTimer();cancelScalePlayback();
-  qCorrect=0;qTotal=0;qWrong=0;qTimeouts=0;qVisWrong=0;qMissWeights={};qLastNote=null;
+  qCorrect=0;qTotal=0;qWrong=0;qTimeouts=0;qVisWrong=0;qMissWeights={};qRecentNotes=[];qLastIntervalAns=null;qLastChordRoot=null;
   qAns=null;qAnsOct=null;qFreq=null;qRefFreq=null;qAnswered=false;
   qIntervalSemis=null;qRefNote=null;qRefOct=null;qChordObj=null;
   document.getElementById('quizFeedback').textContent='';
@@ -799,8 +813,9 @@ function buildPiano(hsMap){
   hsMap=hsMap||new Map();
   const piano=document.getElementById('piano');piano.innerHTML='';
   const oct=parseInt(document.getElementById('octaveSelect').value);
+  const range=getRange();
   const inScale=new Set(getScaleNotes().map(n=>n.note+n.octave));
-  [oct,oct+1].forEach(o=>{
+  Array.from({length:range+1},(_,i)=>oct+i).forEach(o=>{
     WN.forEach(note=>{
       const k=document.createElement('div');k.className='white-key';
       if(inScale.has(note+o)) k.classList.add('in-scale');
@@ -948,16 +963,28 @@ function startQuiz(){
 
 // ── Note Names ──
 function startNoteQuiz(){
-  const pool=getScaleNotes().filter((n,i,a)=>!(i===a.length-1&&n.semis===12));
-  const correct=pickNote(pool);
-  qLastNote=correct.note;qAns=correct.note;qAnsOct=correct.octave;
+  const allNotes=getScaleNotes();
+  const pool=allNotes.slice(0,-1); // exclude final octave-duplicate note
+  const tonic=pool[0];
+  const refFirst=document.getElementById('rootFirstToggle').checked;
+  // Fix 2: exclude tonic from pick pool when playing reference first
+  let pickPool=pool;
+  if(refFirst&&pool.length>1){
+    const noTonic=pool.filter(n=>!(n.note===tonic.note&&n.octave===tonic.octave));
+    if(noTonic.length>0) pickPool=noTonic;
+  }
+  const correct=pickNote(pickPool);
+  // Fix 1: track recent notes (max 2) for no-repeat
+  qRecentNotes.push(correct.note+correct.octave);
+  if(qRecentNotes.length>2) qRecentNotes.shift();
+  qAns=correct.note;qAnsOct=correct.octave;
   qFreq=noteFreq(correct.note,correct.octave);
-  qRefFreq=noteFreq(pool[0].note,pool[0].octave);
+  qRefFreq=noteFreq(tonic.note,tonic.octave);
   const unique=[...new Set(pool.map(n=>n.note))];
   buildQuizOpts(unique.map(n=>({label:nn(n),value:n})),v=>checkNoteAns(v));
-  const refFirst=document.getElementById('rootFirstToggle').checked;
   const ctx=getCtx();
-  if(refFirst&&qRefFreq!==qFreq){
+  const isTonic=correct.note===tonic.note&&correct.octave===tonic.octave;
+  if(refFirst&&!isTonic){
     document.getElementById('quizPrompt').textContent='🎵 Root → ? (What note follows?)';
     playTone(qRefFreq,ctx.currentTime,0.6);playTone(qFreq,ctx.currentTime+0.85,1.2);
   } else {
@@ -975,11 +1002,11 @@ function checkNoteAns(note){
   if(ok){
     qCorrect++;if(btn)btn.classList.add('correct');
     fb.textContent='✓ Correct!';fb.className='quiz-feedback correct';
-    if((qMissWeights[note]||0)>0) qMissWeights[note]=Math.max(0,qMissWeights[note]-0.4);
+    if((qMissWeights[note+qAnsOct]||0)>0) qMissWeights[note+qAnsOct]=Math.max(0,qMissWeights[note+qAnsOct]-0.4);
   } else {
     qWrong++;if(btn)btn.classList.add('wrong');
     fb.textContent='✗ That was '+nn(qAns);fb.className='quiz-feedback wrong';
-    qMissWeights[qAns]=(qMissWeights[qAns]||0)+0.8;
+    qMissWeights[qAns+qAnsOct]=(qMissWeights[qAns+qAnsOct]||0)+0.8;
     document.querySelectorAll('.quiz-opt').forEach(b=>{if(b.dataset.val===qAns)b.classList.add('correct');});
   }
   updateScoreDisplay();
@@ -990,10 +1017,14 @@ function checkNoteAns(note){
 
 // ── Intervals ──
 function startIntervalQuiz(){
-  const pool=getScaleNotes().filter((n,i,a)=>!(i===a.length-1&&n.semis===12));
+  const allNotes=getScaleNotes();
+  const pool=allNotes.slice(0,-1); // exclude final octave-duplicate note
   if(pool.length<2){document.getElementById('quizPrompt').textContent='Scale needs at least 2 unique notes for interval quiz';return;}
-  const correct=pickNote(pool);
-  qLastNote=correct.note;qAns=correct.note;qAnsOct=correct.octave;
+  // Fix 1: exclude last interval answer to avoid immediate repeat
+  const pickPool=qLastIntervalAns&&pool.length>1?pool.filter(n=>n.note+n.octave!==qLastIntervalAns):pool;
+  const correct=pickNote(pickPool.length?pickPool:pool);
+  qLastIntervalAns=correct.note+correct.octave;
+  qAns=correct.note;qAnsOct=correct.octave;
   qFreq=noteFreq(correct.note,correct.octave);
   // Pick reference note different from the answer note
   const others=pool.filter(n=>n.note!==correct.note);
@@ -1034,11 +1065,11 @@ function checkIntervalAns(semis){
   if(ok){
     qCorrect++;if(btn)btn.classList.add('correct');
     fb.textContent='✓ Correct! '+correctLabel;fb.className='quiz-feedback correct';
-    if((qMissWeights[qAns]||0)>0) qMissWeights[qAns]=Math.max(0,qMissWeights[qAns]-0.4);
+    if((qMissWeights[qAns+qAnsOct]||0)>0) qMissWeights[qAns+qAnsOct]=Math.max(0,qMissWeights[qAns+qAnsOct]-0.4);
   } else {
     qWrong++;if(btn)btn.classList.add('wrong');
     fb.textContent='✗ That was '+correctLabel;fb.className='quiz-feedback wrong';
-    qMissWeights[qAns]=(qMissWeights[qAns]||0)+0.8;
+    qMissWeights[qAns+qAnsOct]=(qMissWeights[qAns+qAnsOct]||0)+0.8;
     document.querySelectorAll('.quiz-opt').forEach(b=>{if(parseInt(b.dataset.val)===qIntervalSemis)b.classList.add('correct');});
   }
   updateScoreDisplay();
@@ -1055,7 +1086,10 @@ function checkIntervalAns(semis){
 function startChordQuiz(){
   const chords=getScaleChords();
   if(chords.length<2){document.getElementById('quizPrompt').textContent='Not enough diatonic chords — try Major or Natural Minor';return;}
-  const correct=chords[Math.floor(Math.random()*chords.length)];
+  // Fix 1: exclude last chord root to avoid immediate repeat
+  const pickChords=qLastChordRoot!==null&&chords.length>1?chords.filter(c=>c.rootPc!==qLastChordRoot):chords;
+  const correct=(pickChords.length?pickChords:chords)[Math.floor(Math.random()*(pickChords.length||chords.length))];
+  qLastChordRoot=correct.rootPc;
   qChordObj=correct;qAns=correct.type;
   const allTypes=[...new Set(chords.map(c=>c.type))];
   const distractors=shuffle(allTypes.filter(t=>t!==correct.type)).slice(0,Math.min(5,allTypes.length-1));
