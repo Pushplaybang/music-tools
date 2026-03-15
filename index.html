@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Tools — Free Browser-Based Tools for Musicians</title>
+<meta name="description" content="A collection of free, open-source browser-based music tools for musicians at any level — ear trainer, chromatic tuner, and visual metronome. No install, no account.">
+<meta property="og:title" content="Music Tools">
+<meta property="og:description" content="Free browser-based music tools. Ear trainer, chromatic tuner, visual metronome. No install needed.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://pushplaybang.github.io/music-tools/">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+/* ── THEME TOKENS ─────────────────────────────────────────────── */
+[data-theme="current"]{
+  --bg:#0d0f12;--bg-grad:radial-gradient(ellipse at 20% 0%,#1a2030 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,#0d1a14 0%,transparent 60%);
+  --surface:#161a1f;--surface2:#1e2329;--border:#2a3040;
+  --accent:#e8b84b;--accent2:#4be8b8;--text:#e8e4da;--muted:#6b7280;
+  --font-h:'DM Serif Display',serif;--font-b:'Space Mono',monospace;
+  --h1:clamp(2rem,6vw,3.6rem);--r:12px;--br:6px;
+  --bar-bg:#0a0c0e;--pill-active:#e8b84b;--pill-text:#0d0f12;
+  --grad:linear-gradient(90deg,#e8b84b,#4be8b8);
+}
+[data-theme="minimal"]{
+  --bg:#fafaf8;--bg-grad:none;--surface:#fff;--surface2:#f4f4f0;--border:#e2e2dc;
+  --accent:#1a1a1a;--accent2:#5a8a6e;--text:#1a1a1a;--muted:#999990;
+  --font-h:'Instrument Serif',serif;--font-b:'Syne',sans-serif;
+  --h1:clamp(2rem,6vw,4rem);--r:2px;--br:2px;
+  --bar-bg:#f0f0ec;--pill-active:#1a1a1a;--pill-text:#fafaf8;
+  --grad:linear-gradient(90deg,#1a1a1a,#5a8a6e);
+}
+[data-theme="studio"]{
+  --bg:#0e0e0e;--bg-grad:radial-gradient(ellipse at 50% -20%,#1a0a2e 0%,transparent 60%);
+  --surface:#141414;--surface2:#1c1c1c;--border:#2a2a2a;
+  --accent:#c678f0;--accent2:#78c6f0;--text:#d4d4d4;--muted:#555;
+  --font-h:'Syne',sans-serif;--font-b:'Space Mono',monospace;
+  --h1:clamp(1.6rem,5vw,3rem);--r:8px;--br:4px;
+  --bar-bg:#080808;--pill-active:#c678f0;--pill-text:#0e0e0e;
+  --grad:linear-gradient(90deg,#c678f0,#78c6f0);
+}
+[data-theme="retro"]{
+  --bg:#1c1108;--bg-grad:radial-gradient(ellipse at 50% 0%,#2e1c08 0%,transparent 70%);
+  --surface:#231508;--surface2:#2e1c08;--border:#5a3d1a;
+  --accent:#d4a843;--accent2:#c47840;--text:#e8d8b0;--muted:#8a6a3a;
+  --font-h:'Playfair Display',serif;--font-b:'Playfair Display',serif;
+  --h1:clamp(2rem,6vw,4rem);--r:4px;--br:3px;
+  --bar-bg:#120b04;--pill-active:#d4a843;--pill-text:#1c1108;
+  --grad:linear-gradient(90deg,#d4a843,#c47840);
+}
+[data-theme="playful"]{
+  --bg:#fff9f0;--bg-grad:radial-gradient(ellipse at 10% 10%,#ffe8f0 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,#e8f0ff 0%,transparent 50%);
+  --surface:#fff;--surface2:#fdf5ff;--border:#e8d8f8;
+  --accent:#ff5fa0;--accent2:#5fb8ff;--text:#2a1840;--muted:#b090c8;
+  --font-h:'Nunito',sans-serif;--font-b:'Nunito',sans-serif;
+  --h1:clamp(2rem,6vw,4rem);--r:20px;--br:50px;
+  --bar-bg:#f5e8ff;--pill-active:#ff5fa0;--pill-text:#fff;
+  --grad:linear-gradient(90deg,#ff5fa0,#5fb8ff);
+}
+
+/* ── BASE ── */
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:56px;transition:background .35s,color .35s;}
+body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);pointer-events:none;z-index:0;}
+
+/* ── THEME BAR ── */
+.theme-bar{width:100%;background:var(--bar-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:6px 16px;position:sticky;top:0;z-index:200;transition:background .35s,border-color .35s;gap:8px;}
+.bar-left{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.bar-right{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;}
+.bar-sep{width:1px;height:22px;background:var(--border);margin:0 6px;flex-shrink:0;}
+.bar-icon-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:var(--br);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .18s;flex-shrink:0;text-decoration:none;}
+.bar-icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+.theme-pills-desktop{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
+.theme-pill{font-family:var(--font-b);font-size:.62rem;letter-spacing:.05em;padding:6px 13px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.theme-pill:hover{color:var(--text);border-color:var(--accent);}
+.theme-pill.active{background:var(--pill-active);color:var(--pill-text);border-color:var(--pill-active);font-weight:700;}
+.theme-mobile{display:none;position:relative;}
+.theme-mobile-btn{font-family:var(--font-b);font-size:.7rem;padding:6px 12px;border-radius:50px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .2s;}
+.theme-mobile-btn .arrow{font-size:.5rem;transition:transform .2s;}
+.theme-mobile-btn.open .arrow{transform:rotate(180deg);}
+.theme-flyout{position:absolute;top:calc(100% + 8px);right:0;background:var(--bar-bg);border:1px solid var(--border);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:160px;z-index:300;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .18s,transform .18s;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.theme-flyout.open{opacity:1;pointer-events:all;transform:translateY(0);}
+.theme-flyout .theme-pill{border-radius:6px;text-align:left;font-size:.72rem;padding:8px 14px;}
+@media(max-width:640px){.theme-pills-desktop{display:none;}.theme-mobile{display:block;}}
+
+/* ── CONTENT ── */
+.content{position:relative;z-index:1;width:100%;max-width:1120px;padding:40px 20px 0;display:flex;flex-direction:column;align-items:center;}
+
+/* ── HEADER ── */
+header{text-align:center;margin-bottom:36px;}
+header h1{font-family:var(--font-h);font-size:var(--h1);color:var(--accent);line-height:1.1;transition:color .35s,font-size .35s,font-family .35s;}
+[data-theme="current"] header h1{text-shadow:0 0 60px rgba(232,184,75,.25);}
+[data-theme="studio"] header h1{text-transform:uppercase;letter-spacing:.14em;text-shadow:0 0 30px rgba(198,120,240,.35);font-weight:800;}
+[data-theme="retro"] header h1{font-style:italic;}
+[data-theme="playful"] header h1{font-weight:800;}
+header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);letter-spacing:.1em;text-transform:uppercase;margin-top:10px;font-family:var(--font-b);transition:color .35s;}
+[data-theme="retro"] header p.sub{font-style:italic;text-transform:none;}
+[data-theme="playful"] header p.sub{text-transform:none;letter-spacing:0;}
+.grad-rule{height:2px;background:var(--grad);border-radius:2px;width:clamp(48px,12vw,96px);margin:18px auto 0;opacity:.6;}
+
+/* ── INTRO ── */
+.intro{max-width:680px;text-align:center;margin-bottom:44px;}
+.intro p{font-size:clamp(.8rem,.5rem + 1vw,.95rem);color:var(--muted);line-height:1.85;transition:color .35s;}
+[data-theme="retro"] .intro p{font-style:italic;}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px;}
+.badge{font-family:var(--font-b);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:50px;border:1px solid var(--border);color:var(--muted);background:transparent;transition:border-color .35s,color .35s;}
+[data-theme="retro"] .badge,[data-theme="playful"] .badge{text-transform:none;}
+
+/* ── CARD (base) ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);transition:background .35s,border-color .35s,border-radius .35s,box-shadow .35s;}
+[data-theme="minimal"] .card{border-left:3px solid var(--accent);}
+[data-theme="studio"] .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.03);}
+[data-theme="retro"] .card{border:2px solid var(--border);box-shadow:4px 4px 0 rgba(0,0,0,.5);}
+[data-theme="playful"] .card{border:2px solid var(--border);box-shadow:0 4px 24px rgba(255,95,160,.1);}
+[data-theme="retro"] .card .tool-illo::before{display:none;}
+
+/* ── TOOLS GRID ── */
+.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;width:100%;margin-bottom:40px;}
+@media(max-width:880px){.tools-grid{grid-template-columns:1fr;gap:20px;max-width:520px;}}
+
+/* ── TOOL CARD ── */
+.tool-card{display:flex;flex-direction:column;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s,border-color .35s,background .35s,border-radius .35s;}
+.tool-card:hover{transform:translateY(-5px);box-shadow:0 20px 56px rgba(0,0,0,.35);}
+[data-theme="current"] .tool-card:hover{box-shadow:0 20px 56px rgba(0,0,0,.45),0 0 0 1px var(--accent);}
+[data-theme="studio"] .tool-card:hover{box-shadow:0 20px 56px rgba(198,120,240,.18),0 0 0 1px var(--accent);}
+[data-theme="minimal"] .tool-card:hover{box-shadow:0 10px 32px rgba(0,0,0,.1);}
+[data-theme="playful"] .tool-card:hover{box-shadow:0 20px 56px rgba(255,95,160,.22),0 0 0 2px var(--accent);}
+[data-theme="retro"] .tool-card:hover{transform:translateY(-2px);box-shadow:6px 6px 0 rgba(0,0,0,.6);}
+
+/* ── ILLUSTRATION AREA ── */
+.tool-illo{background:var(--surface2);display:flex;align-items:center;justify-content:center;padding:28px 24px;border-bottom:1px solid var(--border);transition:background .35s,border-color .35s;}
+.tool-illo svg{width:190px;height:150px;display:block;overflow:visible;}
+[data-theme="retro"] .card::before{content:'';display:block;height:3px;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 6px,transparent 6px,transparent 12px);opacity:.3;border-radius:var(--r) var(--r) 0 0;}
+
+/* ── TOOL BODY ── */
+.tool-body{padding:22px;display:flex;flex-direction:column;flex:1;}
+@media(min-width:480px){.tool-body{padding:26px;}}
+.tool-name{font-family:var(--font-h);font-size:1.35rem;color:var(--accent);margin-bottom:10px;line-height:1.2;transition:color .35s,font-family .35s;}
+[data-theme="studio"] .tool-name{text-transform:uppercase;letter-spacing:.1em;font-size:1.05rem;font-weight:800;}
+[data-theme="retro"] .tool-name{font-style:italic;font-size:1.45rem;}
+[data-theme="playful"] .tool-name{font-weight:800;font-size:1.4rem;}
+.tool-desc{font-size:.82rem;color:var(--muted);line-height:1.75;margin-bottom:18px;flex:1;transition:color .35s;}
+[data-theme="retro"] .tool-desc{font-style:italic;}
+.tool-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+.tool-tag{font-family:var(--font-b);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:50px;border:1px solid var(--border);color:var(--muted);transition:border-color .35s,color .35s;}
+[data-theme="retro"] .tool-tag,[data-theme="playful"] .tool-tag{text-transform:none;}
+
+/* ── LAUNCH BUTTON ── */
+.tool-launch{width:100%;font-family:var(--font-b);font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;padding:12px 20px;border-radius:var(--br);border:none;cursor:pointer;background:var(--accent);color:var(--pill-text);font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:filter .15s,transform .15s;}
+.tool-launch:hover{filter:brightness(1.12);transform:translateY(-1px);}
+[data-theme="retro"] .tool-launch,[data-theme="playful"] .tool-launch{text-transform:none;font-size:.9rem;}
+[data-theme="playful"] .tool-launch{font-weight:800;letter-spacing:0;}
+
+/* ── LINKS BAR ── */
+.links-bar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;margin-bottom:12px;}
+.link-pill{font-family:var(--font-b);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:6px 15px;border-radius:50px;border:1px solid var(--border);color:var(--muted);background:transparent;text-decoration:none;transition:border-color .2s,color .2s;display:inline-flex;align-items:center;gap:6px;}
+.link-pill:hover{border-color:var(--accent);color:var(--accent);}
+[data-theme="retro"] .link-pill,[data-theme="playful"] .link-pill{text-transform:none;}
+
+/* ── FOOTER ── */
+.app-footer{position:relative;z-index:1;font-family:var(--font-b);font-size:.62rem;color:var(--muted);opacity:.5;letter-spacing:.08em;margin-top:6px;padding-bottom:8px;text-align:center;}
+</style>
+</head>
+<body data-theme="current">
+
+<!-- ══ THEME BAR ══ -->
+<div class="theme-bar">
+  <div class="bar-left">
+    <a class="bar-icon-btn" href="https://github.com/pushplaybang/music-tools" target="_blank" rel="noopener noreferrer" title="GitHub Repository" aria-label="GitHub Repository">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+    </a>
+  </div>
+  <div class="bar-sep"></div>
+  <div class="bar-right">
+    <div class="theme-pills-desktop">
+      <button class="theme-pill active" data-t="current">Dark Gold</button>
+      <button class="theme-pill" data-t="minimal">Clean &amp; Minimal</button>
+      <button class="theme-pill" data-t="studio">Dark Studio</button>
+      <button class="theme-pill" data-t="retro">Retro Piano</button>
+      <button class="theme-pill" data-t="playful">Bright &amp; Playful</button>
+    </div>
+    <div class="theme-mobile">
+      <button class="theme-mobile-btn" id="themeMobileBtn">
+        <span id="themeMobileLabel">Dark Gold</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="theme-flyout" id="themeFlyout">
+        <button class="theme-pill active" data-t="current">Dark Gold</button>
+        <button class="theme-pill" data-t="minimal">Clean &amp; Minimal</button>
+        <button class="theme-pill" data-t="studio">Dark Studio</button>
+        <button class="theme-pill" data-t="retro">Retro Piano</button>
+        <button class="theme-pill" data-t="playful">Bright &amp; Playful</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTENT ══ -->
+<div class="content">
+
+  <header>
+    <h1 id="appTitle">Music Tools</h1>
+    <p class="sub" id="appSub">free browser-based tools for musicians</p>
+    <div class="grad-rule"></div>
+  </header>
+
+  <!-- Brief intro -->
+  <div class="intro">
+    <p id="appIntro">A small collection of free, open-source, browser-based tools for musicians at any level. No account, no installation, no server — each tool is a single HTML file that runs entirely in your browser, powered by the Web Audio API.</p>
+    <div class="badge-row">
+      <span class="badge">Vanilla HTML · CSS · JS</span>
+      <span class="badge">Web Audio API</span>
+      <span class="badge">Zero Dependencies</span>
+      <span class="badge">CC BY-NC 4.0</span>
+    </div>
+  </div>
+
+  <!-- ── TOOL CARDS ── -->
+  <div class="tools-grid">
+
+    <!-- ── Ear Trainer ── -->
+    <div class="tool-card card">
+      <div class="tool-illo" aria-hidden="true">
+        <svg viewBox="0 0 190 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background glow -->
+          <circle cx="95" cy="72" r="56" fill="var(--surface2)" opacity="0.55"/>
+          <!-- Staff lines -->
+          <line x1="22" y1="48" x2="168" y2="48" stroke="var(--border)" stroke-width="1.5"/>
+          <line x1="22" y1="60" x2="168" y2="60" stroke="var(--border)" stroke-width="1.5"/>
+          <line x1="22" y1="72" x2="168" y2="72" stroke="var(--border)" stroke-width="1.5"/>
+          <line x1="22" y1="84" x2="168" y2="84" stroke="var(--border)" stroke-width="1.5"/>
+          <line x1="22" y1="96" x2="168" y2="96" stroke="var(--border)" stroke-width="1.5"/>
+          <!-- Note 1 — on bottom line, accent -->
+          <ellipse cx="54" cy="96" rx="7.5" ry="5.5" transform="rotate(-12 54 96)" fill="var(--accent)"/>
+          <line x1="61.5" y1="93.5" x2="61.5" y2="58" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+          <!-- Note 2 — on 3rd line, accent2 -->
+          <ellipse cx="95" cy="72" rx="7.5" ry="5.5" transform="rotate(-12 95 72)" fill="var(--accent2)"/>
+          <line x1="102.5" y1="69.5" x2="102.5" y2="34" stroke="var(--accent2)" stroke-width="2" stroke-linecap="round"/>
+          <!-- Note 3 — on 2nd line, accent -->
+          <ellipse cx="142" cy="60" rx="7.5" ry="5.5" transform="rotate(-12 142 60)" fill="var(--accent)"/>
+          <line x1="149.5" y1="57.5" x2="149.5" y2="22" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+          <!-- Sound-wave arcs below the staff -->
+          <path d="M73 122 Q84 112 95 122 Q106 132 117 122" stroke="var(--accent2)" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+          <path d="M61 122 Q78 104 95 122 Q112 140 129 122" stroke="var(--accent2)" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.45"/>
+          <path d="M49 122 Q72 96 95 122 Q118 148 141 122" stroke="var(--accent2)" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.2"/>
+          <!-- Quiz "?" badge -->
+          <circle cx="162" cy="28" r="14" fill="var(--surface2)" stroke="var(--accent2)" stroke-width="1.5"/>
+          <text x="162" y="33.5" text-anchor="middle" font-size="15" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent2)">?</text>
+        </svg>
+      </div>
+      <div class="tool-body">
+        <div class="tool-name">Ear Trainer</div>
+        <p class="tool-desc">Sharpen your musical ear with interactive scale, interval, and chord quizzes across 15 scales. Visualise notes on piano keyboard, treble staff, guitar, bass, and ukulele fretboards.</p>
+        <div class="tool-tags">
+          <span class="tool-tag">Ear Training</span>
+          <span class="tool-tag">Scales</span>
+          <span class="tool-tag">Intervals</span>
+          <span class="tool-tag">Chords</span>
+        </div>
+        <a href="src/ear-trainer.html" class="tool-launch">Launch Ear Trainer →</a>
+      </div>
+    </div>
+
+    <!-- ── Instrument Tuner ── -->
+    <div class="tool-card card">
+      <div class="tool-illo" aria-hidden="true">
+        <svg viewBox="0 0 190 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Gauge track (upper semicircle, r=68, centre 95,118) -->
+          <path d="M 27 118 A 68 68 0 0 1 163 118" stroke="var(--surface2)" stroke-width="14" stroke-linecap="round"/>
+          <!-- Flat zone (left third) -->
+          <path d="M 27 118 A 68 68 0 0 1 61 57" stroke="var(--border)" stroke-width="8" stroke-linecap="butt" opacity="0.7"/>
+          <!-- In-tune zone (centre, accent2) -->
+          <path d="M 84 51 A 68 68 0 0 1 106 51" stroke="var(--accent2)" stroke-width="12" stroke-linecap="round" opacity="0.9"/>
+          <!-- Sharp zone (right third) -->
+          <path d="M 129 57 A 68 68 0 0 1 163 118" stroke="var(--border)" stroke-width="8" stroke-linecap="butt" opacity="0.7"/>
+          <!-- Tick — top centre -->
+          <line x1="95" y1="50" x2="95" y2="60" stroke="var(--accent2)" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Tick — upper-left (~135°) -->
+          <line x1="47" y1="70" x2="53" y2="77" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+          <!-- Tick — upper-right (~45°) -->
+          <line x1="143" y1="70" x2="137" y2="77" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+          <!-- Tick — left edge -->
+          <line x1="27" y1="118" x2="35" y2="112" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+          <!-- Tick — right edge -->
+          <line x1="163" y1="118" x2="155" y2="112" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+          <!-- Needle (pointing straight up = in tune) -->
+          <line x1="95" y1="118" x2="95" y2="56" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+          <!-- Hub -->
+          <circle cx="95" cy="118" r="10" fill="var(--surface2)" stroke="var(--border)" stroke-width="2"/>
+          <circle cx="95" cy="118" r="4.5" fill="var(--accent)"/>
+          <!-- Note display -->
+          <text x="95" y="104" text-anchor="middle" font-size="26" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent)">A4</text>
+          <!-- ♭ / ♯ labels -->
+          <text x="21" y="138" text-anchor="middle" font-size="13" font-family="'Space Mono',monospace" fill="var(--muted)">♭</text>
+          <text x="169" y="138" text-anchor="middle" font-size="13" font-family="'Space Mono',monospace" fill="var(--muted)">♯</text>
+          <!-- IN TUNE micro-label -->
+          <text x="95" y="149" text-anchor="middle" font-size="7.5" letter-spacing="2" font-family="'Space Mono',monospace" fill="var(--accent2)" opacity="0.75">IN TUNE</text>
+          <!-- In-tune LED indicator (top-left) -->
+          <circle cx="14" cy="46" r="5.5" fill="var(--accent2)" opacity="0.85"/>
+          <circle cx="14" cy="46" r="9" stroke="var(--accent2)" stroke-width="1.5" fill="none" opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="tool-body">
+        <div class="tool-name">Instrument Tuner</div>
+        <p class="tool-desc">A precise chromatic strobe tuner for guitar, bass, ukulele, and any instrument. Professional-grade accuracy with an animated strobe display, needle cent meter, and 17 instrument presets.</p>
+        <div class="tool-tags">
+          <span class="tool-tag">Tuning</span>
+          <span class="tool-tag">Guitar</span>
+          <span class="tool-tag">Bass</span>
+          <span class="tool-tag">Ukulele</span>
+        </div>
+        <a href="src/tuner.html" class="tool-launch">Launch Tuner →</a>
+      </div>
+    </div>
+
+    <!-- ── Pulse ── -->
+    <div class="tool-card card">
+      <div class="tool-illo" aria-hidden="true">
+        <svg viewBox="0 0 190 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Metronome body (trapezoid: wide bottom, narrow top) -->
+          <path d="M 52 138 L 74 28 L 116 28 L 138 138 Z" fill="var(--surface2)" stroke="var(--border)" stroke-width="2" stroke-linejoin="round"/>
+          <!-- Scale notches — left side -->
+          <line x1="78" y1="52" x2="87" y2="52" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="76" y1="68" x2="86" y2="68" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="74" y1="84" x2="85" y2="84" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="72" y1="100" x2="83" y2="100" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <!-- Scale notches — right side -->
+          <line x1="112" y1="52" x2="103" y2="52" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="114" y1="68" x2="104" y2="68" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="116" y1="84" x2="105" y2="84" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <line x1="118" y1="100" x2="107" y2="100" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+          <!-- BPM display window -->
+          <rect x="75" y="108" width="40" height="22" rx="3" fill="var(--bg)" stroke="var(--accent)" stroke-width="1.5" opacity="0.9"/>
+          <text x="95" y="124" text-anchor="middle" font-size="11" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent)">120</text>
+          <!-- Pendulum pivot -->
+          <circle cx="95" cy="84" r="5" fill="var(--border)"/>
+          <!-- Pendulum arm (tilted right) -->
+          <line x1="95" y1="84" x2="130" y2="36" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+          <!-- Pendulum weight -->
+          <rect x="122" y="28" width="16" height="10" rx="2.5" fill="var(--accent)"/>
+          <!-- Beat dots (centred below body) -->
+          <circle cx="52" cy="146" r="7.5" fill="var(--accent)"/>
+          <circle cx="74" cy="146" r="6.5" fill="var(--surface2)" stroke="var(--border)" stroke-width="1.5"/>
+          <circle cx="95" cy="146" r="6.5" fill="var(--surface2)" stroke="var(--border)" stroke-width="1.5"/>
+          <circle cx="116" cy="146" r="6.5" fill="var(--surface2)" stroke="var(--border)" stroke-width="1.5"/>
+          <circle cx="138" cy="146" r="6.5" fill="var(--surface2)" stroke="var(--border)" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="tool-body">
+        <div class="tool-name">Pulse</div>
+        <p class="tool-desc">A visual metronome with tap tempo, subdivisions, swing, and an animated pendulum arm. Keep perfect time with per-beat accent control, 8 time signatures, and a click shaper.</p>
+        <div class="tool-tags">
+          <span class="tool-tag">Metronome</span>
+          <span class="tool-tag">Tap Tempo</span>
+          <span class="tool-tag">Subdivisions</span>
+          <span class="tool-tag">Swing</span>
+        </div>
+        <a href="src/pulse.html" class="tool-launch">Launch Pulse →</a>
+      </div>
+    </div>
+
+  </div><!-- /tools-grid -->
+
+  <!-- ── Links / meta ── -->
+  <div class="links-bar">
+    <a class="link-pill" href="https://github.com/pushplaybang/music-tools" target="_blank" rel="noopener noreferrer">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+    <a class="link-pill" href="LICENSE.md">📄 CC&nbsp;BY-NC&nbsp;4.0 License</a>
+    <a class="link-pill" href="docs/ear-trainer.md">📖 Ear Trainer Docs</a>
+    <a class="link-pill" href="docs/instrument-tuner.md">📖 Tuner Docs</a>
+    <a class="link-pill" href="docs/pulse.md">📖 Pulse Docs</a>
+  </div>
+
+</div><!-- /content -->
+
+<div class="app-footer">made with ♥ by Paul van Zyl</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  Music Tools Index — theme persistence
+//  LS_KEY unique per-page to avoid collisions
+// ══════════════════════════════════════════════
+const LS_KEY = 'musicTools_index_v1';
+
+function savePref(key, val){
+  try{const d=JSON.parse(localStorage.getItem(LS_KEY)||'{}');d[key]=val;localStorage.setItem(LS_KEY,JSON.stringify(d));}catch(e){}
+}
+function loadPrefs(){
+  try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){return{}}
+}
+
+const THEMES = {
+  current: ['Music Tools',  'free browser-based tools for musicians'],
+  minimal: ['music tools',  'open source · no install · web audio'],
+  studio:  ['MUSIC TOOLS',  'BROWSER-BASED / WEB AUDIO API'],
+  retro:   ['Music Tools',  'Instruments for the modern musician'],
+  playful: ['🎵 Music Tools!', 'Free tools for every musician ✨'],
+};
+const INTROS = {
+  current: 'A small collection of free, open-source, browser-based tools for musicians at any level. No account, no installation, no server — each tool is a single HTML file that runs entirely in your browser, powered by the Web Audio API.',
+  minimal: 'A small collection of free, open-source, browser-based tools for musicians at any level. No account, no installation, no server — each tool is a single HTML file that runs entirely in your browser, powered by the Web Audio API.',
+  studio:  'A small collection of free, open-source, browser-based tools for musicians at any level. No account, no installation, no server — each tool is a single HTML file that runs entirely in your browser, powered by the Web Audio API.',
+  retro:   'A carefully curated collection of free, open-source musical tools for the modern musician. No account required, no installation needed — each tool is a single HTML file that runs entirely within your browser.',
+  playful: 'A little collection of free music tools you can use right in your browser — no download, no sign-up, just open and play! 🎉 Built with the Web Audio API and a lot of love.',
+};
+const THEME_LABELS = {
+  current:'Dark Gold', minimal:'Clean & Minimal',
+  studio:'Dark Studio', retro:'Retro Piano', playful:'Bright & Playful',
+};
+
+function applyTheme(t, noSave){
+  document.body.dataset.theme = t;
+  const [h, s] = THEMES[t];
+  document.getElementById('appTitle').textContent  = h;
+  document.getElementById('appSub').textContent    = s;
+  document.getElementById('appIntro').textContent  = INTROS[t];
+  document.getElementById('themeMobileLabel').textContent = THEME_LABELS[t];
+  document.querySelectorAll('.theme-pill').forEach(b => b.classList.toggle('active', b.dataset.t === t));
+  if(!noSave) savePref('theme', t);
+}
+
+document.querySelectorAll('.theme-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    applyTheme(btn.dataset.t);
+    document.getElementById('themeFlyout').classList.remove('open');
+    document.getElementById('themeMobileBtn').classList.remove('open');
+  });
+});
+
+const mobileBtn = document.getElementById('themeMobileBtn');
+const flyout    = document.getElementById('themeFlyout');
+mobileBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  const open = flyout.classList.toggle('open');
+  mobileBtn.classList.toggle('open', open);
+});
+document.addEventListener('click', () => {
+  flyout.classList.remove('open');
+  mobileBtn.classList.remove('open');
+});
+flyout.addEventListener('click', e => e.stopPropagation());
+
+// Restore saved theme
+(function init(){
+  const p = loadPrefs();
+  if(p.theme && THEMES[p.theme]) applyTheme(p.theme, true);
+})();
+</script>
+</body>
+</html>

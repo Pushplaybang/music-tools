@@ -10,15 +10,15 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 
 | Tool | File | Live | Description |
 |---|---|---|---|
-| [Ear Trainer](docs/ear-trainer.md) | `ear-trainer.html` | [▶ Open](https://pushplaybang.github.io/ear-trainer/ear-trainer.html) | Scale visualiser, interval & chord ear training quiz |
-| [Instrument Tuner](docs/instrument-tuner.md) | `tuner.html` | [▶ Open](https://pushplaybang.github.io/ear-trainer/tuner.html) | Chromatic strobe tuner for guitar, bass, ukulele & more |
-| [Pulse](docs/pulse.md) | `pulse.html` | [▶ Open](https://pushplaybang.github.io/ear-trainer/pulse.html) | Visual metronome with tap tempo, subdivisions & swing |
+| [Ear Trainer](docs/ear-trainer.md) | `src/ear-trainer.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/ear-trainer.html) | Scale visualiser, interval & chord ear training quiz |
+| [Instrument Tuner](docs/instrument-tuner.md) | `src/tuner.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/tuner.html) | Chromatic strobe tuner for guitar, bass, ukulele & more |
+| [Pulse](docs/pulse.md) | `src/pulse.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/pulse.html) | Visual metronome with tap tempo, subdivisions & swing |
 
 ---
 
 ## 🚀 Quick Start
 
-Download any `.html` file and open it in a modern browser. That's it — no build step, no `npm install`, no server required.
+Open `index.html` in any modern browser to see the collection home page, then launch any tool from there. You can also open tool files directly — no build step, no `npm install`, no server required.
 
 ---
 
@@ -26,9 +26,11 @@ Download any `.html` file and open it in a modern browser. That's it — no buil
 
 ```
 music-tools/
-├── ear-trainer.html              # Ear Trainer app
-├── tuner.html                    # Instrument Tuner app
-├── pulse.html                    # Pulse Visual Metronome app
+├── index.html                    # Collection home page
+├── src/
+│   ├── ear-trainer.html          # Ear Trainer app
+│   ├── tuner.html                # Instrument Tuner app
+│   └── pulse.html                # Pulse Visual Metronome app
 ├── music-tools-boilerplate.html  # Shared design system starter
 ├── docs/
 │   ├── ear-trainer.md            # Ear Trainer documentation
