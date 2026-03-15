@@ -29,6 +29,9 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 - **Screen flash on Beat 1** — a subtle full-screen flash on the downbeat; toggleable
 - **Audible subdivisions** — toggle whether subdivision clicks are heard or only shown visually
 - **Progress bar** — thin bar below the beat grid fills across the bar and resets on Beat 1
+- **Speed Trainer** — progressive tempo ramp: set a start BPM, end BPM, and duration (in bars or minutes). The metronome linearly interpolates from start to end BPM with a live progress bar
+- **Count-In** — one-bar count-in: plays the click without animating the beat grid so you can prepare before the first "real" bar
+- **Mute-Bar Training** — alternates between audible and silent bars (configurable 1–8 bars per phase). During silent bars the beat dots still animate while the grid dims, so you can self-assess your internal timing
 - **5 themes** — Dark Gold, Clean & Minimal, Dark Studio, Retro Piano, Bright & Playful
 - **Fully persistent settings** — theme, BPM, time signature, subdivision, swing, sound settings, beat accent levels, subdivision accent levels, and all toggle states are saved in `localStorage`
 - **Keyboard shortcuts** — Space = play/stop · Arrow keys = ±1/±5 BPM · T = tap tempo
@@ -108,6 +111,25 @@ The **Sound Shaping** card gives you four controls:
 ### Pendulum arm
 
 Click the **Arm** chip below the beat grid to show or hide the animated pendulum. The arm swings left-right in sync with every beat at the current BPM.
+
+### Speed Trainer (progressive tempo)
+
+1. Open the **Speed Trainer** card and click the **Enable** chip.
+2. Set a **Start BPM** and **End BPM**.
+3. Choose **Bars** (how many bars the ramp lasts) or **Minutes** (how many real-time minutes).
+4. Set the **Duration** value.
+5. Press **▶ Start** — the metronome begins at Start BPM and linearly ramps to End BPM over the chosen duration. A progress bar shows how far through the ramp you are.
+6. When the ramp completes, the metronome stays at End BPM. Press **■ Stop** at any time to freeze at the current interpolated BPM.
+
+Settings are persisted automatically; the active run state is not.
+
+### Count-In
+
+Toggle the **Count-in** chip in the main panel. When you press Play the metronome plays one full bar of clicks before normal operation begins. During the count-in the beat grid stays still and *Count-in…* appears in the tempo display, so you can prepare without visual distraction.
+
+### Mute-Bar Training
+
+Toggle the **Mute bars** chip in the main panel. A small number stepper appears — set how many bars play before the same number are muted (1–8, default 2). During the muted phase the click is silenced but the beat dots still animate, and the beat grid dims slightly as a visual cue. This lets you practise keeping time internally and self-assess whether you drift.
 
 ---
 
