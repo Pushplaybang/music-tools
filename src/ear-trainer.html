@@ -645,6 +645,13 @@ const SCALES={
   'Blues':[0,3,5,6,7,10,12],'Whole Tone':[0,2,4,6,8,10,12],
   'Diminished':[0,2,3,5,6,8,9,11,12],
 };
+const SCALE_GROUPS=[
+  {label:'Major Modes',    scales:['Major','Dorian','Phrygian','Lydian','Mixolydian','Locrian']},
+  {label:'Minor Scales',   scales:['Natural Minor','Harmonic Minor','Melodic Minor']},
+  {label:'Pentatonic & Blues', scales:['Pentatonic Major','Pentatonic Minor','Blues']},
+  {label:'Symmetric & Other',  scales:['Chromatic','Whole Tone','Diminished']},
+];
+const SCALE_DISPLAY={'Major':'Major (Ionian)','Natural Minor':'Natural Minor (Aeolian)'};
 const INTERVAL_NAMES={1:'Minor 2nd',2:'Major 2nd',3:'Minor 3rd',4:'Major 3rd',5:'Perfect 4th',6:'Tritone',7:'Perfect 5th',8:'Minor 6th',9:'Major 6th',10:'Minor 7th',11:'Major 7th',12:'Octave'};
 const CHORD_TYPES=[
   {name:'Major',        semis:[0,4,7]},
@@ -696,7 +703,7 @@ function buildSelects(){
   const rs=document.getElementById('rootSelect');
   NOTES.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=nn(n);rs.appendChild(o);});
   const ss=document.getElementById('scaleSelect');
-  Object.keys(SCALES).forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;ss.appendChild(o);});
+  SCALE_GROUPS.forEach(g=>{const og=document.createElement('optgroup');og.label=g.label;g.scales.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=SCALE_DISPLAY[s]||s;og.appendChild(o);});ss.appendChild(og);});
   ss.value='Major';
   const os=document.getElementById('octaveSelect');
   for(let o=2;o<=6;o++){const e=document.createElement('option');e.value=o;e.textContent='Octave '+o+(o===4?' (Middle C)':'');os.appendChild(e);}
