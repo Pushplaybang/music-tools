@@ -19,7 +19,7 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 - **Click rate multiplier** — **½× / 1× / 2×** chip halves or doubles the effective click speed without changing the BPM readout; useful for practising at half-time or double-time feel
 - **8 time signature presets** — 2/4, 4/4, 3/4, 6/8, 5/4, 7/8, 9/8, 12/8
 - **Manual time signature** — configure Beats per Bar (2–12) and Note Value (quarter ♩, eighth ♪, half 𝅗𝅥) independently
-- **Subdivisions** — none (beat only), 8ths, triplets, or 16ths; subdivision dots appear below the main beat dots
+- **Subdivisions** — none (beat only), 8ths, triplets, or 16ths; subdivision dots appear below the main beat dots; **click any subdivision dot** to cycle it through three accent levels — level 1 = 0.4× volume (quiet), level 2 = 0.7× (medium), level 3 = full volume (equal to a main accented beat)
 - **Swing slider** — delays every even subdivision from 0–75% for a shuffle or jazz groove feel
 - **Sound shaping** — four sliders:
   - **Volume** — overall click loudness
@@ -30,7 +30,7 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 - **Audible subdivisions** — toggle whether subdivision clicks are heard or only shown visually
 - **Progress bar** — thin bar below the beat grid fills across the bar and resets on Beat 1
 - **5 themes** — Dark Gold, Clean & Minimal, Dark Studio, Retro Piano, Bright & Playful
-- **Fully persistent settings** — theme, BPM, time signature, subdivision, swing, sound settings, and all toggle states are saved in `localStorage`
+- **Fully persistent settings** — theme, BPM, time signature, subdivision, swing, sound settings, beat accent levels, subdivision accent levels, and all toggle states are saved in `localStorage`
 - **Keyboard shortcuts** — Space = play/stop · Arrow keys = ±1/±5 BPM · T = tap tempo
 - **Responsive** — works on desktop, tablet, and mobile
 - **Zero dependencies** — no npm, no build step, no CDN libraries
@@ -87,6 +87,8 @@ Each beat dot in the grid is clickable. Click once to add a medium accent (ring 
 ### Adding subdivisions
 
 Use the **Subdivision** selector to add 8th notes, triplets, or 16th notes between the main beats. Smaller dots appear below the beat dots. Toggle **Audible Subdivisions** off if you want the subdivision dots for visual reference only.
+
+Each subdivision dot is also clickable. Click once to raise its accent to level 2 (medium — 0.7× volume), click again to raise it to level 3 (full volume, equal to a main accented beat), and a third click returns it to the default quiet level (0.4×). Subdivision accent levels are saved and restored with your other settings.
 
 ### Swing feel
 
@@ -168,6 +170,8 @@ Key facts:
 - Settings key: `musicTool_pulse_v1`
 - Audio scheduling uses Web Audio clock (audioCtx.currentTime) with a look-ahead scheduler
 - Beat grid is rebuilt in renderGrid() whenever time signature changes
+- Beat accent state: accentLevels[beat] (values 1|2|3); sub-beat accent state: subAccentLevels[beat][subIdx] (values 1|2|3)
+- cycleSubAccent(beat, subIdx) cycles sub-dot accent level and persists via saveAllPrefs()
 
 What I want to add next: [describe the feature]
 
