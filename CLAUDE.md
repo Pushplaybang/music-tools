@@ -19,14 +19,18 @@ music-tools/
 │   ├── ear-trainer.html   # LS key: earTrainer_v6
 │   ├── tuner.html         # LS key: musicTool_StrobeTuner_v1
 │   ├── pulse.html         # LS key: musicTool_pulse_v1
-│   └── drone.html         # LS key: musicTool_drone_v1
+│   ├── drone.html         # LS key: musicTool_drone_v1
+│   ├── practice-timer.html # LS key: musicTool_practiceTimer_v1
+│   └── chord-reference.html # LS key: musicTool_chordRef_v1
 ├── music-tools-boilerplate.html  # Design system reference (read-only, not served as a tool)
 ├── docs/
 │   ├── ARCHITECTURE.md    # Shared patterns, audio engine, theme system
 │   ├── ear-trainer.md
 │   ├── instrument-tuner.md
 │   ├── pulse.md
-│   └── drone.md
+│   ├── drone.md
+│   ├── practice-timer.md
+│   └── chord-reference.md
 ├── server.js              # Dev server (node server.js)
 ├── package.json
 └── README.md

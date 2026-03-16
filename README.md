@@ -14,6 +14,8 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 | [Instrument Tuner](docs/instrument-tuner.md) | `src/tuner.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/tuner.html) | Chromatic strobe tuner for guitar, bass, ukulele & more |
 | [Pulse](docs/pulse.md) | `src/pulse.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/pulse.html) | Visual metronome with tap tempo, subdivisions & swing |
 | [Drone](docs/drone.md) | `src/drone.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/drone.html) | Sustained reference tone generator with 4 voicings & 4 timbres |
+| [Practice Timer](docs/practice-timer.md) | `src/practice-timer.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/practice-timer.html) | Structured practice session planner with countdown timer & history |
+| [Chord & Scale Reference](docs/chord-reference.md) | `src/chord-reference.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/chord-reference.html) | Chord voicings, scale reference, diatonic harmony with piano & guitar |
 
 ---
 
@@ -32,14 +34,18 @@ music-tools/
 │   ├── ear-trainer.html          # Ear Trainer app
 │   ├── tuner.html                # Instrument Tuner app
 │   ├── pulse.html                # Pulse Visual Metronome app
-│   └── drone.html                # Drone Reference Tone Generator
+│   ├── drone.html                # Drone Reference Tone Generator
+│   ├── practice-timer.html       # Practice Timer
+│   └── chord-reference.html      # Chord & Scale Reference
 ├── music-tools-boilerplate.html  # Shared design system starter
 ├── docs/
 │   ├── ARCHITECTURE.md           # Shared patterns, audio engine, theme system
 │   ├── ear-trainer.md            # Ear Trainer documentation
 │   ├── instrument-tuner.md       # Instrument Tuner documentation
 │   ├── pulse.md                  # Pulse documentation
-│   └── drone.md                  # Drone documentation
+│   ├── drone.md                  # Drone documentation
+│   ├── practice-timer.md         # Practice Timer documentation
+│   └── chord-reference.md        # Chord & Scale Reference documentation
 ├── CLAUDE.md                     # AI assistant instructions & conventions
 └── README.md                     # This file
 ```
