@@ -4,99 +4,59 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Practice Timer</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-[data-theme="current"]{
-  --bg:#0d0f12;
-  --bg-grad:radial-gradient(ellipse at 20% 0%,#1a2030 0%,transparent 60%),
-            radial-gradient(ellipse at 80% 100%,#0d1a14 0%,transparent 60%);
-  --surface:#161a1f; --surface2:#1e2329; --border:#2a3040;
-  --accent:#e8b84b;  --accent2:#4be8b8;
-  --text:#e8e4da;    --muted:#6b7280;
-  --correct:#4be8b8; --wrong:#e84b4b;
-  --font-h:'DM Serif Display',serif; --font-b:'Space Mono',monospace;
-  --h1:clamp(1.5rem,5vw,2.8rem); --r:12px; --br:6px;
-  --bar-bg:#0a0c0e; --pill-active:#e8b84b; --pill-text:#0d0f12;
-  --grad:linear-gradient(90deg,#e8b84b,#4be8b8);
-  --overlay-bg:rgba(5,7,10,0.82); --overlay-surface:rgba(22,26,31,0.97);
+[data-mode="light"]{
+  --bg:#EAEDF5; --bg-deep:#E1E5F0; --surface:#F3F5FC;
+  --surface-hi:#FAFBFF; --surface-lo:#DCDFF0; --surface-lo2:#D2D6E6;
+  --border:rgba(70,100,190,0.10); --border-hi:rgba(255,255,255,0.92); --border-lo:rgba(55,85,170,0.07);
+  --text:#0A1220; --text-2:#344A68; --text-3:#7088A8;
+  --accent:#0080C0; --accent-glow:rgba(0,128,192,0.22);
+  --accent-2:#C0006E; --accent-2-glow:rgba(192,0,110,0.18);
+  --correct:#009E70; --correct-glow:rgba(0,158,112,0.18);
+  --wrong:#D4003C; --wrong-glow:rgba(212,0,60,0.16);
+  --kw:var(--surface-hi); --kw-active:var(--accent); --kb:#181C28; --kb-active:#005A8C;
+  --neu-out:7px 7px 18px rgba(40,60,150,0.12),-4px -4px 12px rgba(255,255,255,0.94);
+  --neu-in:inset 3px 3px 9px rgba(30,50,140,0.10),inset -3px -3px 9px rgba(255,255,255,0.80);
+  --neu-flat:2px 2px 7px rgba(30,50,140,0.08),-1px -1px 5px rgba(255,255,255,0.94);
+  --neu-deep:inset 4px 4px 12px rgba(25,45,130,0.13),inset -2px -2px 8px rgba(255,255,255,0.68);
+  --surface2:var(--surface-lo); --accent2:var(--accent-2); --muted:var(--text-3);
+  --font-h:'Syne',sans-serif; --font-b:'DM Mono',monospace; --r:18px; --br:10px;
+  --bar-bg:var(--surface); --pill-active:var(--accent); --pill-text:var(--bg);
+  --grad:linear-gradient(90deg,var(--accent),var(--accent-2));
+  --overlay-bg:rgba(180,190,220,0.65); --overlay-surface:var(--surface-hi);
+  --bg-grad:none;
 }
-[data-theme="minimal"]{
-  --bg:#fafaf8; --bg-grad:none;
-  --surface:#fff; --surface2:#f4f4f0; --border:#e2e2dc;
-  --accent:#1a1a1a; --accent2:#5a8a6e;
-  --text:#1a1a1a; --muted:#999990;
-  --correct:#5a8a6e; --wrong:#c0392b;
-  --font-h:'Instrument Serif',serif; --font-b:'Syne',sans-serif;
-  --h1:clamp(1.5rem,5vw,3.2rem); --r:2px; --br:2px;
-  --bar-bg:#f0f0ec; --pill-active:#1a1a1a; --pill-text:#fafaf8;
-  --grad:linear-gradient(90deg,#1a1a1a,#5a8a6e);
-  --overlay-bg:rgba(200,200,195,0.75); --overlay-surface:rgba(255,255,255,0.98);
+[data-mode="dark"]{
+  --bg:#080A0F; --bg-deep:#040608; --surface:#0D1019;
+  --surface-hi:#121620; --surface-lo:#080A12; --surface-lo2:#050710;
+  --border:rgba(120,150,220,0.07); --border-hi:rgba(140,170,255,0.05); --border-lo:rgba(100,130,200,0.04);
+  --text:#D8E8F8; --text-2:#5A78A0; --text-3:#2E4060;
+  --accent:#00D8FF; --accent-glow:rgba(0,216,255,0.28);
+  --accent-2:#FF2688; --accent-2-glow:rgba(255,38,136,0.24);
+  --correct:#00E8A8; --correct-glow:rgba(0,232,168,0.22);
+  --wrong:#FF2855; --wrong-glow:rgba(255,40,85,0.22);
+  --kw:#1A1E2C; --kw-active:var(--accent); --kb:#060810; --kb-active:#005C78;
+  --neu-out:7px 7px 20px rgba(0,0,0,0.62),-2px -2px 6px rgba(255,255,255,0.035);
+  --neu-in:inset 4px 4px 12px rgba(0,0,0,0.58),inset -2px -2px 5px rgba(255,255,255,0.025);
+  --neu-flat:3px 3px 10px rgba(0,0,0,0.52),-1px -1px 3px rgba(255,255,255,0.02);
+  --neu-deep:inset 5px 5px 14px rgba(0,0,0,0.62),inset -1px -1px 4px rgba(255,255,255,0.018);
+  --surface2:var(--surface-lo); --accent2:var(--accent-2); --muted:var(--text-3);
+  --font-h:'Syne',sans-serif; --font-b:'DM Mono',monospace; --r:18px; --br:10px;
+  --bar-bg:var(--surface); --pill-active:var(--accent); --pill-text:var(--bg);
+  --grad:linear-gradient(90deg,var(--accent),var(--accent-2));
+  --overlay-bg:rgba(0,0,0,0.72); --overlay-surface:var(--surface-hi);
+  --bg-grad:none;
 }
-[data-theme="studio"]{
-  --bg:#0e0e0e; --bg-grad:radial-gradient(ellipse at 50% -20%,#1a0a2e 0%,transparent 60%);
-  --surface:#141414; --surface2:#1c1c1c; --border:#2a2a2a;
-  --accent:#c678f0; --accent2:#78c6f0;
-  --text:#d4d4d4; --muted:#555;
-  --correct:#78c6f0; --wrong:#f07878;
-  --font-h:'Syne',sans-serif; --font-b:'Space Mono',monospace;
-  --h1:clamp(1.3rem,4.5vw,2.4rem); --r:8px; --br:4px;
-  --bar-bg:#080808; --pill-active:#c678f0; --pill-text:#0e0e0e;
-  --grad:linear-gradient(90deg,#c678f0,#78c6f0);
-  --overlay-bg:rgba(4,4,8,0.88); --overlay-surface:rgba(18,18,28,0.98);
+:root{
+  --font-display:'Syne',sans-serif;
+  --font-mono:'DM Mono',monospace;
+  --r-xs:6px; --r-sm:10px; --r-md:18px; --r-lg:26px; --r-xl:36px; --r-pill:100px;
+  --transition:0.22s cubic-bezier(0.4,0,0.2,1);
+  --spring:0.32s cubic-bezier(0.34,1.56,0.64,1);
 }
-[data-theme="retro"]{
-  --bg:#1c1108; --bg-grad:radial-gradient(ellipse at 50% 0%,#2e1c08 0%,transparent 70%);
-  --surface:#231508; --surface2:#2e1c08; --border:#5a3d1a;
-  --accent:#d4a843; --accent2:#c47840;
-  --text:#e8d8b0; --muted:#8a6a3a;
-  --correct:#78b878; --wrong:#c85050;
-  --font-h:'Playfair Display',serif; --font-b:'Playfair Display',serif;
-  --h1:clamp(1.5rem,5vw,3.2rem); --r:4px; --br:3px;
-  --bar-bg:#120b04; --pill-active:#d4a843; --pill-text:#1c1108;
-  --grad:linear-gradient(90deg,#d4a843,#c47840);
-  --overlay-bg:rgba(10,6,2,0.85); --overlay-surface:rgba(30,18,6,0.97);
-}
-[data-theme="playful"]{
-  --bg:#fff9f0;
-  --bg-grad:radial-gradient(ellipse at 10% 10%,#ffe8f0 0%,transparent 50%),
-            radial-gradient(ellipse at 90% 90%,#e8f0ff 0%,transparent 50%);
-  --surface:#fff; --surface2:#fdf5ff; --border:#e8d8f8;
-  --accent:#ff5fa0; --accent2:#5fb8ff;
-  --text:#2a1840; --muted:#b090c8;
-  --correct:#38d88a; --wrong:#ff5050;
-  --font-h:'Nunito',sans-serif; --font-b:'Nunito',sans-serif;
-  --h1:clamp(1.5rem,5vw,3rem); --r:20px; --br:50px;
-  --bar-bg:#f5e8ff; --pill-active:#ff5fa0; --pill-text:#fff;
-  --grad:linear-gradient(90deg,#ff5fa0,#5fb8ff);
-  --overlay-bg:rgba(255,220,240,0.7); --overlay-surface:rgba(255,255,255,0.98);
-}
-
-[data-theme="current"] header h1{text-shadow:0 0 40px rgba(232,184,75,.3);}
-[data-theme="studio"]  header h1{text-transform:uppercase;letter-spacing:.14em;text-shadow:0 0 30px rgba(198,120,240,.4);font-weight:800;}
-[data-theme="retro"]   header h1{font-style:italic;}
-[data-theme="playful"] header h1{font-weight:800;}
-[data-theme="retro"]   header p{font-style:italic;text-transform:none;}
-[data-theme="playful"] header p{text-transform:none;letter-spacing:0;}
-[data-theme="retro"]   button,[data-theme="playful"] button{text-transform:none;font-size:.88rem;letter-spacing:0;}
-[data-theme="playful"] button{font-weight:700;padding:9px 20px;}
-[data-theme="retro"]   .card-title{font-style:italic;text-transform:none;font-size:.85rem;letter-spacing:.06em;color:var(--accent2);}
-[data-theme="playful"] .card-title{font-size:.76rem;font-weight:700;color:var(--accent);}
-[data-theme="minimal"] .card{border-left:3px solid var(--accent);}
-[data-theme="studio"]  .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.03);}
-[data-theme="retro"]   .card{border:2px solid var(--border);box-shadow:4px 4px 0 rgba(0,0,0,.45);}
-[data-theme="playful"] .card{border:2px solid var(--border);box-shadow:0 4px 24px rgba(255,95,160,.1);}
-[data-theme="retro"]   .card::before{content:'';display:block;height:3px;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 6px,transparent 6px,transparent 12px);margin:-20px -20px 16px;opacity:.35;border-radius:var(--r) var(--r) 0 0;}
-@media(min-width:480px){[data-theme="retro"] .card::before{margin:-24px -24px 20px;}}
-[data-theme="retro"]   .control-group label{font-style:italic;text-transform:none;font-size:.78rem;}
-[data-theme="playful"] .control-group label{text-transform:none;font-size:.78rem;font-weight:700;}
-[data-theme="studio"]  .overlay-title{text-transform:uppercase;letter-spacing:.1em;font-size:1.3rem;}
-[data-theme="playful"] .overlay-title{font-weight:800;}
-[data-theme="retro"]   .overlay-sub,[data-theme="playful"] .overlay-sub{text-transform:none;font-size:.82rem;letter-spacing:0;}
-[data-theme="retro"]   .ov-lbl,[data-theme="playful"] .ov-lbl{text-transform:none;font-size:.72rem;}
-[data-theme="retro"]   .app-footer{font-style:italic;letter-spacing:0;font-size:.75rem;}
-[data-theme="playful"] .app-footer{letter-spacing:0;font-size:.72rem;}
 
 body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:48px;transition:background .35s,color .35s;}
 body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);pointer-events:none;z-index:0;}
@@ -119,6 +79,10 @@ body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);pointer
 .theme-flyout.open{opacity:1;pointer-events:all;transform:translateY(0);}
 .theme-flyout .theme-pill{border-radius:6px;text-align:left;font-size:.72rem;padding:8px 14px;}
 @media(max-width:640px){.theme-pills-desktop{display:none;}.theme-mobile{display:block;}}
+.mode-badge{font-family:var(--font-b,monospace);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.mode-toggle{width:48px;height:26px;border-radius:13px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;}
+.mode-toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:transform .3s,background .22s;}
+[data-mode="dark"] .mode-toggle::after{transform:translateX(22px);background:var(--accent);}
 
 .content{position:relative;z-index:1;width:100%;max-width:900px;padding:28px 16px 0;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
 header{text-align:center;margin-bottom:28px;}
@@ -262,7 +226,7 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
 }
 </style>
 </head>
-<body data-theme="current">
+<body data-mode="light">
 
 <!-- HELP MODAL -->
 <div class="modal-overlay" id="helpOverlay">
@@ -317,31 +281,15 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
   </div>
 </div>
 
-<!-- THEME BAR -->
+<!-- MODE BAR -->
 <div class="theme-bar">
   <div class="bar-left">
     <button class="bar-icon-btn" onclick="openModal('helpOverlay')" title="Help">📖</button>
     <button class="bar-icon-btn" onclick="openHistory()" title="Practice History">📊</button>
   </div>
-  <div class="bar-sep"></div>
   <div class="bar-right">
-    <div class="theme-pills-desktop">
-      <button class="theme-pill active" data-t="current">Dark Gold</button>
-      <button class="theme-pill" data-t="minimal">Clean &amp; Minimal</button>
-      <button class="theme-pill" data-t="studio">Dark Studio</button>
-      <button class="theme-pill" data-t="retro">Retro Piano</button>
-      <button class="theme-pill" data-t="playful">Bright &amp; Playful</button>
-    </div>
-    <div class="theme-mobile">
-      <button class="theme-mobile-btn" id="themeMobileBtn"><span id="themeMobileLabel">Dark Gold</span><span class="arrow">▼</span></button>
-      <div class="theme-flyout" id="themeFlyout">
-        <button class="theme-pill active" data-t="current">Dark Gold</button>
-        <button class="theme-pill" data-t="minimal">Clean &amp; Minimal</button>
-        <button class="theme-pill" data-t="studio">Dark Studio</button>
-        <button class="theme-pill" data-t="retro">Retro Piano</button>
-        <button class="theme-pill" data-t="playful">Bright &amp; Playful</button>
-      </div>
-    </div>
+    <span class="mode-badge" id="modeBadge">LIGHT</span>
+    <div class="mode-toggle" id="modeToggle" title="Toggle dark / light mode"></div>
   </div>
 </div>
 
@@ -407,34 +355,16 @@ const LS_LOG = 'musicTool_practiceLog';
 function savePref(k,v){try{const d=JSON.parse(localStorage.getItem(LS_KEY)||'{}');d[k]=v;localStorage.setItem(LS_KEY,JSON.stringify(d));}catch(e){}}
 function loadPrefs(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){return{}}}
 
-// ── THEMES ──────────────────────────────────────────
-const THEMES={
-  current:['Practice Timer','Plan · Focus · Track'],
-  minimal:['practice timer','plan · focus · track'],
-  studio:['PRACTICE TIMER','PLAN · FOCUS · TRACK'],
-  retro:['The Practice Timer','Plan · Focus · Track'],
-  playful:['⏱️ Practice Timer!','Plan · Focus · Track ✨']
-};
-const THEME_LABELS={current:'Dark Gold',minimal:'Clean & Minimal',studio:'Dark Studio',retro:'Retro Piano',playful:'Bright & Playful'};
-
-function applyTheme(t,noSave){
-  document.body.dataset.theme=t;
-  const[h,s]=THEMES[t];
-  document.getElementById('appTitle').textContent=h;
-  document.getElementById('appSub').textContent=s;
-  document.getElementById('themeMobileLabel').textContent=THEME_LABELS[t];
-  document.querySelectorAll('.theme-pill').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
-  if(!noSave) savePref('theme',t);
+// ── MODE ──────────────────────────────────────────
+function applyMode(m,noSave){
+  document.body.dataset.mode=m;
+  const badge=document.getElementById('modeBadge');
+  if(badge) badge.textContent=m==='dark'?'DARK':'LIGHT';
+  if(!noSave) savePref('mode',m);
 }
-document.querySelectorAll('.theme-pill').forEach(btn=>btn.addEventListener('click',()=>{
-  applyTheme(btn.dataset.t);
-  document.getElementById('themeFlyout').classList.remove('open');
-  document.getElementById('themeMobileBtn').classList.remove('open');
-}));
-const mobileBtn=document.getElementById('themeMobileBtn'),flyout=document.getElementById('themeFlyout');
-mobileBtn.addEventListener('click',e=>{e.stopPropagation();const o=flyout.classList.toggle('open');mobileBtn.classList.toggle('open',o);});
-document.addEventListener('click',()=>{flyout.classList.remove('open');mobileBtn.classList.remove('open');});
-flyout.addEventListener('click',e=>e.stopPropagation());
+document.getElementById('modeToggle').addEventListener('click',()=>{
+  applyMode(document.body.dataset.mode==='dark'?'light':'dark');
+});
 
 function openModal(id){document.getElementById(id).classList.add('show');document.body.style.overflow='hidden';}
 function closeModal(id){document.getElementById(id).classList.remove('show');document.body.style.overflow='';}
@@ -896,7 +826,7 @@ function renderChart(){
 function init(){
   const prefs=loadPrefs();
   // Restore theme
-  if(prefs.theme && THEMES[prefs.theme]) applyTheme(prefs.theme,true);
+  applyMode(prefs.mode||'light',true);
   // Restore blocks
   if(Array.isArray(prefs.blocks) && prefs.blocks.length>0){
     blocks=prefs.blocks.map(b=>({
