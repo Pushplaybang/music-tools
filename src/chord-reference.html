@@ -621,6 +621,7 @@ const CHORD_TYPES = {
   'Add9': [0,4,7,14], 'Maj9': [0,4,7,11,14], 'Min9': [0,3,7,10,14],
   '6': [0,4,7,9], 'Min6': [0,3,7,9],
 };
+const CHORD_ORDER = ['Major','Minor','Dim','Aug','Sus2','Sus4','Maj7','Dom7','Min7','Half-Dim7','Dim7','MinMaj7','Add9','Maj9','Min9','6','Min6'];
 
 const INTERVAL_LABELS = {0:'R',1:'♭2',2:'2',3:'♭3',4:'3',5:'4',6:'♭5',7:'5',8:'♯5',9:'6',10:'♭7',11:'7',12:'8',13:'♭9',14:'9'};
 
@@ -644,7 +645,7 @@ function populateRootSelect(sel){
 
 function populateChordTypeSelect(){
   const sel = document.getElementById('chordType');
-  Object.keys(CHORD_TYPES).forEach(t => {
+  CHORD_ORDER.forEach(t => {
     const opt = document.createElement('option');
     opt.value = t; opt.textContent = t;
     sel.appendChild(opt);
