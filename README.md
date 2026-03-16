@@ -13,6 +13,7 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 | [Ear Trainer](docs/ear-trainer.md) | `src/ear-trainer.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/ear-trainer.html) | Scale visualiser, interval & chord ear training quiz |
 | [Instrument Tuner](docs/instrument-tuner.md) | `src/tuner.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/tuner.html) | Chromatic strobe tuner for guitar, bass, ukulele & more |
 | [Pulse](docs/pulse.md) | `src/pulse.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/pulse.html) | Visual metronome with tap tempo, subdivisions & swing |
+| [Drone](docs/drone.md) | `src/drone.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/drone.html) | Sustained reference tone generator with 4 voicings & 4 timbres |
 
 ---
 
@@ -30,12 +31,16 @@ music-tools/
 ├── src/
 │   ├── ear-trainer.html          # Ear Trainer app
 │   ├── tuner.html                # Instrument Tuner app
-│   └── pulse.html                # Pulse Visual Metronome app
+│   ├── pulse.html                # Pulse Visual Metronome app
+│   └── drone.html                # Drone Reference Tone Generator
 ├── music-tools-boilerplate.html  # Shared design system starter
 ├── docs/
+│   ├── ARCHITECTURE.md           # Shared patterns, audio engine, theme system
 │   ├── ear-trainer.md            # Ear Trainer documentation
 │   ├── instrument-tuner.md       # Instrument Tuner documentation
-│   └── pulse.md                  # Pulse documentation
+│   ├── pulse.md                  # Pulse documentation
+│   └── drone.md                  # Drone documentation
+├── CLAUDE.md                     # AI assistant instructions & conventions
 └── README.md                     # This file
 ```
 
@@ -43,7 +48,7 @@ music-tools/
 
 ## 🎨 Shared Design System
 
-All three tools share a 5-theme CSS custom property system. Themes switch instantly without a page reload and all settings persist in `localStorage` automatically.
+All tools share a 5-theme CSS custom property system. Themes switch instantly without a page reload and all settings persist in `localStorage` automatically.
 
 | Theme | Fonts | Mood |
 |---|---|---|
