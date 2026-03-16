@@ -17,6 +17,7 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 - **Tap tempo** — tap the **Tap** button (or press **T**) rhythmically; the app detects your tempo from up to the last 8 taps
 - **Canvas pendulum arm** — a mechanical pendulum swings in sync with the beat; toggleable via the **Arm** chip
 - **Click rate multiplier** — **½× / 1× / 2×** chip halves or doubles the effective click speed without changing the BPM readout; useful for practising at half-time or double-time feel
+- **5 preset save/load slots** — save your complete metronome configuration (BPM, time signature, subdivision, accents, swing, sound settings, click rate) to any of 5 named slots; recall instantly with a single click
 - **8 time signature presets** — 2/4, 4/4, 3/4, 6/8, 5/4, 7/8, 9/8, 12/8
 - **Manual time signature** — configure Beats per Bar (2–12) and Note Value (quarter ♩, eighth ♪, half 𝅗𝅥) independently
 - **Subdivisions** — none (beat only), 8ths, triplets, or 16ths; subdivision dots appear below the main beat dots; **click any subdivision dot** to cycle it through three accent levels — level 1 = 0.4× volume (quiet), level 2 = 0.7× (medium), level 3 = full volume (equal to a main accented beat)
@@ -34,7 +35,7 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 - **Mute-Bar Training** — alternates between audible and silent bars (configurable 1–8 bars per phase). During silent bars the beat dots still animate while the grid dims, so you can self-assess your internal timing
 - **5 themes** — Dark Gold, Clean & Minimal, Dark Studio, Retro Piano, Bright & Playful
 - **Fully persistent settings** — theme, BPM, time signature, subdivision, swing, sound settings, beat accent levels, subdivision accent levels, and all toggle states are saved in `localStorage`
-- **Keyboard shortcuts** — Space = play/stop · Arrow keys = ±1/±5 BPM · T = tap tempo
+- **Keyboard shortcuts** — Space = play/stop · Arrow keys = ±1/±5 BPM · T = tap tempo · Escape = cancel preset save mode
 - **Responsive** — works on desktop, tablet, and mobile
 - **Zero dependencies** — no npm, no build step, no CDN libraries
 
@@ -78,6 +79,18 @@ No build step. No `npm install`. No server required.
 ### Setting the tempo by ear
 
 Click the **Tap** button (or press **T**) in rhythm with the music you want to practise. After 2 taps the app will calculate an average BPM from your last 8 taps. The BPM display updates live as you tap.
+
+### Saving and loading presets
+
+The **Presets** card sits above the Time Signature card and provides 5 save slots for your favourite configurations.
+
+- **Save:** click **💾 Save** — all slot pills start pulsing. Click any slot to save the current BPM, time signature, subdivision, accent levels, swing, sound settings, and click rate. Press **Escape** or click **✕ Cancel** to exit save mode without saving.
+- **Load:** click any filled slot to instantly load that preset. Playback stops automatically before the preset is applied.
+- **Rename:** right-click a filled slot (or long-press on mobile) to give it a custom name up to 12 characters.
+
+Empty slots show a faded number; filled slots show the preset name (or "Slot N") with a small dot indicator.
+
+Presets are stored separately from main settings in `localStorage` under the key `musicTool_pulse_presets`.
 
 ### Choosing a time signature
 
@@ -161,7 +174,7 @@ Pulse shares the same 5-theme CSS custom property system as the Ear Trainer and 
 | Retro Piano | Playfair Display | Vintage, warm dark |
 | Bright & Playful | Nunito | Colourful, friendly |
 
-Settings are stored under the key `musicTool_pulse_v1` in `localStorage`.
+Settings are stored under the key `musicTool_pulse_v1` in `localStorage`. User presets are stored separately under `musicTool_pulse_presets`.
 
 ---
 
@@ -173,6 +186,7 @@ Settings are stored under the key `musicTool_pulse_v1` in `localStorage`.
 | `←` / `→` | −1 / +1 BPM |
 | `↑` / `↓` | +5 / −5 BPM |
 | `T` | Tap tempo |
+| `Escape` | Cancel preset save mode |
 
 ---
 
@@ -189,7 +203,7 @@ Key facts:
 - 5-theme CSS system using custom properties on [data-theme] selectors
 - localStorage persistence via savePref(key, val) / loadPrefs()
 - Modal overlay system: openModal(id) / closeModal(id)
-- Settings key: `musicTool_pulse_v1`
+- Settings key: `musicTool_pulse_v1`; presets key: `musicTool_pulse_presets`
 - Audio scheduling uses Web Audio clock (audioCtx.currentTime) with a look-ahead scheduler
 - Beat grid is rebuilt in renderGrid() whenever time signature changes
 - Beat accent state: accentLevels[beat] (values 1|2|3); sub-beat accent state: subAccentLevels[beat][subIdx] (values 1|2|3)

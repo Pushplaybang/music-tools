@@ -269,6 +269,27 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
 .st-progress{width:100%;height:5px;background:var(--surface2);border-radius:4px;overflow:hidden;margin-top:6px;}
 .st-progress-fill{height:100%;background:var(--grad);border-radius:4px;width:0%;transition:width .3s linear;}
 
+/* Preset save slots */
+.preset-slots-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 20px;width:100%;margin-bottom:16px;transition:background .35s,border-color .35s,border-radius .35s,box-shadow .35s;}
+@media(min-width:480px){.preset-slots-card{padding:16px 24px;}}
+.preset-slots-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.preset-slot{font-family:var(--font-b);font-size:.6rem;letter-spacing:.04em;padding:5px 12px;border-radius:50px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;user-select:none;position:relative;min-width:36px;text-align:center;opacity:.55;}
+.preset-slot.filled{opacity:1;background:var(--surface2);border-color:var(--accent2);color:var(--text);}
+.preset-slot.filled::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent2);}
+.preset-slot:hover{border-color:var(--accent);color:var(--accent);opacity:1;}
+.preset-slot.active-load{background:var(--accent2);color:var(--bg);border-color:var(--accent2);font-weight:700;}
+[data-theme="minimal"] .preset-slot.active-load,[data-theme="playful"] .preset-slot.active-load{color:#fff;}
+.save-mode .preset-slot{animation:slotPulse 1s ease-in-out infinite;}
+@keyframes slotPulse{0%,100%{border-color:var(--border);}50%{border-color:var(--accent);box-shadow:0 0 8px color-mix(in srgb,var(--accent) 30%,transparent);}}
+.save-mode .preset-slot.filled{animation-name:slotPulseFilled;}
+@keyframes slotPulseFilled{0%,100%{border-color:var(--accent2);}50%{border-color:var(--accent);box-shadow:0 0 8px color-mix(in srgb,var(--accent) 30%,transparent);}}
+.preset-save-btn{font-family:var(--font-b);font-size:.6rem;letter-spacing:.04em;padding:5px 12px;border-radius:50px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;user-select:none;}
+.preset-save-btn:hover{border-color:var(--accent);color:var(--accent);}
+.preset-save-btn.active{background:var(--accent);color:var(--pill-text);border-color:var(--accent);}
+.preset-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent2);color:var(--bg);font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;padding:8px 18px;border-radius:50px;z-index:600;opacity:0;transition:opacity .2s;pointer-events:none;}
+[data-theme="minimal"] .preset-toast,[data-theme="playful"] .preset-toast{color:#fff;}
+.preset-toast.show{opacity:1;}
+
 /* Number stepper for mute bars */
 .num-stepper{display:flex;align-items:center;gap:0;background:var(--surface2);border:1px solid var(--border);border-radius:50px;overflow:hidden;}
 .num-stepper-btn{width:28px;height:28px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-family:var(--font-b);font-size:.8rem;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0;}
@@ -303,6 +324,11 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
     <div class="doc-body">
       <h3>Transport &amp; BPM</h3>
       <p>Press the large play button or hit <strong>Space</strong> to start/stop. Use ±1/±10 nudge buttons or arrow keys to adjust BPM. Tap the <strong>Tap</strong> button (or press <strong>T</strong>) rhythmically to detect tempo from performance.</p>
+      <h3>Presets</h3>
+      <p>Save up to <strong>5 preset slots</strong> to quickly recall your favourite configurations. Each preset stores BPM, time signature, subdivision, accents, swing, sound settings, and click rate.</p>
+      <p><strong>Save:</strong> click the <strong>💾 Save</strong> button — all slots start pulsing. Click a slot to save the current config. Press <strong>Escape</strong> or click <strong>✕ Cancel</strong> to exit save mode.</p>
+      <p><strong>Load:</strong> click any filled slot to instantly load that preset (stops playback first).</p>
+      <p><strong>Rename:</strong> right-click (or long-press on mobile) a filled slot to give it a custom name (max 12 characters).</p>
       <h3>Beat Visualizer</h3>
       <p>The beat grid shows all beats in the bar. <strong>Click any beat dot</strong> to cycle through three accent levels — normal, medium accent, and strong accent. Accent level affects both click volume and visual brightness. <strong>Subdivision dots can also be clicked</strong> to accent them independently, stepping through quiet, medium, and strong levels; their exact loudness follows your global <strong>Accent Boost</strong> setting.</p>
       <h3>Pendulum Arm</h3>
@@ -413,6 +439,20 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
       </div>
     </div>
   </div>
+
+  <!-- PRESET SLOTS -->
+  <div class="preset-slots-card" id="presetSlotsCard">
+    <div class="card-title">// Presets</div>
+    <div class="preset-slots-row" id="presetSlotsRow">
+      <button class="preset-slot" data-slot="0">1</button>
+      <button class="preset-slot" data-slot="1">2</button>
+      <button class="preset-slot" data-slot="2">3</button>
+      <button class="preset-slot" data-slot="3">4</button>
+      <button class="preset-slot" data-slot="4">5</button>
+      <button class="preset-save-btn" id="presetSaveBtn">💾 Save</button>
+    </div>
+  </div>
+  <div class="preset-toast" id="presetToast"></div>
 
   <!-- CONFIG CARD -->
   <div class="card">
@@ -542,8 +582,144 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
 // ══════════════════════════════════════════════════════
 
 const LS_KEY = 'musicTool_pulse_v1';
+const LS_PRESETS = 'musicTool_pulse_presets';
 function savePref(k,v){try{const d=JSON.parse(localStorage.getItem(LS_KEY)||'{}');d[k]=v;localStorage.setItem(LS_KEY,JSON.stringify(d));}catch(e){}}
 function loadPrefs(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){return{}}}
+
+// ── PRESET SLOTS ────────────────────────────────────
+let presetSlots=[null,null,null,null,null];
+let presetSaveMode=false;
+
+function loadPresetSlots(){
+  try{const d=JSON.parse(localStorage.getItem(LS_PRESETS));if(Array.isArray(d)&&d.length===5)presetSlots=d;}catch(e){}
+}
+function savePresetSlots(){
+  try{localStorage.setItem(LS_PRESETS,JSON.stringify(presetSlots));}catch(e){}
+}
+function renderPresetSlots(){
+  document.querySelectorAll('.preset-slot').forEach(btn=>{
+    const i=+btn.dataset.slot;
+    const s=presetSlots[i];
+    btn.classList.toggle('filled',!!s);
+    btn.textContent=s?((s.name&&s.name!=='Slot '+(i+1))?s.name:'Slot '+(i+1)):(i+1);
+    btn.title=s?'Load preset: '+(s.name||'Slot '+(i+1)):'Empty slot';
+  });
+}
+function gatherCurrentConfig(){
+  return{
+    name:null,
+    bpm:bpm,
+    beatsPerBar:beatsPerBar,
+    noteValue:noteValue,
+    subdivision:subdivision,
+    accentLevels:accentLevels.slice(),
+    subAccentLevels:subAccentLevels.map(r=>r.slice()),
+    swing:+document.getElementById('swingSlider').value,
+    vol:+document.getElementById('volSlider').value,
+    bright:+document.getElementById('brightSlider').value,
+    env:+document.getElementById('envSlider').value,
+    accentBoost:+document.getElementById('accentBoostSlider').value,
+    clickRate:clickRate
+  };
+}
+function applyPreset(slot){
+  const s=presetSlots[slot];
+  if(!s) return;
+  if(isPlaying) stopMetronome();
+  // Restore core state
+  bpm=s.bpm||120;
+  beatsPerBar=s.beatsPerBar||4;
+  noteValue=s.noteValue||4;
+  subdivision=s.subdivision||1;
+  clickRate=s.clickRate||1;
+  // Accent levels
+  if(Array.isArray(s.accentLevels)&&s.accentLevels.length===beatsPerBar){
+    accentLevels=s.accentLevels.slice();
+  } else {
+    accentLevels=Array.from({length:beatsPerBar},(_,i)=>i===0?3:1);
+  }
+  const subLen=Math.max(0,subdivision-1);
+  if(Array.isArray(s.subAccentLevels)&&s.subAccentLevels.length===beatsPerBar&&
+     s.subAccentLevels.every(a=>Array.isArray(a)&&a.length===subLen)){
+    subAccentLevels=s.subAccentLevels.map(r=>r.slice());
+  } else {
+    subAccentLevels=Array.from({length:beatsPerBar},()=>new Array(subLen).fill(1));
+  }
+  // Update UI
+  setBpm(bpm);
+  document.getElementById('beatsPerBar').value=beatsPerBar;
+  document.getElementById('noteValue').value=noteValue;
+  document.querySelectorAll('.sub-btn').forEach(b=>b.classList.toggle('active',+b.dataset.sub===subdivision));
+  if(s.vol!=null)         document.getElementById('volSlider').value=s.vol;
+  if(s.bright!=null)      document.getElementById('brightSlider').value=s.bright;
+  if(s.env!=null)         document.getElementById('envSlider').value=s.env;
+  if(s.accentBoost!=null) document.getElementById('accentBoostSlider').value=s.accentBoost;
+  if(s.swing!=null)       document.getElementById('swingSlider').value=s.swing;
+  setClickRate(clickRate);
+  updateSoundLabel(); updateSwingLabel(); updatePresetHighlight(); buildBeatGrid();
+  saveAllPrefs();
+  showPresetToast('Loaded: '+(s.name||'Slot '+(slot+1)));
+}
+function enterSaveMode(){
+  presetSaveMode=true;
+  document.getElementById('presetSlotsCard').classList.add('save-mode');
+  document.getElementById('presetSaveBtn').classList.add('active');
+  document.getElementById('presetSaveBtn').textContent='✕ Cancel';
+}
+function exitSaveMode(){
+  presetSaveMode=false;
+  document.getElementById('presetSlotsCard').classList.remove('save-mode');
+  document.getElementById('presetSaveBtn').classList.remove('active');
+  document.getElementById('presetSaveBtn').textContent='💾 Save';
+}
+function saveToSlot(slot){
+  const cfg=gatherCurrentConfig();
+  const existing=presetSlots[slot];
+  cfg.name=existing?existing.name:'Slot '+(slot+1);
+  presetSlots[slot]=cfg;
+  savePresetSlots();
+  renderPresetSlots();
+  exitSaveMode();
+  showPresetToast('Saved to: '+cfg.name);
+}
+function showPresetToast(msg){
+  const t=document.getElementById('presetToast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),1500);
+}
+function renameSlot(slot){
+  const s=presetSlots[slot];
+  if(!s) return;
+  const name=prompt('Rename preset (max 12 chars):',s.name||'Slot '+(slot+1));
+  if(name===null) return;
+  s.name=name.slice(0,12)||'Slot '+(slot+1);
+  savePresetSlots();
+  renderPresetSlots();
+}
+// Slot click handlers
+document.querySelectorAll('.preset-slot').forEach(btn=>{
+  const slot=+btn.dataset.slot;
+  btn.addEventListener('click',()=>{
+    if(presetSaveMode){saveToSlot(slot);return;}
+    if(presetSlots[slot]) applyPreset(slot);
+  });
+  btn.addEventListener('contextmenu',e=>{e.preventDefault();renameSlot(slot);});
+  // Long-press on mobile
+  let lpTimer=null, lpFired=false;
+  btn.addEventListener('touchstart',()=>{lpFired=false;lpTimer=setTimeout(()=>{lpFired=true;renameSlot(slot);},600);},{passive:true});
+  btn.addEventListener('touchend',e=>{
+    if(lpFired){e.preventDefault();lpFired=false;clearTimeout(lpTimer);lpTimer=null;return;}
+    clearTimeout(lpTimer);lpTimer=null;
+  });
+  btn.addEventListener('touchmove',()=>{clearTimeout(lpTimer);lpTimer=null;},{passive:true});
+});
+document.getElementById('presetSaveBtn').addEventListener('click',()=>{
+  if(presetSaveMode) exitSaveMode(); else enterSaveMode();
+});
+loadPresetSlots();
+renderPresetSlots();
 
 // ── THEMES ──────────────────────────────────────────
 const THEMES={
@@ -1312,6 +1488,7 @@ function restoreSettings(){
 document.addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT') return;
   if(e.code==='Space'){e.preventDefault();togglePlay();}
+  if(e.code==='Escape'&&presetSaveMode){exitSaveMode();return;}
   if(e.code==='ArrowUp')    adjustBpm(1);
   if(e.code==='ArrowDown')  adjustBpm(-1);
   if(e.code==='ArrowRight') adjustBpm(5);

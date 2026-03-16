@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice Timer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+[data-theme="current"]{
+  --bg:#0d0f12;
+  --bg-grad:radial-gradient(ellipse at 20% 0%,#1a2030 0%,transparent 60%),
+            radial-gradient(ellipse at 80% 100%,#0d1a14 0%,transparent 60%);
+  --surface:#161a1f; --surface2:#1e2329; --border:#2a3040;
+  --accent:#e8b84b;  --accent2:#4be8b8;
+  --text:#e8e4da;    --muted:#6b7280;
+  --correct:#4be8b8; --wrong:#e84b4b;
+  --font-h:'DM Serif Display',serif; --font-b:'Space Mono',monospace;
+  --h1:clamp(1.5rem,5vw,2.8rem); --r:12px; --br:6px;
+  --bar-bg:#0a0c0e; --pill-active:#e8b84b; --pill-text:#0d0f12;
+  --grad:linear-gradient(90deg,#e8b84b,#4be8b8);
+  --overlay-bg:rgba(5,7,10,0.82); --overlay-surface:rgba(22,26,31,0.97);
+}
+[data-theme="minimal"]{
+  --bg:#fafaf8; --bg-grad:none;
+  --surface:#fff; --surface2:#f4f4f0; --border:#e2e2dc;
+  --accent:#1a1a1a; --accent2:#5a8a6e;
+  --text:#1a1a1a; --muted:#999990;
+  --correct:#5a8a6e; --wrong:#c0392b;
+  --font-h:'Instrument Serif',serif; --font-b:'Syne',sans-serif;
+  --h1:clamp(1.5rem,5vw,3.2rem); --r:2px; --br:2px;
+  --bar-bg:#f0f0ec; --pill-active:#1a1a1a; --pill-text:#fafaf8;
+  --grad:linear-gradient(90deg,#1a1a1a,#5a8a6e);
+  --overlay-bg:rgba(200,200,195,0.75); --overlay-surface:rgba(255,255,255,0.98);
+}
+[data-theme="studio"]{
+  --bg:#0e0e0e; --bg-grad:radial-gradient(ellipse at 50% -20%,#1a0a2e 0%,transparent 60%);
+  --surface:#141414; --surface2:#1c1c1c; --border:#2a2a2a;
+  --accent:#c678f0; --accent2:#78c6f0;
+  --text:#d4d4d4; --muted:#555;
+  --correct:#78c6f0; --wrong:#f07878;
+  --font-h:'Syne',sans-serif; --font-b:'Space Mono',monospace;
+  --h1:clamp(1.3rem,4.5vw,2.4rem); --r:8px; --br:4px;
+  --bar-bg:#080808; --pill-active:#c678f0; --pill-text:#0e0e0e;
+  --grad:linear-gradient(90deg,#c678f0,#78c6f0);
+  --overlay-bg:rgba(4,4,8,0.88); --overlay-surface:rgba(18,18,28,0.98);
+}
+[data-theme="retro"]{
+  --bg:#1c1108; --bg-grad:radial-gradient(ellipse at 50% 0%,#2e1c08 0%,transparent 70%);
+  --surface:#231508; --surface2:#2e1c08; --border:#5a3d1a;
+  --accent:#d4a843; --accent2:#c47840;
+  --text:#e8d8b0; --muted:#8a6a3a;
+  --correct:#78b878; --wrong:#c85050;
+  --font-h:'Playfair Display',serif; --font-b:'Playfair Display',serif;
+  --h1:clamp(1.5rem,5vw,3.2rem); --r:4px; --br:3px;
+  --bar-bg:#120b04; --pill-active:#d4a843; --pill-text:#1c1108;
+  --grad:linear-gradient(90deg,#d4a843,#c47840);
+  --overlay-bg:rgba(10,6,2,0.85); --overlay-surface:rgba(30,18,6,0.97);
+}
+[data-theme="playful"]{
+  --bg:#fff9f0;
+  --bg-grad:radial-gradient(ellipse at 10% 10%,#ffe8f0 0%,transparent 50%),
+            radial-gradient(ellipse at 90% 90%,#e8f0ff 0%,transparent 50%);
+  --surface:#fff; --surface2:#fdf5ff; --border:#e8d8f8;
+  --accent:#ff5fa0; --accent2:#5fb8ff;
+  --text:#2a1840; --muted:#b090c8;
+  --correct:#38d88a; --wrong:#ff5050;
+  --font-h:'Nunito',sans-serif; --font-b:'Nunito',sans-serif;
+  --h1:clamp(1.5rem,5vw,3rem); --r:20px; --br:50px;
+  --bar-bg:#f5e8ff; --pill-active:#ff5fa0; --pill-text:#fff;
+  --grad:linear-gradient(90deg,#ff5fa0,#5fb8ff);
+  --overlay-bg:rgba(255,220,240,0.7); --overlay-surface:rgba(255,255,255,0.98);
+}
+
+[data-theme="current"] header h1{text-shadow:0 0 40px rgba(232,184,75,.3);}
+[data-theme="studio"]  header h1{text-transform:uppercase;letter-spacing:.14em;text-shadow:0 0 30px rgba(198,120,240,.4);font-weight:800;}
+[data-theme="retro"]   header h1{font-style:italic;}
+[data-theme="playful"] header h1{font-weight:800;}
+[data-theme="retro"]   header p{font-style:italic;text-transform:none;}
+[data-theme="playful"] header p{text-transform:none;letter-spacing:0;}
+[data-theme="retro"]   button,[data-theme="playful"] button{text-transform:none;font-size:.88rem;letter-spacing:0;}
+[data-theme="playful"] button{font-weight:700;padding:9px 20px;}
+[data-theme="retro"]   .card-title{font-style:italic;text-transform:none;font-size:.85rem;letter-spacing:.06em;color:var(--accent2);}
+[data-theme="playful"] .card-title{font-size:.76rem;font-weight:700;color:var(--accent);}
+[data-theme="minimal"] .card{border-left:3px solid var(--accent);}
+[data-theme="studio"]  .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.03);}
+[data-theme="retro"]   .card{border:2px solid var(--border);box-shadow:4px 4px 0 rgba(0,0,0,.45);}
+[data-theme="playful"] .card{border:2px solid var(--border);box-shadow:0 4px 24px rgba(255,95,160,.1);}
+[data-theme="retro"]   .card::before{content:'';display:block;height:3px;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 6px,transparent 6px,transparent 12px);margin:-20px -20px 16px;opacity:.35;border-radius:var(--r) var(--r) 0 0;}
+@media(min-width:480px){[data-theme="retro"] .card::before{margin:-24px -24px 20px;}}
+[data-theme="retro"]   .control-group label{font-style:italic;text-transform:none;font-size:.78rem;}
+[data-theme="playful"] .control-group label{text-transform:none;font-size:.78rem;font-weight:700;}
+[data-theme="studio"]  .overlay-title{text-transform:uppercase;letter-spacing:.1em;font-size:1.3rem;}
+[data-theme="playful"] .overlay-title{font-weight:800;}
+[data-theme="retro"]   .overlay-sub,[data-theme="playful"] .overlay-sub{text-transform:none;font-size:.82rem;letter-spacing:0;}
+[data-theme="retro"]   .ov-lbl,[data-theme="playful"] .ov-lbl{text-transform:none;font-size:.72rem;}
+[data-theme="retro"]   .app-footer{font-style:italic;letter-spacing:0;font-size:.75rem;}
+[data-theme="playful"] .app-footer{letter-spacing:0;font-size:.72rem;}
+
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:48px;transition:background .35s,color .35s;}
+body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);pointer-events:none;z-index:0;}
+
+.theme-bar{width:100%;background:var(--bar-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:6px 16px;position:sticky;top:0;z-index:200;transition:background .35s,border-color .35s;gap:8px;}
+.bar-left{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.bar-right{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;}
+.bar-sep{width:1px;height:22px;background:var(--border);margin:0 6px;flex-shrink:0;}
+.bar-icon-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:var(--br);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:all .18s;flex-shrink:0;}
+.bar-icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+.theme-pills-desktop{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
+.theme-pill{font-family:var(--font-b);font-size:.62rem;letter-spacing:.05em;padding:6px 13px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.theme-pill:hover{color:var(--text);border-color:var(--accent);}
+.theme-pill.active{background:var(--pill-active);color:var(--pill-text);border-color:var(--pill-active);font-weight:700;}
+.theme-mobile{display:none;position:relative;}
+.theme-mobile-btn{font-family:var(--font-b);font-size:.7rem;padding:6px 12px;border-radius:50px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .2s;}
+.theme-mobile-btn .arrow{font-size:.5rem;transition:transform .2s;}
+.theme-mobile-btn.open .arrow{transform:rotate(180deg);}
+.theme-flyout{position:absolute;top:calc(100% + 8px);right:0;background:var(--bar-bg);border:1px solid var(--border);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:160px;z-index:300;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .18s,transform .18s;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.theme-flyout.open{opacity:1;pointer-events:all;transform:translateY(0);}
+.theme-flyout .theme-pill{border-radius:6px;text-align:left;font-size:.72rem;padding:8px 14px;}
+@media(max-width:640px){.theme-pills-desktop{display:none;}.theme-mobile{display:block;}}
+
+.content{position:relative;z-index:1;width:100%;max-width:900px;padding:28px 16px 0;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+header{text-align:center;margin-bottom:28px;}
+header h1{font-family:var(--font-h);font-size:var(--h1);color:var(--accent);line-height:1.1;transition:color .35s,font-size .35s;}
+header p{color:var(--muted);font-size:clamp(.6rem,.2rem + 1.5vw,.72rem);letter-spacing:.1em;text-transform:uppercase;margin-top:6px;font-family:var(--font-b);}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;width:100%;margin-bottom:16px;transition:background .35s,border-color .35s,border-radius .35s,box-shadow .35s;}
+@media(min-width:480px){.card{padding:24px;}}
+.card-title{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;font-family:var(--font-b);}
+
+.controls{display:grid;gap:12px;}
+.cols2{grid-template-columns:1fr 1fr;}
+.cols3{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:600px){.cols3,.cols2{grid-template-columns:1fr 1fr;}}
+@media(max-width:380px){.cols3,.cols2{grid-template-columns:1fr;}}
+.control-group label{display:block;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-family:var(--font-b);}
+select,input[type=text]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--br);color:var(--text);font-family:var(--font-b);font-size:.84rem;padding:9px 12px;appearance:none;cursor:pointer;transition:border-color .2s,background .35s;}
+select{padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+select:focus,input:focus{outline:none;border-color:var(--accent);}
+input[type=text]{cursor:text;}
+
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:none;border-radius:var(--br);padding:9px 16px;cursor:pointer;transition:all .15s;text-transform:uppercase;}
+.btn-primary{background:var(--accent);color:var(--pill-text);font-weight:700;}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+.btn-accent2{background:transparent;color:var(--accent2);border:1px solid var(--accent2);}
+.btn-accent2:hover{background:rgba(100,200,200,.1);}
+.btn-danger{background:transparent;color:var(--wrong);border:1px solid var(--wrong);}
+.btn-danger:hover{background:rgba(220,80,80,.1);}
+
+.modal-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:flex-start;justify-content:center;background:var(--overlay-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto;padding:24px 16px;}
+.modal-overlay.show{display:flex;}
+.modal-card{background:var(--overlay-surface);border:1px solid var(--border);border-radius:calc(var(--r)*1.5);padding:36px 32px 32px;width:100%;max-width:600px;box-shadow:0 24px 80px rgba(0,0,0,.5);animation:overlayPop .28s cubic-bezier(.34,1.56,.64,1);position:relative;}
+@keyframes overlayPop{from{transform:scale(.92) translateY(16px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.modal-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border:1px solid var(--border);border-radius:50%;background:transparent;color:var(--muted);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.modal-close:hover{border-color:var(--wrong);color:var(--wrong);}
+.doc-header{font-family:var(--font-h);font-size:1.5rem;color:var(--accent);margin-bottom:6px;text-align:center;}
+.doc-sub{font-family:var(--font-b);font-size:.68rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px;text-align:center;}
+.doc-body{text-align:left;font-family:var(--font-b);font-size:.8rem;color:var(--text);line-height:1.75;}
+.doc-body h3{font-family:var(--font-h);font-size:1rem;color:var(--accent2);margin:18px 0 6px;border-bottom:1px solid var(--border);padding-bottom:4px;}
+.doc-body p{margin-bottom:10px;}
+.doc-body ul{margin:6px 0 12px 18px;}
+.doc-body li{margin-bottom:5px;}
+.doc-body .tip{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 var(--br) var(--br) 0;padding:10px 14px;margin:14px 0;font-size:.78rem;color:var(--muted);}
+.overlay-title{font-family:var(--font-h);font-size:1.7rem;color:var(--accent);margin-bottom:4px;}
+.overlay-sub{font-family:var(--font-b);font-size:.7rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:28px;}
+.overlay-stats{display:flex;justify-content:center;gap:20px;margin-bottom:30px;flex-wrap:wrap;}
+.ov-stat{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.ov-val{font-family:var(--font-b);font-size:2rem;font-weight:700;line-height:1;}
+.ov-lbl{font-family:var(--font-b);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+.app-footer{position:relative;z-index:1;font-family:var(--font-b);font-size:.62rem;color:var(--muted);opacity:.55;letter-spacing:.08em;margin-top:4px;padding-bottom:8px;text-align:center;}
+
+/* ════════════════════════
+   PRACTICE TIMER STYLES
+════════════════════════ */
+
+/* Template pills */
+.template-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.template-pill{font-family:var(--font-b);font-size:.65rem;letter-spacing:.04em;padding:6px 12px;border-radius:var(--br);border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;}
+.template-pill:hover{border-color:var(--accent2);color:var(--accent2);}
+
+/* Block list */
+.block-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.block-row{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--br);padding:10px 12px;transition:background .2s,border-color .2s;}
+.block-color-indicator{width:6px;height:36px;border-radius:3px;flex-shrink:0;}
+.block-label-input{flex:1;min-width:0;background:transparent;border:1px solid transparent;border-radius:var(--br);color:var(--text);font-family:var(--font-b);font-size:.8rem;padding:6px 8px;transition:border-color .2s;}
+.block-label-input:focus{border-color:var(--accent);outline:none;}
+.block-label-input::placeholder{color:var(--muted);opacity:.6;}
+.block-dur{width:72px;flex-shrink:0;font-size:.78rem;padding:6px 8px;}
+.block-swatches{display:flex;gap:4px;flex-shrink:0;}
+.swatch{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:border-color .15s,transform .15s;flex-shrink:0;}
+.swatch:hover{transform:scale(1.15);}
+.swatch.active{border-color:var(--text);}
+.block-actions{display:flex;gap:2px;flex-shrink:0;}
+.block-btn{width:28px;height:28px;border-radius:var(--br);border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.7rem;transition:all .15s;padding:0;}
+.block-btn:hover{border-color:var(--accent);color:var(--accent);}
+.block-btn.del:hover{border-color:var(--wrong);color:var(--wrong);}
+.block-empty{text-align:center;color:var(--muted);font-size:.75rem;padding:20px 0;opacity:.6;}
+.session-total{font-size:.68rem;color:var(--muted);letter-spacing:.06em;margin-top:4px;}
+.session-total span{color:var(--accent);font-weight:700;}
+
+/* Timer display */
+.timer-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px 24px 24px;width:100%;margin-bottom:16px;display:flex;flex-direction:column;align-items:center;gap:14px;transition:background .35s,border-color .35s,border-radius .35s;}
+.timer-block-label{font-family:var(--font-b);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);min-height:1.2em;}
+.timer-countdown{font-family:var(--font-h);font-size:clamp(3rem,12vw,6rem);color:var(--accent);line-height:1;letter-spacing:-2px;user-select:none;transition:color .35s;}
+.timer-countdown.flash{animation:timerFlash .3s;}
+@keyframes timerFlash{0%,100%{opacity:1;}50%{opacity:.4;}}
+.progress-block{width:100%;max-width:440px;background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--grad);border-radius:4px;width:0%;transition:width .15s linear;}
+.progress-session{width:100%;max-width:440px;background:var(--surface2);border-radius:3px;height:3px;overflow:hidden;}
+.progress-session .progress-fill{transition:width .15s linear;}
+
+/* Transport controls */
+.transport{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:4px;}
+.transport-btn{width:50px;height:50px;border-radius:50%;border:2px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:var(--font-b);font-size:.85rem;padding:0;}
+.transport-btn:hover{border-color:var(--accent);color:var(--accent);}
+.transport-btn.play-btn{width:66px;height:66px;font-size:1.4rem;background:var(--accent);color:var(--pill-text);border-color:var(--accent);}
+.transport-btn.play-btn:hover{filter:brightness(1.12);transform:scale(1.05);}
+.transport-btn:disabled{opacity:.35;cursor:default;pointer-events:none;}
+
+/* Block indicator (small pills showing which block is active) */
+.block-indicators{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:4px;}
+.block-ind{height:6px;border-radius:3px;background:var(--surface2);transition:background .2s,opacity .2s;min-width:20px;}
+.block-ind.done{background:var(--accent);opacity:.5;}
+.block-ind.active{background:var(--accent);opacity:1;}
+
+/* Weekly summary */
+.week-summary{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:8px;}
+.week-stat{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.week-stat-val{font-family:var(--font-h);font-size:1.6rem;color:var(--accent);line-height:1;}
+.week-stat-lbl{font-family:var(--font-b);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+
+/* History modal chart */
+.chart-wrap{width:100%;padding:16px 0;}
+.chart-wrap svg{width:100%;height:auto;display:block;}
+
+/* Session complete modal */
+.complete-emoji{font-size:3.2rem;margin-bottom:10px;line-height:1;text-align:center;}
+.complete-blocks{width:100%;margin:16px 0;}
+.complete-block-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:.78rem;}
+.complete-block-row:last-child{border-bottom:none;}
+.complete-block-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.complete-block-label{flex:1;color:var(--text);}
+.complete-block-dur{color:var(--muted);flex-shrink:0;}
+
+@media(max-width:600px){
+  .bar-icon-btn{width:44px;height:44px;}
+  .block-row{flex-wrap:wrap;gap:6px;}
+  .block-swatches{order:10;width:100%;justify-content:flex-start;padding-left:14px;}
+  .block-actions .block-btn{width:44px;height:44px;}
+  .block-btn.del{width:44px;height:44px;}
+  .transport-btn{width:48px;height:48px;}
+  .transport-btn.play-btn{width:62px;height:62px;}
+}
+@media(max-width:480px){
+  .modal-card{padding:20px 16px;}
+  .doc-body{overflow-y:auto;max-height:60vh;}
+  .modal-close{width:44px;height:44px;}
+}
+</style>
+</head>
+<body data-theme="current">
+
+<!-- HELP MODAL -->
+<div class="modal-overlay" id="helpOverlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('helpOverlay')">✕</button>
+    <div class="doc-header">Practice Timer</div>
+    <div class="doc-sub">Session Planner — How to Use</div>
+    <div class="doc-body">
+      <h3>Session Builder</h3>
+      <p>Create a practice session by adding timed blocks. Each block has a <strong>label</strong> (e.g. "Scales"), a <strong>duration</strong>, and a <strong>colour</strong>. Reorder blocks with the arrow buttons, or delete with ✕.</p>
+      <h3>Templates</h3>
+      <p>Use the preset template pills for quick session plans:</p>
+      <ul>
+        <li><strong>Quick 30</strong> — 5 min Warmup, 15 min Repertoire, 10 min Technique</li>
+        <li><strong>Full Hour</strong> — 10 min Warmup, 10 min Scales, 20 min Repertoire, 10 min Sight Reading, 10 min Ear Training</li>
+        <li><strong>Focused 20</strong> — 5 min Warmup, 15 min Deep Practice</li>
+      </ul>
+      <h3>Timer Controls</h3>
+      <p>Press <strong>▶</strong> to start the countdown. The timer works through each block in order. Use <strong>|◀</strong> to restart the current block, or <strong>▶|</strong> to skip ahead. A chime plays between blocks.</p>
+      <h3>Session Log</h3>
+      <p>Completed sessions are automatically logged. The <strong>This Week</strong> summary shows your total minutes, number of sessions, and current streak of consecutive practice days.</p>
+      <p>Tap the <strong>📊</strong> icon in the top bar to view a 14-day bar chart of your practice history.</p>
+      <h3>Persistence</h3>
+      <p>Your block list, theme choice, and practice log are saved to localStorage. Everything works offline.</p>
+      <div class="tip">💡 The timer keeps running even if you switch themes. Your session is safe!</div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY MODAL -->
+<div class="modal-overlay" id="historyOverlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('historyOverlay')">✕</button>
+    <div class="doc-header">Practice History</div>
+    <div class="doc-sub">Last 14 Days</div>
+    <div class="chart-wrap" id="chartWrap"></div>
+  </div>
+</div>
+
+<!-- SESSION COMPLETE MODAL -->
+<div class="modal-overlay" id="completeOverlay">
+  <div class="modal-card" style="text-align:center;">
+    <button class="modal-close" onclick="closeModal('completeOverlay')">✕</button>
+    <div class="complete-emoji">🎉</div>
+    <div class="overlay-title">Session Complete!</div>
+    <div class="overlay-sub" id="completeSub">Total: 0 min</div>
+    <div class="overlay-stats" id="completeStats"></div>
+    <div class="complete-blocks" id="completeBlocks"></div>
+    <div class="actions" style="justify-content:center;margin-top:16px;">
+      <button class="btn-primary" onclick="closeModal('completeOverlay')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- THEME BAR -->
+<div class="theme-bar">
+  <div class="bar-left">
+    <button class="bar-icon-btn" onclick="openModal('helpOverlay')" title="Help">📖</button>
+    <button class="bar-icon-btn" onclick="openHistory()" title="Practice History">📊</button>
+  </div>
+  <div class="bar-sep"></div>
+  <div class="bar-right">
+    <div class="theme-pills-desktop">
+      <button class="theme-pill active" data-t="current">Dark Gold</button>
+      <button class="theme-pill" data-t="minimal">Clean &amp; Minimal</button>
+      <button class="theme-pill" data-t="studio">Dark Studio</button>
+      <button class="theme-pill" data-t="retro">Retro Piano</button>
+      <button class="theme-pill" data-t="playful">Bright &amp; Playful</button>
+    </div>
+    <div class="theme-mobile">
+      <button class="theme-mobile-btn" id="themeMobileBtn"><span id="themeMobileLabel">Dark Gold</span><span class="arrow">▼</span></button>
+      <div class="theme-flyout" id="themeFlyout">
+        <button class="theme-pill active" data-t="current">Dark Gold</button>
+        <button class="theme-pill" data-t="minimal">Clean &amp; Minimal</button>
+        <button class="theme-pill" data-t="studio">Dark Studio</button>
+        <button class="theme-pill" data-t="retro">Retro Piano</button>
+        <button class="theme-pill" data-t="playful">Bright &amp; Playful</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <header>
+    <h1 id="appTitle">Practice Timer</h1>
+    <p id="appSub">Plan · Focus · Track</p>
+  </header>
+
+  <!-- TIMER DISPLAY CARD -->
+  <div class="timer-card">
+    <div class="card-title">// Timer</div>
+    <div class="timer-block-label" id="timerLabel">Ready</div>
+    <div class="timer-countdown" id="timerDisplay">00:00</div>
+    <div class="progress-block"><div class="progress-fill" id="blockProgress"></div></div>
+    <div class="progress-session"><div class="progress-fill" id="sessionProgress"></div></div>
+    <div class="block-indicators" id="blockIndicators"></div>
+    <div class="transport">
+      <button class="transport-btn" id="btnRestart" onclick="restartBlock()" title="Restart block">|◀</button>
+      <button class="transport-btn play-btn" id="btnPlay" onclick="togglePlay()" title="Play / Pause">▶</button>
+      <button class="transport-btn" id="btnSkip" onclick="skipBlock()" title="Next block">▶|</button>
+    </div>
+  </div>
+
+  <!-- SESSION BUILDER CARD -->
+  <div class="card">
+    <div class="card-title">// Session Plan</div>
+    <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;font-family:var(--font-b);">Templates</div>
+    <div class="template-row">
+      <button class="template-pill" onclick="loadTemplate('quick30')">Quick 30</button>
+      <button class="template-pill" onclick="loadTemplate('fullHour')">Full Hour</button>
+      <button class="template-pill" onclick="loadTemplate('focused20')">Focused 20</button>
+    </div>
+    <div class="block-list" id="blockList"></div>
+    <div class="session-total" id="sessionTotal"></div>
+    <div class="actions">
+      <button class="btn-accent2" onclick="addBlock()">+ Add Block</button>
+      <button class="btn-danger" onclick="clearBlocks()" id="btnClear" style="display:none;">Clear All</button>
+    </div>
+  </div>
+
+  <!-- THIS WEEK CARD -->
+  <div class="card">
+    <div class="card-title">// This Week</div>
+    <div class="week-summary" id="weekSummary">
+      <div class="week-stat"><div class="week-stat-val" id="weekMins">0</div><div class="week-stat-lbl">Minutes</div></div>
+      <div class="week-stat"><div class="week-stat-val" id="weekSessions">0</div><div class="week-stat-lbl">Sessions</div></div>
+      <div class="week-stat"><div class="week-stat-val" id="weekStreak">0</div><div class="week-stat-lbl">Day Streak</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="app-footer">made with ♥ by Paul van Zyl</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  PRACTICE TIMER  |  localStorage: musicTool_practiceTimer_v1
+// ══════════════════════════════════════════════════════
+
+const LS_KEY = 'musicTool_practiceTimer_v1';
+const LS_LOG = 'musicTool_practiceLog';
+
+function savePref(k,v){try{const d=JSON.parse(localStorage.getItem(LS_KEY)||'{}');d[k]=v;localStorage.setItem(LS_KEY,JSON.stringify(d));}catch(e){}}
+function loadPrefs(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){return{}}}
+
+// ── THEMES ──────────────────────────────────────────
+const THEMES={
+  current:['Practice Timer','Plan · Focus · Track'],
+  minimal:['practice timer','plan · focus · track'],
+  studio:['PRACTICE TIMER','PLAN · FOCUS · TRACK'],
+  retro:['The Practice Timer','Plan · Focus · Track'],
+  playful:['⏱️ Practice Timer!','Plan · Focus · Track ✨']
+};
+const THEME_LABELS={current:'Dark Gold',minimal:'Clean & Minimal',studio:'Dark Studio',retro:'Retro Piano',playful:'Bright & Playful'};
+
+function applyTheme(t,noSave){
+  document.body.dataset.theme=t;
+  const[h,s]=THEMES[t];
+  document.getElementById('appTitle').textContent=h;
+  document.getElementById('appSub').textContent=s;
+  document.getElementById('themeMobileLabel').textContent=THEME_LABELS[t];
+  document.querySelectorAll('.theme-pill').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
+  if(!noSave) savePref('theme',t);
+}
+document.querySelectorAll('.theme-pill').forEach(btn=>btn.addEventListener('click',()=>{
+  applyTheme(btn.dataset.t);
+  document.getElementById('themeFlyout').classList.remove('open');
+  document.getElementById('themeMobileBtn').classList.remove('open');
+}));
+const mobileBtn=document.getElementById('themeMobileBtn'),flyout=document.getElementById('themeFlyout');
+mobileBtn.addEventListener('click',e=>{e.stopPropagation();const o=flyout.classList.toggle('open');mobileBtn.classList.toggle('open',o);});
+document.addEventListener('click',()=>{flyout.classList.remove('open');mobileBtn.classList.remove('open');});
+flyout.addEventListener('click',e=>e.stopPropagation());
+
+function openModal(id){document.getElementById(id).classList.add('show');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('show');document.body.style.overflow='';}
+document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)closeModal(ov.id);}));
+
+// ── AUDIO ───────────────────────────────────────────
+let audioCtx=null;
+function getCtx(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playChime(){
+  const ctx=getCtx();
+  const now=ctx.currentTime;
+  const g=ctx.createGain();
+  g.gain.setValueAtTime(0.18,now);
+  g.gain.exponentialRampToValueAtTime(0.001,now+0.5);
+  g.connect(ctx.destination);
+
+  const o1=ctx.createOscillator();
+  o1.type='sine';
+  o1.frequency.setValueAtTime(523.25,now); // C5
+  o1.connect(g);
+  o1.start(now);
+  o1.stop(now+0.2);
+
+  const g2=ctx.createGain();
+  g2.gain.setValueAtTime(0.18,now+0.2);
+  g2.gain.exponentialRampToValueAtTime(0.001,now+0.6);
+  g2.connect(ctx.destination);
+
+  const o2=ctx.createOscillator();
+  o2.type='sine';
+  o2.frequency.setValueAtTime(659.25,now+0.2); // E5
+  o2.connect(g2);
+  o2.start(now+0.2);
+  o2.stop(now+0.4);
+}
+
+// ── COLOUR SWATCHES ─────────────────────────────────
+const SWATCH_VARS=['accent','accent2','correct','wrong','muted','text'];
+
+// ── TEMPLATES ───────────────────────────────────────
+const TEMPLATES={
+  quick30:[
+    {label:'Warmup',duration:5,colorIdx:0},
+    {label:'Repertoire',duration:15,colorIdx:1},
+    {label:'Technique',duration:10,colorIdx:2}
+  ],
+  fullHour:[
+    {label:'Warmup',duration:10,colorIdx:0},
+    {label:'Scales',duration:10,colorIdx:1},
+    {label:'Repertoire',duration:20,colorIdx:2},
+    {label:'Sight Reading',duration:10,colorIdx:4},
+    {label:'Ear Training',duration:10,colorIdx:5}
+  ],
+  focused20:[
+    {label:'Warmup',duration:5,colorIdx:0},
+    {label:'Deep Practice',duration:15,colorIdx:1}
+  ]
+};
+
+// ── STATE ───────────────────────────────────────────
+let blocks=[];
+let timerState='stopped'; // stopped | running | paused
+let currentBlockIdx=0;
+let blockRemaining=0; // seconds remaining in current block
+let totalSessionSecs=0;
+let elapsedSessionSecs=0;
+let timerInterval=null;
+let lastTickTime=0;
+
+const DURATIONS=[1,2,3,5,10,15,20,25,30,45,60];
+
+// ── BLOCK MANAGEMENT ────────────────────────────────
+function addBlock(label,duration,colorIdx){
+  blocks.push({
+    label: label||'',
+    duration: duration||5,
+    colorIdx: colorIdx!=null? colorIdx : (blocks.length % SWATCH_VARS.length)
+  });
+  saveBlocks();
+  renderBlocks();
+}
+
+function removeBlock(idx){
+  blocks.splice(idx,1);
+  saveBlocks();
+  renderBlocks();
+}
+
+function moveBlock(idx,dir){
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=blocks.length) return;
+  const tmp=blocks[idx];
+  blocks[idx]=blocks[newIdx];
+  blocks[newIdx]=tmp;
+  saveBlocks();
+  renderBlocks();
+}
+
+function saveBlocks(){
+  savePref('blocks',blocks);
+  updateSessionTotal();
+  renderIndicators();
+}
+
+function loadTemplate(key){
+  const tpl=TEMPLATES[key];
+  if(!tpl) return;
+  if(blocks.length>0 && !confirm('Replace current session plan?')) return;
+  blocks=tpl.map(b=>({...b}));
+  saveBlocks();
+  renderBlocks();
+  if(timerState!=='stopped') resetTimer();
+}
+
+function clearBlocks(){
+  if(blocks.length===0) return;
+  if(!confirm('Clear all blocks?')) return;
+  blocks=[];
+  saveBlocks();
+  renderBlocks();
+  if(timerState!=='stopped') resetTimer();
+}
+
+function renderBlocks(){
+  const list=document.getElementById('blockList');
+  const btnClear=document.getElementById('btnClear');
+  if(blocks.length===0){
+    list.innerHTML='<div class="block-empty">No blocks yet — add one or pick a template</div>';
+    btnClear.style.display='none';
+    return;
+  }
+  btnClear.style.display='';
+  let html='';
+  blocks.forEach((b,i)=>{
+    const durOpts=DURATIONS.map(d=>`<option value="${d}"${d===b.duration?' selected':''}>${d} min</option>`).join('');
+    const swatches=SWATCH_VARS.map((v,si)=>
+      `<span class="swatch${si===b.colorIdx?' active':''}" style="background:var(--${v})" data-block="${i}" data-color="${si}" onclick="setBlockColor(${i},${si})"></span>`
+    ).join('');
+    html+=`<div class="block-row">
+      <div class="block-color-indicator" style="background:var(--${SWATCH_VARS[b.colorIdx]})"></div>
+      <input type="text" class="block-label-input" value="${escHtml(b.label)}" placeholder="e.g. Scales" maxlength="30" data-idx="${i}" onchange="updateBlockLabel(${i},this.value)">
+      <select class="block-dur" data-idx="${i}" onchange="updateBlockDur(${i},+this.value)">${durOpts}</select>
+      <div class="block-swatches">${swatches}</div>
+      <div class="block-actions">
+        <button class="block-btn" onclick="moveBlock(${i},-1)" title="Move up"${i===0?' disabled':''}>▲</button>
+        <button class="block-btn" onclick="moveBlock(${i},1)" title="Move down"${i===blocks.length-1?' disabled':''}>▼</button>
+        <button class="block-btn del" onclick="removeBlock(${i})" title="Delete">✕</button>
+      </div>
+    </div>`;
+  });
+  list.innerHTML=html;
+  updateSessionTotal();
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function updateBlockLabel(idx,val){
+  blocks[idx].label=val.slice(0,30);
+  saveBlocks();
+}
+function updateBlockDur(idx,val){
+  blocks[idx].duration=val;
+  saveBlocks();
+}
+function setBlockColor(idx,colorIdx){
+  blocks[idx].colorIdx=colorIdx;
+  saveBlocks();
+  renderBlocks();
+}
+
+function updateSessionTotal(){
+  const total=blocks.reduce((s,b)=>s+b.duration,0);
+  const el=document.getElementById('sessionTotal');
+  if(blocks.length===0){el.textContent='';return;}
+  el.innerHTML=`Total: <span>${total} min</span> · ${blocks.length} block${blocks.length>1?'s':''}`;
+}
+
+// ── TIMER ───────────────────────────────────────────
+function togglePlay(){
+  if(blocks.length===0) return;
+  if(timerState==='stopped'){
+    startSession();
+  } else if(timerState==='running'){
+    pauseTimer();
+  } else if(timerState==='paused'){
+    resumeTimer();
+  }
+}
+
+function startSession(){
+  totalSessionSecs=blocks.reduce((s,b)=>s+b.duration*60,0);
+  elapsedSessionSecs=0;
+  currentBlockIdx=0;
+  blockRemaining=blocks[0].duration*60;
+  timerState='running';
+  lastTickTime=Date.now();
+  timerInterval=setInterval(tick,100);
+  updateTimerUI();
+  renderIndicators();
+}
+
+function pauseTimer(){
+  timerState='paused';
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  updatePlayBtn();
+}
+
+function resumeTimer(){
+  timerState='running';
+  lastTickTime=Date.now();
+  timerInterval=setInterval(tick,100);
+  updatePlayBtn();
+}
+
+function resetTimer(){
+  timerState='stopped';
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  currentBlockIdx=0;
+  blockRemaining=0;
+  elapsedSessionSecs=0;
+  document.getElementById('timerDisplay').textContent='00:00';
+  document.getElementById('timerLabel').textContent='Ready';
+  document.getElementById('blockProgress').style.width='0%';
+  document.getElementById('sessionProgress').style.width='0%';
+  updatePlayBtn();
+  renderIndicators();
+}
+
+function restartBlock(){
+  if(timerState==='stopped'||blocks.length===0) return;
+  const completedBefore=blocks.slice(0,currentBlockIdx).reduce((s,b)=>s+b.duration*60,0);
+  blockRemaining=blocks[currentBlockIdx].duration*60;
+  elapsedSessionSecs=completedBefore;
+  lastTickTime=Date.now();
+  updateTimerUI();
+}
+
+function skipBlock(){
+  if(timerState==='stopped'||blocks.length===0) return;
+  const skippedSecs=blockRemaining;
+  elapsedSessionSecs+=skippedSecs;
+  advanceBlock();
+}
+
+function advanceBlock(){
+  currentBlockIdx++;
+  if(currentBlockIdx>=blocks.length){
+    completeSession();
+    return;
+  }
+  blockRemaining=blocks[currentBlockIdx].duration*60;
+  playChime();
+  // Brief flash on the timer
+  const el=document.getElementById('timerDisplay');
+  el.classList.add('flash');
+  setTimeout(()=>el.classList.remove('flash'),300);
+  updateTimerUI();
+  renderIndicators();
+}
+
+function tick(){
+  const now=Date.now();
+  const delta=(now-lastTickTime)/1000;
+  lastTickTime=now;
+  blockRemaining-=delta;
+  elapsedSessionSecs+=delta;
+  if(blockRemaining<=0){
+    elapsedSessionSecs+=blockRemaining; // correct overshoot
+    blockRemaining=0;
+    advanceBlock();
+    return;
+  }
+  updateTimerUI();
+}
+
+function updateTimerUI(){
+  const b=blocks[currentBlockIdx];
+  if(!b) return;
+  // Block label
+  document.getElementById('timerLabel').textContent=b.label||`Block ${currentBlockIdx+1}`;
+  // Countdown
+  const secs=Math.ceil(blockRemaining);
+  const mm=String(Math.floor(secs/60)).padStart(2,'0');
+  const ss=String(secs%60).padStart(2,'0');
+  document.getElementById('timerDisplay').textContent=`${mm}:${ss}`;
+  // Block progress
+  const blockTotal=b.duration*60;
+  const blockElapsed=blockTotal-blockRemaining;
+  document.getElementById('blockProgress').style.width=`${Math.min(100,(blockElapsed/blockTotal)*100)}%`;
+  // Session progress
+  if(totalSessionSecs>0){
+    document.getElementById('sessionProgress').style.width=`${Math.min(100,(elapsedSessionSecs/totalSessionSecs)*100)}%`;
+  }
+  updatePlayBtn();
+}
+
+function updatePlayBtn(){
+  const btn=document.getElementById('btnPlay');
+  btn.textContent=timerState==='running'?'⏸':'▶';
+  document.getElementById('btnRestart').disabled=timerState==='stopped';
+  document.getElementById('btnSkip').disabled=timerState==='stopped';
+}
+
+function renderIndicators(){
+  const wrap=document.getElementById('blockIndicators');
+  if(blocks.length===0){wrap.innerHTML='';return;}
+  const totalDur=blocks.reduce((s,b)=>s+b.duration,0);
+  wrap.innerHTML=blocks.map((b,i)=>{
+    const w=Math.max(20,Math.round((b.duration/totalDur)*300));
+    let cls='block-ind';
+    if(timerState!=='stopped'){
+      if(i<currentBlockIdx) cls+=' done';
+      else if(i===currentBlockIdx) cls+=' active';
+    }
+    return `<div class="${cls}" style="width:${w}px;background:${i===currentBlockIdx&&timerState!=='stopped'?`var(--${SWATCH_VARS[b.colorIdx]})`:''}" title="${b.label||'Block '+(i+1)}: ${b.duration}min"></div>`;
+  }).join('');
+}
+
+// ── SESSION COMPLETE ────────────────────────────────
+function completeSession(){
+  timerState='stopped';
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  playChime();
+  document.getElementById('timerDisplay').textContent='00:00';
+  document.getElementById('timerLabel').textContent='Complete!';
+  document.getElementById('blockProgress').style.width='100%';
+  document.getElementById('sessionProgress').style.width='100%';
+  updatePlayBtn();
+  renderIndicators();
+
+  // Log the session
+  const totalMin=blocks.reduce((s,b)=>s+b.duration,0);
+  logSession(totalMin,blocks.map(b=>({label:b.label||'Untitled',minutes:b.duration})));
+
+  // Show complete modal
+  document.getElementById('completeSub').textContent=`Total: ${totalMin} min`;
+  const statsEl=document.getElementById('completeStats');
+  statsEl.innerHTML=`
+    <div class="ov-stat"><div class="ov-val" style="color:var(--accent)">${totalMin}</div><div class="ov-lbl">Minutes</div></div>
+    <div class="ov-stat"><div class="ov-val" style="color:var(--accent2)">${blocks.length}</div><div class="ov-lbl">Blocks</div></div>`;
+  const blocksEl=document.getElementById('completeBlocks');
+  blocksEl.innerHTML=blocks.map(b=>`
+    <div class="complete-block-row">
+      <div class="complete-block-dot" style="background:var(--${SWATCH_VARS[b.colorIdx]})"></div>
+      <div class="complete-block-label">${escHtml(b.label||'Untitled')}</div>
+      <div class="complete-block-dur">${b.duration} min</div>
+    </div>`).join('');
+  openModal('completeOverlay');
+  updateWeekSummary();
+}
+
+// ── PRACTICE LOG ────────────────────────────────────
+function loadLog(){
+  try{return JSON.parse(localStorage.getItem(LS_LOG)||'[]');}catch(e){return[];}
+}
+function saveLog(log){
+  try{localStorage.setItem(LS_LOG,JSON.stringify(log));}catch(e){}
+}
+
+function logSession(totalMin,blockDetails){
+  const log=loadLog();
+  const today=new Date().toISOString().slice(0,10);
+  const existing=log.find(e=>e.date===today);
+  if(existing){
+    existing.minutes+=totalMin;
+    existing.blocks=existing.blocks.concat(blockDetails);
+  } else {
+    log.push({date:today,minutes:totalMin,blocks:blockDetails});
+  }
+  // Keep max 90 days
+  while(log.length>90) log.shift();
+  saveLog(log);
+}
+
+function updateWeekSummary(){
+  const log=loadLog();
+  const now=new Date();
+  // This week: last 7 days
+  const weekDates=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(now);
+    d.setDate(d.getDate()-i);
+    weekDates.push(d.toISOString().slice(0,10));
+  }
+  let totalMin=0, sessions=0;
+  weekDates.forEach(date=>{
+    const entry=log.find(e=>e.date===date);
+    if(entry){totalMin+=entry.minutes;sessions++;}
+  });
+  // Streak: consecutive days from today backwards
+  let streak=0;
+  for(let i=0;i<90;i++){
+    const d=new Date(now);
+    d.setDate(d.getDate()-i);
+    const dateStr=d.toISOString().slice(0,10);
+    if(log.find(e=>e.date===dateStr)){streak++;}
+    else break;
+  }
+  document.getElementById('weekMins').textContent=totalMin;
+  document.getElementById('weekSessions').textContent=sessions;
+  document.getElementById('weekStreak').textContent=streak;
+}
+
+// ── HISTORY CHART ───────────────────────────────────
+function openHistory(){
+  renderChart();
+  openModal('historyOverlay');
+}
+
+function renderChart(){
+  const log=loadLog();
+  const now=new Date();
+  const days=[];
+  let maxMin=0;
+  for(let i=13;i>=0;i--){
+    const d=new Date(now);
+    d.setDate(d.getDate()-i);
+    const dateStr=d.toISOString().slice(0,10);
+    const entry=log.find(e=>e.date===dateStr);
+    const mins=entry?entry.minutes:0;
+    if(mins>maxMin) maxMin=mins;
+    days.push({date:dateStr,day:d.getDate(),weekday:['Su','Mo','Tu','We','Th','Fr','Sa'][d.getDay()],mins});
+  }
+  if(maxMin===0) maxMin=60; // default scale
+
+  const W=560, H=200, pad=30, barW=28, gap=12;
+  const chartH=H-pad*2;
+  const totalBarW=days.length*barW+(days.length-1)*gap;
+  const startX=(W-totalBarW)/2;
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  days.forEach((d,i)=>{
+    const x=startX+i*(barW+gap);
+    const barH=d.mins>0?Math.max(3,(d.mins/maxMin)*chartH):0;
+    const y=pad+chartH-barH;
+    // Background bar
+    svg+=`<rect x="${x}" y="${pad}" width="${barW}" height="${chartH}" rx="3" fill="var(--surface2)"/>`;
+    // Value bar
+    if(barH>0){
+      svg+=`<rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="3" fill="var(--accent)"/>`;
+    }
+    // Minutes label on top
+    if(d.mins>0){
+      svg+=`<text x="${x+barW/2}" y="${y-5}" text-anchor="middle" font-family="var(--font-b)" font-size="9" fill="var(--muted)">${d.mins}m</text>`;
+    }
+    // Date label
+    svg+=`<text x="${x+barW/2}" y="${H-5}" text-anchor="middle" font-family="var(--font-b)" font-size="9" fill="var(--muted)">${d.weekday} ${d.day}</text>`;
+  });
+  svg+=`</svg>`;
+  document.getElementById('chartWrap').innerHTML=svg;
+}
+
+// ── INIT ────────────────────────────────────────────
+function init(){
+  const prefs=loadPrefs();
+  // Restore theme
+  if(prefs.theme && THEMES[prefs.theme]) applyTheme(prefs.theme,true);
+  // Restore blocks
+  if(Array.isArray(prefs.blocks) && prefs.blocks.length>0){
+    blocks=prefs.blocks.map(b=>({
+      label:typeof b.label==='string'?b.label:'',
+      duration:DURATIONS.includes(b.duration)?b.duration:5,
+      colorIdx:typeof b.colorIdx==='number'&&b.colorIdx>=0&&b.colorIdx<SWATCH_VARS.length?b.colorIdx:0
+    }));
+  }
+  renderBlocks();
+  renderIndicators();
+  updatePlayBtn();
+  updateWeekSummary();
+}
+init();
+</script>
+</body>
+</html>
