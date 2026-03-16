@@ -115,8 +115,9 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
 [data-theme="retro"] .card .tool-illo::before{display:none;}
 
 /* ── TOOLS GRID ── */
-.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;width:100%;margin-bottom:40px;}
-@media(max-width:880px){.tools-grid{grid-template-columns:1fr;gap:20px;max-width:520px;}}
+.tools-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;width:100%;margin-bottom:40px;}
+@media(max-width:1080px){.tools-grid{grid-template-columns:repeat(2,1fr);gap:20px;max-width:720px;}}
+@media(max-width:600px){.tools-grid{grid-template-columns:1fr;gap:20px;max-width:520px;}}
 
 /* ── TOOL CARD ── */
 .tool-card{display:flex;flex-direction:column;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s,border-color .35s,background .35s,border-radius .35s;}
@@ -361,6 +362,40 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
       </div>
     </div>
 
+    <!-- ── Drone ── -->
+    <div class="tool-card card">
+      <div class="tool-illo" aria-hidden="true">
+        <svg viewBox="0 0 190 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background glow -->
+          <circle cx="95" cy="75" r="50" fill="var(--surface2)" opacity="0.55"/>
+          <!-- Sound wave rings (concentric) -->
+          <circle cx="95" cy="75" r="22" stroke="var(--accent)" stroke-width="2.5" fill="none" opacity="0.9"/>
+          <circle cx="95" cy="75" r="36" stroke="var(--accent)" stroke-width="2" fill="none" opacity="0.6"/>
+          <circle cx="95" cy="75" r="50" stroke="var(--accent)" stroke-width="1.5" fill="none" opacity="0.35"/>
+          <circle cx="95" cy="75" r="64" stroke="var(--accent)" stroke-width="1" fill="none" opacity="0.15"/>
+          <!-- Central play dot -->
+          <circle cx="95" cy="75" r="10" fill="var(--accent)"/>
+          <!-- Play triangle -->
+          <polygon points="92,70 92,80 100,75" fill="var(--pill-text)"/>
+          <!-- Note label -->
+          <text x="95" y="118" text-anchor="middle" font-size="14" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent2)">A3</text>
+          <!-- Frequency micro-label -->
+          <text x="95" y="132" text-anchor="middle" font-size="7.5" letter-spacing="1.5" font-family="'Space Mono',monospace" fill="var(--muted)" opacity="0.75">220 Hz</text>
+        </svg>
+      </div>
+      <div class="tool-body">
+        <div class="tool-name">Drone</div>
+        <p class="tool-desc">A sustained reference tone generator with four voicings and four timbres. Practise intonation, scales, and intervals over a continuous drone with glitch-free crossfades.</p>
+        <div class="tool-tags">
+          <span class="tool-tag">Drone</span>
+          <span class="tool-tag">Intonation</span>
+          <span class="tool-tag">Reference Tone</span>
+          <span class="tool-tag">Practice</span>
+        </div>
+        <a href="src/drone.html" class="tool-launch">Launch Drone →</a>
+      </div>
+    </div>
+
   </div><!-- /tools-grid -->
 
   <!-- ── Links / meta ── -->
@@ -373,6 +408,7 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
     <a class="link-pill" href="docs/ear-trainer.md">📖 Ear Trainer Docs</a>
     <a class="link-pill" href="docs/instrument-tuner.md">📖 Tuner Docs</a>
     <a class="link-pill" href="docs/pulse.md">📖 Pulse Docs</a>
+    <a class="link-pill" href="docs/drone.md">📖 Drone Docs</a>
   </div>
 
 </div><!-- /content -->

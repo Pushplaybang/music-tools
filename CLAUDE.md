@@ -18,13 +18,15 @@ music-tools/
 ├── src/
 │   ├── ear-trainer.html   # LS key: earTrainer_v6
 │   ├── tuner.html         # LS key: musicTool_StrobeTuner_v1
-│   └── pulse.html         # LS key: musicTool_pulse_v1
+│   ├── pulse.html         # LS key: musicTool_pulse_v1
+│   └── drone.html         # LS key: musicTool_drone_v1
 ├── music-tools-boilerplate.html  # Design system reference (read-only, not served as a tool)
 ├── docs/
 │   ├── ARCHITECTURE.md    # Shared patterns, audio engine, theme system
 │   ├── ear-trainer.md
 │   ├── instrument-tuner.md
-│   └── pulse.md
+│   ├── pulse.md
+│   └── drone.md
 ├── server.js              # Dev server (node server.js)
 ├── package.json
 └── README.md
@@ -122,3 +124,12 @@ Non-conventional commits that somehow reach `main` will not break the release wo
 4. Audio plays (getCtx() resumes suspended context on user gesture)
 5. No console errors
 6. Help modal content matches actual current features exactly (no removed features referenced)
+
+## Documentation maintenance — ALWAYS keep these in sync
+When adding new tools, features, or making significant changes:
+- **README.md** — Update the tools table, project structure tree, and any affected descriptions
+- **CLAUDE.md** — Update the repository structure listing (including LS keys for new tools)
+- **index.html** — Add tool card, update grid layout if needed, add docs link to the links bar
+- **docs/** — Create or update the per-tool documentation file (e.g. `docs/tool-name.md`)
+
+These files must stay accurate as we continue to iterate. A stale README or CLAUDE.md leads to confusion and errors in future development.
