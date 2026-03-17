@@ -67,7 +67,12 @@ header h1{font-size:var(--h1);}
 .beat-dot.sub{width:22px;height:22px;border-width:1px;background:var(--beat-sub);}
 .beat-dot.sub.accent{background:var(--surface2);}
 
-.beat-dot.active-beat{background:var(--beat-accent)!important;border-color:var(--beat-accent)!important;transform:scale(1.13);box-shadow:0 0 24px var(--accent-glow),0 4px 12px rgba(0,0,0,.4);}
+/* Downbeat (beat 1) accent-2 styling */
+.beat-dot.downbeat{border-color:var(--accent-2);}
+.beat-dot.downbeat.active-beat{box-shadow:0 0 14px var(--accent-2-glow);}
+
+.beat-dot.active-beat{background:var(--beat-accent)!important;border-color:var(--beat-accent)!important;animation:beatPop 80ms ease-out forwards;box-shadow:0 0 24px var(--accent-glow),0 4px 12px rgba(0,0,0,.4);}
+@keyframes beatPop{0%{transform:scale(1.35);}100%{transform:scale(1.12);}}
 .beat-dot.active-sub{background:var(--accent2)!important;border-color:var(--accent2)!important;transform:scale(1.09);}
 .beat-dot.flash-out{transform:scale(1)!important;transition:transform .18s,background .18s,border-color .18s,box-shadow .18s!important;}
 .beat-num{font-family:var(--font-b);font-size:.54rem;color:var(--muted);letter-spacing:.04em;}
@@ -83,7 +88,7 @@ header h1{font-size:var(--h1);}
 .bpm-compact-row{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;margin-bottom:16px;}
 .bpm-left{display:flex;flex-direction:column;align-items:flex-start;gap:2px;}
 .bpm-right{display:flex;flex-direction:column;align-items:stretch;gap:8px;flex:1;max-width:260px;}
-.bpm-compact-num{font-family:var(--font-h);font-size:clamp(2.4rem,10vw,3.6rem);color:var(--accent);line-height:1;letter-spacing:-2px;cursor:default;user-select:none;}
+.bpm-compact-num{font-family:var(--font-b);font-weight:300;font-size:clamp(1.8rem,8vw,2.2rem);color:var(--accent);line-height:1;letter-spacing:-1px;cursor:default;user-select:none;}
 .bpm-nudge-row{display:flex;gap:6px;}
 .btn-ghost{background:transparent;border:1px solid var(--border);border-radius:var(--r-sm,10px);color:var(--text-2);font-family:var(--font-b,monospace);font-size:.62rem;padding:6px 12px;cursor:pointer;transition:all .18s;}
 .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
