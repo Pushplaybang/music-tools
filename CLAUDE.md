@@ -4,7 +4,9 @@
 Browser-based music practice tools for everyday use. Each tool is a single self-contained HTML file — no build step, no backend, no npm runtime dependencies, no CDN libraries. Web Audio API for all sound. Fully offline after first load (Google Fonts degrade gracefully to system fonts).
 
 ## Hard constraints — NEVER violate these
-- Every tool is ONE `.html` file in `src/` containing all HTML, CSS, and JS inline
+- Every tool is ONE `.html` file in `src/` containing HTML and JS inline, linking to `music-tools.css` for shared styles
+- All shared CSS lives in `music-tools.css` — never duplicate token blocks in tool HTML
+- Tool HTML `<style>` blocks contain ONLY tool-specific CSS
 - Zero runtime dependencies. No npm imports, no CDN scripts, no frameworks
 - No user data collection, no analytics, no cookies, no server communication
 - All persistent state via localStorage only — each tool uses a unique LS key
@@ -14,6 +16,7 @@ Browser-based music practice tools for everyday use. Each tool is a single self-
 ## Repository structure
 music-tools/
 ├── CLAUDE.md              ← You are here. Claude Code reads this automatically.
+├── music-tools.css        # Shared design system (tokens, components, chrome)
 ├── index.html             # Collection home/landing page
 ├── src/
 │   ├── ear-trainer.html   # LS key: earTrainer_v6
@@ -35,15 +38,11 @@ music-tools/
 ├── package.json
 └── README.md
 
-## Design system — 5 themes (ALL must work after ANY change)
-Identical CSS custom property tokens on [data-theme] selectors across all tools:
-- `current` — Dark Gold (DM Serif Display + Space Mono)
-- `minimal` — Clean & Minimal (Instrument Serif + Syne)
-- `studio` — Dark Studio (Syne + Space Mono, UPPERCASE headers, letter-spacing)
-- `retro` — Retro Piano (Playfair Display, italic titles, decorative stripe on cards)
-- `playful` — Bright & Playful (Nunito, font-weight 800, large border-radius)
+## Design system — Stasis v3 two-mode (light / dark)
+Two-mode token system using `[data-mode="light"]` and `[data-mode="dark"]` selectors.
+Fonts: Syne (headings) + DM Mono (body/mono). Tokens defined in `music-tools.css`.
 
-See music-tools-boilerplate.html for the canonical token definitions. NEVER hardcode colours — always use CSS custom properties. After ANY CSS change, verify all 5 themes.
+See music-tools-boilerplate.html for the canonical reference. NEVER hardcode colours — always use CSS custom properties. After ANY CSS change, verify both modes render correctly.
 
 ## Shared code patterns
 
@@ -64,11 +63,12 @@ function loadPrefs() {
   try { return JSON.parse(localStorage.getItem(LS) || '{}'); } catch(e) { return {}; }
 }
 
-### Theme switching
-function applyTheme(t, noSave) {
-  document.body.dataset.theme = t;
-  // update h1, subtitle, mobile label, pill active states
-  if (!noSave) savePref('theme', t);
+### Mode switching
+function applyMode(m, noSave) {
+  document.body.dataset.mode = m;
+  const badge = document.getElementById('modeBadge');
+  if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
+  if (!noSave) savePref('mode', m);
 }
 
 ### Music data constants
@@ -85,13 +85,15 @@ const noteToMidi = (note, oct) => (oct + 1) * 12 + NOTES.indexOf(note);
 - `.toggle-label` with hidden checkbox + `.toggle-track` / `.toggle-thumb`
 - `.modal-overlay.show` > `.modal-card` with `.modal-close`
 - `.theme-bar` > `.bar-left` + `.bar-right` with `.bar-icon-btn`, `.bar-sep`
+- `.mode-toggle` + `.mode-badge` — light/dark mode switcher
+- `.progress-wrap` > `.progress-track` > `.progress-fill` — gradient progress bars
 - `.vis-tab` / `.vis-panel` — tabbed visualiser switching
 
 ## Responsive rules
 - Minimum usable width: 320px. Primary mobile test width: 375px
 - CSS Grid breakpoints: 3+ cols → 2-col at 600px → 1-col at 380px
 - Touch targets: minimum 44×44px
-- Theme pills collapse to mobile flyout at 640px
+- Mode toggle replaces former 5-pill theme switcher
 - Horizontal scroll OK for piano and fretboards
 
 ## Git & commit conventions — ALWAYS follow these
@@ -122,12 +124,13 @@ type(scope): short description
 Non-conventional commits that somehow reach `main` will not break the release workflow — they are treated as patch-level changes and appear verbatim in the release notes. The CI gate on PRs is the primary enforcement mechanism.
 
 ## Testing checklist (verify before completing ANY task)
-1. All 5 themes render correctly (especially retro italic+stripe, studio uppercase)
+1. Both light and dark modes render correctly
 2. Mobile layout at 375px width — no horizontal overflow, no tiny touch targets
 3. localStorage save/restore round-trips correctly
 4. Audio plays (getCtx() resumes suspended context on user gesture)
 5. No console errors
 6. Help modal content matches actual current features exactly (no removed features referenced)
+7. CSS file loads correctly via relative path (test from file:// and localhost)
 
 ## Documentation maintenance — ALWAYS keep these in sync
 When adding new tools, features, or making significant changes:
