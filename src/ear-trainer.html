@@ -11,22 +11,22 @@
 /* ── PIANO ── */
 .piano-wrap{overflow-x:auto;padding-bottom:8px;}
 .piano{display:flex;position:relative;height:144px;width:max-content;margin:0 auto;}
-.white-key{width:42px;height:144px;background:var(--kw);border:1px solid var(--kw-border);border-radius:0 0 6px 6px;margin-right:2px;position:relative;cursor:pointer;transition:background .15s,box-shadow .15s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;flex-shrink:0;}
+.white-key{width:42px;height:144px;background:var(--surface-hi);border-right:1px solid var(--border-lo);border-top:none;border-bottom:none;border-left:none;border-radius:0 0 6px 6px;margin-right:2px;position:relative;cursor:pointer;transition:background .15s,box-shadow .15s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;flex-shrink:0;}
 .white-key .key-label{font-size:.52rem;color:var(--kl);font-family:var(--font-b);pointer-events:none;}
 .white-key:hover{background:var(--kw-hover);}
-.white-key.playing{background:var(--kw-active) !important;}
-.white-key.in-scale{background:var(--kw-scale);border-color:var(--accent);}
+.white-key.playing{background:var(--accent) !important;box-shadow:0 0 16px var(--accent-glow);}
+.white-key.in-scale{background:color-mix(in srgb, var(--accent) 8%, var(--surface-hi));border-color:var(--accent);}
 .white-key.in-scale .key-label{color:var(--accent);font-weight:700;}
-.white-key.quiz-correct{background:#4be8b880 !important;border-color:var(--correct) !important;box-shadow:0 0 12px var(--correct);}
-.white-key.quiz-wrong{background:#e84b4b60 !important;border-color:var(--wrong) !important;box-shadow:0 0 12px var(--wrong);}
-.black-key{width:26px;height:90px;background:var(--kb);border-radius:0 0 4px 4px;position:absolute;top:0;z-index:2;cursor:pointer;transition:background .15s,box-shadow .15s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;border:1px solid var(--kb-border);}
+.white-key.quiz-correct{background:color-mix(in srgb, var(--correct) 18%, var(--surface-hi)) !important;border-color:var(--correct) !important;box-shadow:0 0 14px var(--correct-glow);}
+.white-key.quiz-wrong{background:color-mix(in srgb, var(--wrong) 15%, var(--surface-hi)) !important;border-color:var(--wrong) !important;box-shadow:0 0 14px var(--wrong-glow);}
+.black-key{width:26px;height:90px;background:var(--kb);border-radius:0 0 5px 5px;position:absolute;top:0;z-index:2;cursor:pointer;transition:background .15s,box-shadow .15s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;border:1px solid var(--kb-border);}
 .black-key .key-label{font-size:.42rem;color:var(--kbl);font-family:var(--font-b);pointer-events:none;}
 .black-key:hover{background:var(--kb-hover);}
-.black-key.playing{background:var(--kb-active) !important;}
+.black-key.playing{background:var(--kb-active) !important;box-shadow:0 0 16px var(--accent-glow);}
 .black-key.in-scale{background:var(--kb-scale);border-color:var(--accent2);}
 .black-key.in-scale .key-label{color:var(--accent2);}
-.black-key.quiz-correct{background:#2ab87880 !important;border-color:var(--correct) !important;box-shadow:0 0 10px var(--correct);}
-.black-key.quiz-wrong{background:#c0302060 !important;border-color:var(--wrong) !important;box-shadow:0 0 10px var(--wrong);}
+.black-key.quiz-correct{background:color-mix(in srgb, var(--correct) 22%, var(--kb)) !important;border-color:var(--correct) !important;box-shadow:0 0 14px var(--correct-glow);}
+.black-key.quiz-wrong{background:color-mix(in srgb, var(--wrong) 18%, var(--kb)) !important;border-color:var(--wrong) !important;box-shadow:0 0 14px var(--wrong-glow);}
 
 /* ── FRETBOARD ── */
 .fret-wrap{overflow-x:auto;padding-bottom:4px;}
@@ -40,16 +40,21 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
 .quiz-mode-btn{font-family:var(--font-b);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:6px 16px;border-radius:var(--br);border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;}
 .quiz-mode-btn.active{background:var(--accent2);color:var(--pill-text);border-color:var(--accent2);font-weight:700;}
 .quiz-mode-btn:hover:not(.active){border-color:var(--accent2);color:var(--accent2);}
-.quiz-prompt{font-family:var(--font-h);font-size:1.05rem;color:var(--muted);margin-bottom:12px;min-height:30px;}
+/* ── READOUT ── */
+.quiz-prompt{font-family:var(--font-h);font-size:1.05rem;color:var(--text);margin-bottom:12px;min-height:30px;}
+.quiz-prompt .readout-main{font-family:var(--font-h);font-size:1.8rem;color:var(--accent);line-height:1.2;}
+.quiz-prompt .readout-main .unit{font-size:1rem;color:var(--text-2);font-family:var(--font-b);margin-left:4px;}
+.quiz-prompt .readout-sub{font-family:var(--font-b);font-size:.68rem;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase;margin-top:4px;}
 .quiz-options{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px;}
 .quiz-opt{background:var(--surface2);border:1px solid var(--border);border-radius:var(--br);color:var(--text);font-family:var(--font-b);font-size:.8rem;padding:9px 16px;cursor:pointer;transition:all .15s;min-width:54px;text-transform:none;letter-spacing:0;}
 .quiz-opt:hover:not(:disabled){border-color:var(--accent2);color:var(--accent2);}
-.quiz-opt.correct{background:rgba(78,220,140,.15);border-color:var(--correct);color:var(--correct);}
-.quiz-opt.wrong{background:rgba(220,80,80,.12);border-color:var(--wrong);color:var(--wrong);}
+.quiz-opt.correct{background:rgba(78,220,140,.15);border-color:var(--correct);color:var(--correct);box-shadow:0 0 14px var(--correct-glow);}
+.quiz-opt.wrong{background:rgba(220,80,80,.12);border-color:var(--wrong);color:var(--wrong);box-shadow:0 0 14px var(--wrong-glow);animation:shakeX 0.25s;}
 .quiz-opt:disabled{cursor:not-allowed;}
-.quiz-feedback{font-family:var(--font-b);font-size:.88rem;min-height:22px;letter-spacing:.04em;margin-bottom:4px;}
-.quiz-feedback.correct{color:var(--correct);}
-.quiz-feedback.wrong{color:var(--wrong);}
+@keyframes shakeX{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.quiz-feedback{font-family:var(--font-b);font-size:.88rem;min-height:22px;letter-spacing:.04em;margin-bottom:4px;transition:color .2s;}
+.quiz-feedback.correct{color:var(--correct);text-shadow:0 0 8px var(--correct-glow);}
+.quiz-feedback.wrong{color:var(--wrong);text-shadow:0 0 8px var(--wrong-glow);}
 .divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
 
 /* ── COUNTDOWN TIMER (quiz) ── */
@@ -96,6 +101,9 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
 }
 
 /* ── SESSION ── */
+/* ── SCORE OVERLAY (v3) ── */
+#scoreOverlay .modal-card{box-shadow:0 0 0 1px var(--border),0 0 32px var(--accent-glow);}
+
 .session-empty{font-family:var(--font-b);font-size:.82rem;color:var(--muted);padding:24px 0;text-align:center;}
 .session-stats-text{font-family:var(--font-b);font-size:.8rem;color:var(--muted);margin-top:10px;text-align:center;letter-spacing:.04em;}
 </style>
@@ -109,10 +117,10 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
     <div class="overlay-title" id="ovTitle">Session Complete</div>
     <div class="overlay-sub" id="ovSub">Keep practising</div>
     <div class="overlay-stats">
-      <div class="ov-stat"><div class="ov-val sc-correct" id="ovCorrect">0</div><div class="ov-lbl">Correct</div></div>
-      <div class="ov-stat"><div class="ov-val sc-wrong" id="ovWrong">0</div><div class="ov-lbl">Wrong</div></div>
-      <div class="ov-stat"><div class="ov-val sc-timeout" id="ovTimeout">0</div><div class="ov-lbl">Timeouts</div></div>
-      <div class="ov-stat"><div class="ov-val sc-acc" id="ovAcc">—</div><div class="ov-lbl">Accuracy</div></div>
+      <div class="ov-stat"><div class="ov-val ov-correct" id="ovCorrect">0</div><div class="ov-lbl">Correct</div></div>
+      <div class="ov-stat"><div class="ov-val ov-wrong" id="ovWrong">0</div><div class="ov-lbl">Wrong</div></div>
+      <div class="ov-stat"><div class="ov-val ov-wrong" id="ovTimeout">0</div><div class="ov-lbl">Timeouts</div></div>
+      <div class="ov-stat"><div class="ov-val ov-accent" id="ovAcc">---</div><div class="ov-lbl">Accuracy</div></div>
     </div>
     <button class="btn-primary" onclick="dismissOverlay()" style="width:100%">Start Fresh</button>
   </div>
