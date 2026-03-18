@@ -9,7 +9,11 @@
 /* tool-specific styles — shared design system in style/music-tools.css */
 
 /* ── PIANO ── */
-.piano-wrap{overflow-x:auto;padding-bottom:8px;}
+.piano-wrap{overflow-x:auto;padding-bottom:4px;}
+.piano-wrap::-webkit-scrollbar,.fret-wrap::-webkit-scrollbar{height:4px;}
+.piano-wrap::-webkit-scrollbar-track,.fret-wrap::-webkit-scrollbar-track{background:var(--surface);border-radius:2px;}
+.piano-wrap::-webkit-scrollbar-thumb,.fret-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.piano-wrap,.fret-wrap{scrollbar-width:thin;}
 .piano{display:flex;position:relative;height:144px;width:max-content;margin:0 auto;}
 .white-key{width:42px;height:144px;background:var(--surface-hi);border-right:1px solid var(--border-lo);border-top:none;border-bottom:none;border-left:none;border-radius:0 0 6px 6px;margin-right:2px;position:relative;cursor:pointer;transition:background .15s,box-shadow .15s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;flex-shrink:0;}
 .white-key .key-label{font-size:.52rem;color:var(--kl);font-family:var(--font-b);pointer-events:none;}
@@ -29,7 +33,7 @@
 .black-key.quiz-wrong{background:color-mix(in srgb, var(--wrong) 18%, var(--kb)) !important;border-color:var(--wrong) !important;box-shadow:0 0 14px var(--wrong-glow);}
 
 /* ── FRETBOARD ── */
-.fret-wrap{overflow-x:auto;padding-bottom:4px;}
+.fret-wrap{overflow-x:auto;padding-bottom:2px;}
 svg.fretboard{display:block;min-width:680px;width:100%;}
 svg.bass{display:block;min-width:560px;width:100%;}
 svg.ukulele{display:block;min-width:480px;width:100%;}
@@ -84,9 +88,12 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
 #btnSpeed{min-width:36px;text-align:center;}
 .btn-icon-sm{width:28px;height:28px;border-radius:var(--r-sm,10px);border:1px solid var(--border);background:transparent;color:var(--accent2);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .18s;padding:0;line-height:1;}
 .btn-icon-sm:hover{border-color:var(--accent2);background:rgba(192,0,110,0.08);}
-/* ── CONFIG GRID: 1 row on large, 2×2 on small/medium, 2×2 in mobile drawer ── */
-.config-grid.config-grid{grid-template-columns:repeat(4,1fr);}
+/* ── CONFIG GRID: desktop 5-col, tablet 2×2+1, mobile 1-col drawer ── */
+.config-grid.config-grid{grid-template-columns:repeat(5,1fr);}
 @media(max-width:900px){.config-grid.config-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.config-grid.config-grid{grid-template-columns:1fr;}}
+/* Disabled tuning group styling */
+.control-group.disabled{opacity:.35;pointer-events:none;}
 .config-summary{display:none;}
 .config-chevron{font-size:.7rem;color:var(--muted);transition:transform var(--transition,.22s);}
 .config-chevron.open{transform:rotate(180deg);}
@@ -247,7 +254,7 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
         <div class="control-group"><label>Scale / Mode</label><select id="scaleSelect"></select></div>
         <div class="control-group"><label>Octave</label><select id="octaveSelect"></select></div>
         <div class="control-group"><label>Range</label><select id="rangeSelect"></select></div>
-        <div class="control-group" id="tuningGroup" style="display:none"><label id="tuningLabel">Tuning</label><select id="tuningSelect"></select></div>
+        <div class="control-group disabled" id="tuningGroup"><label id="tuningLabel">Tuning</label><select id="tuningSelect" disabled></select></div>
       </div>
     </div>
   </div>
@@ -417,8 +424,11 @@ function applySavedTuning(){
 document.getElementById('tuningSelect').addEventListener('change',applySavedTuning);
 function updateTuningVisibility(){
   const show=currentVis==='guitar'||currentVis==='bass'||currentVis==='ukulele';
-  document.getElementById('tuningGroup').style.display=show?'':'none';
-  document.getElementById('tuningLabel').textContent=currentVis==='guitar'?'Guitar Tuning':currentVis==='bass'?'Bass Tuning':'Ukulele Tuning';
+  const grp=document.getElementById('tuningGroup');
+  const sel=document.getElementById('tuningSelect');
+  if(show){grp.classList.remove('disabled');sel.disabled=false;}
+  else{grp.classList.add('disabled');sel.disabled=true;}
+  document.getElementById('tuningLabel').textContent=show?(currentVis==='guitar'?'Guitar Tuning':currentVis==='bass'?'Bass Tuning':'Ukulele Tuning'):'Tuning';
   if(show) buildTuningSelect();
 }
 
