@@ -84,6 +84,9 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
 #btnSpeed{min-width:36px;text-align:center;}
 .btn-icon-sm{width:28px;height:28px;border-radius:var(--r-sm,10px);border:1px solid var(--border);background:transparent;color:var(--accent2);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .18s;padding:0;line-height:1;}
 .btn-icon-sm:hover{border-color:var(--accent2);background:rgba(192,0,110,0.08);}
+/* ── CONFIG GRID: 1 row on large, 2×2 on small/medium, 2×2 in mobile drawer ── */
+.config-grid.config-grid{grid-template-columns:repeat(4,1fr);}
+@media(max-width:900px){.config-grid.config-grid{grid-template-columns:1fr 1fr;}}
 .config-summary{display:none;}
 .config-chevron{font-size:.7rem;color:var(--muted);transition:transform var(--transition,.22s);}
 .config-chevron.open{transform:rotate(180deg);}
@@ -239,7 +242,7 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
       <span class="config-chevron" id="configChevron">▾</span>
     </div>
     <div class="config-panel" id="configPanel">
-      <div class="controls cols3">
+      <div class="controls config-grid">
         <div class="control-group"><label>Root Note</label><select id="rootSelect"></select></div>
         <div class="control-group"><label>Scale / Mode</label><select id="scaleSelect"></select></div>
         <div class="control-group"><label>Octave</label><select id="octaveSelect"></select></div>
