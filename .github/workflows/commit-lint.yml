@@ -24,6 +24,7 @@ jobs:
           IGNORE_PATTERN: "^Initial plan$|^Merge "
           # Commit author names or emails matching this pattern are treated as agent commits.
           # Pattern matches known agent bot names (literal "[bot]" requires escaping) and Copilot noreply email.
+          # The generic "agent[bot]" keeps coverage for future agent bots without widening to non-bot users.
           AGENT_AUTHOR_PATTERN: "(copilot-swe-agent\\[bot\\]|copilot\\[bot\\]|swe-agent\\[bot\\]|agent\\[bot\\]|copilot@users\\.noreply\\.github\\.com)"
         run: |
           BASE_SHA=${{ github.event.pull_request.base.sha }}
