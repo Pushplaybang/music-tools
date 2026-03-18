@@ -41,9 +41,11 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
 /* ── QUIZ ── */
 .quiz-area{text-align:center;}
 .quiz-mode-row{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;}
-.quiz-mode-btn{font-family:var(--font-b);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:6px 16px;border-radius:var(--br);border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;}
-.quiz-mode-btn.active{background:var(--accent2);color:var(--pill-text);border-color:var(--accent2);font-weight:700;}
+.quiz-mode-btn{font-family:var(--font-b);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:6px 16px;border-radius:var(--br);border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;}
+.quiz-mode-btn.active{background:transparent;color:var(--accent2);border-color:var(--accent2);font-weight:700;}
 .quiz-mode-btn:hover:not(.active){border-color:var(--accent2);color:var(--accent2);}
+/* Quiz card highlight */
+.card-quiz{border-color:color-mix(in srgb,var(--accent2) 30%,var(--border));}
 /* ── READOUT ── */
 .quiz-prompt{font-family:var(--font-h);font-size:1.05rem;color:var(--text);margin-bottom:12px;min-height:30px;}
 .quiz-prompt .readout-main{font-family:var(--font-h);font-size:1.8rem;color:var(--accent);line-height:1.2;}
@@ -296,7 +298,7 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
   </div>
 
   <!-- Quiz -->
-  <div class="card">
+  <div class="card card-quiz">
     <div class="card-title">Ear Training Quiz</div>
     <div class="quiz-area">
       <div class="quiz-mode-row">
@@ -341,7 +343,7 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
       </div>
       <hr class="divider">
       <div class="actions" style="justify-content:center">
-        <button class="btn-accent2" id="btnStartQuiz" onclick="startQuiz()">▶ Start Quiz</button>
+        <button class="btn-primary" id="btnStartQuiz" onclick="startQuiz()">▶ Start Quiz</button>
         <button class="btn-secondary" id="btnReplay" onclick="replayQuizNote()" style="display:none">↺ Replay</button>
         <button class="btn-danger" id="btnReset" onclick="resetScore()">✕ Reset</button>
       </div>
