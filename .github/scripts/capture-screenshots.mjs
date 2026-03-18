@@ -17,7 +17,7 @@ const pages = [
 ];
 
 const viewport = { width: 1440, height: 900 };
-const pageLoadTimeoutMillis = 30000;
+const PAGE_LOAD_TIMEOUT_MS = 30000;
 const primaryReadySelector = '.card';
 const fallbackReadySelector = '.app-footer';
 
@@ -38,12 +38,12 @@ try {
     const file = `${entry.name}.png`;
     const target = path.join(outputDir, file);
 
-    await page.goto(url, { waitUntil: 'load', timeout: pageLoadTimeoutMillis });
+    await page.goto(url, { waitUntil: 'load', timeout: PAGE_LOAD_TIMEOUT_MS });
     try {
-      await page.waitForSelector(primaryReadySelector, { timeout: pageLoadTimeoutMillis });
+      await page.waitForSelector(primaryReadySelector, { timeout: PAGE_LOAD_TIMEOUT_MS });
     } catch (error) {
       try {
-        await page.waitForSelector(fallbackReadySelector, { timeout: pageLoadTimeoutMillis });
+        await page.waitForSelector(fallbackReadySelector, { timeout: PAGE_LOAD_TIMEOUT_MS });
       } catch (fallbackError) {
         throw new Error(
           `Selector checks failed. Primary "${primaryReadySelector}": ${error.message}. ` +
