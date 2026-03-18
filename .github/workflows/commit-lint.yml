@@ -9,17 +9,21 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+      issues: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Validate commit messages
+        id: commitlint
         env:
           ALLOWED_TYPES: "feat,fix,docs,style,refactor,perf,test,build,ci,chore,revert"
           # Commit subject lines matching any of these patterns are skipped.
           # Separate patterns with | (extended-regex alternation).
           IGNORE_PATTERN: "^Initial plan$|^Merge "
+          # Commit author names or emails matching this pattern are treated as agent commits.
+          AGENT_AUTHOR_PATTERN: "(copilot|swe-agent|coding-agent)"
         run: |
           BASE_SHA=${{ github.event.pull_request.base.sha }}
           HEAD_SHA=${{ github.event.pull_request.head.sha }}
@@ -30,7 +34,14 @@ jobs:
           PATTERN="^(${TYPES_RE})(\(.+\))?\!?:.+"
 
           FAILED=0
-          while IFS= read -r MSG; do
+          AGENT_COMMITS=0
+          while IFS=$'\t' read -r SHA MSG AUTHOR EMAIL; do
+            AUTHOR_INFO="${AUTHOR} <${EMAIL}>"
+            if [ -n "$AGENT_AUTHOR_PATTERN" ] && echo "$AUTHOR_INFO" | grep -qiE "$AGENT_AUTHOR_PATTERN"; then
+              echo "🤖 $MSG  (agent commit by $AUTHOR_INFO, skipped)"
+              AGENT_COMMITS=$((AGENT_COMMITS + 1))
+              continue
+            fi
             # Skip ignored patterns (merge commits, bot-generated messages)
             if [ -n "$IGNORE_PATTERN" ] && echo "$MSG" | grep -qE "$IGNORE_PATTERN"; then
               echo "⏭️  $MSG  (skipped)"
@@ -43,7 +54,9 @@ jobs:
               echo "🚩 $MSG"
               FAILED=1
             fi
-          done < <(git log --format="%s" "$BASE_SHA".."$HEAD_SHA")
+          done < <(git log --format="%H%x09%s%x09%an%x09%ae" "$BASE_SHA".."$HEAD_SHA")
+
+          echo "agent_commit_count=$AGENT_COMMITS" >> "$GITHUB_OUTPUT"
 
           if [ "$FAILED" -eq 1 ]; then
             echo ""
@@ -55,3 +68,54 @@ jobs:
 
           echo ""
           echo "✅ All commit messages follow the Conventional Commits specification."
+
+      - name: Comment on agent commits
+        if: steps.commitlint.outputs.agent_commit_count != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- agent-commit-guidance -->';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.issue.number;
+            const commentBody = [
+              marker,
+              '🤖 **Agent commits detected**',
+              '',
+              'Please use **Squash and merge** for this PR to keep the commit history tidy.',
+              '',
+              '**Copy/paste Conventional Commit title:**',
+              '```',
+              'feat(scope): short description of the change',
+              '```',
+              '**Example (copy/paste):**',
+              '```',
+              'fix(tuner): improve low-frequency stability',
+              '```',
+              '**Brief description (optional):**',
+              '- Summarise the key change in one sentence.',
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+
+            const existing = comments.find((comment) => comment.body && comment.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body: commentBody,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body: commentBody,
+              });
+            }
