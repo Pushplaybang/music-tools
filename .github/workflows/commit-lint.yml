@@ -24,7 +24,7 @@ jobs:
           IGNORE_PATTERN: "^Initial plan$|^Merge "
           # Commit author names or emails matching this pattern are treated as agent commits.
           # Pattern matches known agent bot names (literal "[bot]" requires escaping) and Copilot noreply email.
-          AGENT_AUTHOR_PATTERN: "(copilot-swe-agent\\[bot\\]|copilot\\[bot\\]|swe-agent\\[bot\\]|coding-agent\\[bot\\]|copilot@users\\.noreply\\.github\\.com)"
+          AGENT_AUTHOR_PATTERN: "(copilot-swe-agent\\[bot\\]|copilot\\[bot\\]|swe-agent\\[bot\\]|agent\\[bot\\]|copilot@users\\.noreply\\.github\\.com)"
         run: |
           BASE_SHA=${{ github.event.pull_request.base.sha }}
           HEAD_SHA=${{ github.event.pull_request.head.sha }}
@@ -39,6 +39,7 @@ jobs:
           # Format is subject<TAB>author name<TAB>author email (matches git log format below).
           while IFS=$'\t' read -r MSG AUTHOR EMAIL; do
             AUTHOR_INFO="${AUTHOR} <${EMAIL}>"
+            # Case-insensitive match keeps names/emails like "Copilot" consistent.
             if [ -n "$AGENT_AUTHOR_PATTERN" ] && echo "$AUTHOR_INFO" | grep -qiE "$AGENT_AUTHOR_PATTERN"; then
               echo "🤖 $MSG  (agent commit by $AUTHOR_INFO, skipped)"
               AGENT_COMMITS=$((AGENT_COMMITS + 1))
