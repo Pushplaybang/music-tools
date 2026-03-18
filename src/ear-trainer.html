@@ -208,11 +208,11 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
         <li><strong>🎸 Bass</strong> — 4-string fretboard (also 5-string option) with 4 tuning options, 15 frets.</li>
         <li><strong>🪗 Ukulele</strong> — 4-string fretboard with 5 tuning options, 12 frets.</li>
       </ul>
-      <p>During a quiz, the visualiser shows <span style="color:var(--correct)">■ green</span> for correct and <span style="color:var(--wrong)">■ red</span> for wrong. Clicking the wrong note on the visualiser during an active question counts as a miss.</p>
+      <p>During a quiz, the visualiser shows <span style="color:var(--correct)">■ green</span> for correct and <span style="color:var(--wrong)">■ red</span> for wrong. Keys also flash briefly when notes are played during scales and quizzes.</p>
       <h3>Quiz Modes</h3>
       <ul>
-        <li><strong>Note Names</strong> — Hear a single note and identify it from the scale. Toggle "Play reference first" to hear the root before the mystery note.</li>
-        <li><strong>Intervals</strong> — Hear two notes and name the interval between them. A reference note (always different from the answer) is played first when the toggle is on. Options only include intervals that exist in your chosen scale.</li>
+        <li><strong>Note Names</strong> — Hear a single note and identify it from the scale. Toggle "Play reference first" to hear the root before the mystery note. The played key flashes on the visualiser.</li>
+        <li><strong>Intervals</strong> — Hear two notes and name the interval between them. Choose <strong>Any</strong> (random direction), <strong>Ascending</strong> (interval goes up from reference), or <strong>Descending</strong> (interval goes down). A reference note is played first when the toggle is on.</li>
         <li><strong>Chords</strong> — Hear a chord built diatonically from the scale and identify its quality (major, minor, dominant 7th, etc.). All chord tones are highlighted on the visualiser after you answer.</li>
       </ul>
       <h3>Sound &amp; Timer</h3>
@@ -294,6 +294,11 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
         <button class="quiz-mode-btn active" data-mode="notes">Note Names</button>
         <button class="quiz-mode-btn" data-mode="intervals">Intervals</button>
         <button class="quiz-mode-btn" data-mode="chords">Chords</button>
+      </div>
+      <div class="quiz-mode-row" id="intervalDirRow" style="display:none">
+        <button class="quiz-mode-btn active" data-dir="any" onclick="setIntervalDir('any')">Any</button>
+        <button class="quiz-mode-btn" data-dir="asc" onclick="setIntervalDir('asc')">Ascending</button>
+        <button class="quiz-mode-btn" data-dir="desc" onclick="setIntervalDir('desc')">Descending</button>
       </div>
       <div class="timer-wrap" id="timerWrap">
         <svg class="timer-svg" width="64" height="64" viewBox="0 0 36 36">
@@ -740,14 +745,20 @@ function buildSelects(){
 }
 
 // ══ QUIZ MODE ══
-let currentQuizMode='notes';
-document.querySelectorAll('.quiz-mode-btn').forEach(btn=>btn.addEventListener('click',()=>{
+let currentQuizMode='notes',intervalDirection='any';
+document.querySelectorAll('.quiz-mode-btn[data-mode]').forEach(btn=>btn.addEventListener('click',()=>{
   if(btn.dataset.mode===currentQuizMode) return;
   if(qTotal>0&&!confirm('Switch mode? This will reset your score.')) return;
   currentQuizMode=btn.dataset.mode;
-  document.querySelectorAll('.quiz-mode-btn').forEach(b=>b.classList.toggle('active',b===btn));
+  document.querySelectorAll('.quiz-mode-btn[data-mode]').forEach(b=>b.classList.toggle('active',b===btn));
+  document.getElementById('intervalDirRow').style.display=currentQuizMode==='intervals'?'':'none';
   doReset();savePref('quizMode',currentQuizMode);
 }));
+function setIntervalDir(dir){
+  intervalDirection=dir;
+  document.querySelectorAll('#intervalDirRow .quiz-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.dir===dir));
+  savePref('intervalDirection',dir);
+}
 
 // ══ RESTORE SETTINGS ══
 function restoreSettings(){
@@ -767,7 +778,12 @@ function restoreSettings(){
   }
   if(p.quizMode){
     currentQuizMode=p.quizMode;
-    document.querySelectorAll('.quiz-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===p.quizMode));
+    document.querySelectorAll('.quiz-mode-btn[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===p.quizMode));
+    document.getElementById('intervalDirRow').style.display=currentQuizMode==='intervals'?'':'none';
+  }
+  if(p.intervalDirection){
+    intervalDirection=p.intervalDirection;
+    document.querySelectorAll('#intervalDirRow .quiz-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.dir===intervalDirection));
   }
   // Restore tone-shaping params and build knobs
   var knobDefaults={toneVolume:80,toneBrightness:50,toneAttack:10,toneRelease:50,toneNoise:0,toneReverb:15,toneFilterEnv:50,toneNoiseTone:50};
@@ -1069,6 +1085,35 @@ function buildFretboard(hs){buildFretSvg(document.getElementById('fretSvg'),curr
 function buildBass(hs){buildFretSvg(document.getElementById('bassSvg'),currentBassStrings,15,700,170,hs);}
 function buildUkulele(hs){buildFretSvg(document.getElementById('ukeSvg'),currentUkeStrings,12,560,155,hs);}
 
+// ══ FLASH NOTE (brief .playing highlight for scale/quiz) ══
+function flashNote(note,octave,durationMs){
+  durationMs=durationMs||500;
+  if(currentVis==='piano'){
+    // Flash piano key by data attributes
+    var keys=document.querySelectorAll('#piano [data-note="'+note+'"][data-octave="'+octave+'"]');
+    keys.forEach(function(k){k.classList.add('playing');setTimeout(function(){k.classList.remove('playing');},durationMs);});
+  } else {
+    // Flash fretboard dots by pitch class — add a temporary glow circle
+    var pc=NOTES.indexOf(note);if(pc<0)return;
+    var svgId=currentVis==='guitar'?'fretSvg':currentVis==='bass'?'bassSvg':'ukeSvg';
+    var svg=document.getElementById(svgId);if(!svg)return;
+    var dots=svg.querySelectorAll('circle[fill]:not([fill="transparent"]):not([fill="none"])');
+    var acc=getComputedStyle(document.body).getPropertyValue('--accent').trim();
+    dots.forEach(function(dot){
+      // Check adjacent text sibling for note name match
+      var txt=dot.nextElementSibling;
+      if(txt&&txt.tagName==='text'&&txt.textContent===NOTES[pc]){
+        var glow=document.createElementNS('http://www.w3.org/2000/svg','circle');
+        glow.setAttribute('cx',dot.getAttribute('cx'));glow.setAttribute('cy',dot.getAttribute('cy'));
+        glow.setAttribute('r','14');glow.setAttribute('fill','none');
+        glow.setAttribute('stroke',acc);glow.setAttribute('stroke-width','3');glow.setAttribute('opacity','0.9');
+        svg.appendChild(glow);
+        setTimeout(function(){if(glow.parentNode)glow.parentNode.removeChild(glow);},durationMs);
+      }
+    });
+  }
+}
+
 // ══ HIGHLIGHT HELPERS ══
 function highlightNotes(guessedNotes,result,correctNotes){
   const hsPiano=new Map(),hsFret=new Map();
@@ -1122,7 +1167,7 @@ function playSeq(notes,dir,bpm=100){
   setPlayingButton(dir);
   notes.forEach((n,i)=>{
     playToneToNode(noteFreq(n.note,n.octave),ctx.currentTime+i*gap,gap*.85,scaleSeqGain);
-    setTimeout(()=>{if(scalePlayToken!==token)return;bar.style.width=(((i+1)/notes.length)*100)+'%';},i*gap*1000);
+    setTimeout(()=>{if(scalePlayToken!==token)return;bar.style.width=(((i+1)/notes.length)*100)+'%';flashNote(n.note,n.octave,Math.min(gap*800,500));},i*gap*1000);
   });
   setTimeout(()=>{if(scalePlayToken!==token)return;bar.style.width='0%';cancelScalePlayback();},notes.length*gap*1000+300);
 }
@@ -1171,9 +1216,11 @@ function startNoteQuiz(){
   if(refFirst&&!isTonic){
     document.getElementById('quizPrompt').textContent='🎵 Root → ? (What note follows?)';
     playTone(qRefFreq,ctx.currentTime,0.6);playTone(qFreq,ctx.currentTime+0.85,1.2);
+    setTimeout(function(){flashNote(correct.note,correct.octave,600);},850);
   } else {
     document.getElementById('quizPrompt').textContent='🎵 What note is this?';
     playTone(qFreq,ctx.currentTime,1.2);
+    flashNote(correct.note,correct.octave,600);
   }
   startTimer();
 }
@@ -1210,12 +1257,21 @@ function startIntervalQuiz(){
   qLastIntervalAns=correct.note+correct.octave;
   qAns=correct.note;qAnsOct=correct.octave;
   qFreq=noteFreq(correct.note,correct.octave);
-  // Pick reference note different from the answer note
-  const others=pool.filter(n=>n.note!==correct.note);
+  // Pick reference note different from the answer note, respecting direction
+  let others=pool.filter(n=>n.note!==correct.note);
+  const correctMidi=noteToMidi(correct.note,correct.octave);
+  if(intervalDirection==='asc'){
+    const below=others.filter(n=>noteToMidi(n.note,n.octave)<correctMidi);
+    if(below.length)others=below;
+  } else if(intervalDirection==='desc'){
+    const above=others.filter(n=>noteToMidi(n.note,n.octave)>correctMidi);
+    if(above.length)others=above;
+  }
   const ref=others[Math.floor(Math.random()*others.length)];
   qRefNote=ref.note;qRefOct=ref.octave;qRefFreq=noteFreq(ref.note,ref.octave);
+  const refMidi=noteToMidi(ref.note,ref.octave);
   // Semitone distance, normalised to 1-12
-  let diff=Math.abs(noteToMidi(correct.note,correct.octave)-noteToMidi(ref.note,ref.octave));
+  let diff=Math.abs(correctMidi-refMidi);
   while(diff>12)diff-=12;
   if(diff===0)diff=12;
   qIntervalSemis=diff;
@@ -1224,7 +1280,6 @@ function startIntervalQuiz(){
   const optSet=new Set([diff,...scaleSemisArr]);
   const opts=[...optSet].sort((a,b)=>a-b);
   buildQuizOpts(opts.map(s=>({label:INTERVAL_NAMES[s]||s+'st',value:String(s)})),v=>checkIntervalAns(parseInt(v)));
-  const correctMidi=noteToMidi(correct.note,correct.octave),refMidi=noteToMidi(ref.note,ref.octave);
   const dir=correctMidi>=refMidi?'above':'below';
   document.getElementById('quizPrompt').textContent='🎵 What interval is the 2nd note '+dir+' the 1st?';
   const ctx=getCtx();
@@ -1331,8 +1386,27 @@ function render(){
   else buildUkulele();
 }
 
-// ══ TIMBRE ══
-document.getElementById('timbreSelect').addEventListener('change',e=>{currentTimbre=e.target.value;savePref('timbre',currentTimbre);});
+// ══ TIMBRE PRESETS ══
+var TIMBRE_PRESETS={
+  piano:{toneVolume:80,toneBrightness:60,toneAttack:5,toneRelease:40,toneNoise:0,toneReverb:15,toneFilterEnv:50,toneNoiseTone:50,toneLayer:'none'},
+  synth:{toneVolume:80,toneBrightness:40,toneAttack:10,toneRelease:50,toneNoise:0,toneReverb:10,toneFilterEnv:50,toneNoiseTone:50,toneLayer:'none'},
+  soft:{toneVolume:80,toneBrightness:30,toneAttack:20,toneRelease:70,toneNoise:0,toneReverb:25,toneFilterEnv:50,toneNoiseTone:50,toneLayer:'none'}
+};
+function applyTimbrePreset(key){
+  var preset=TIMBRE_PRESETS[key];if(!preset)return;
+  Object.keys(preset).forEach(function(k){
+    if(k==='toneLayer'){
+      toneLayer=preset[k];document.getElementById('layerSelect').value=preset[k];savePref(k,preset[k]);
+    } else {
+      updateSoundParam(k,preset[k]);
+      if(soundKnobRefs[k])soundKnobRefs[k].setValue(preset[k]);
+    }
+  });
+}
+document.getElementById('timbreSelect').addEventListener('change',e=>{
+  currentTimbre=e.target.value;savePref('timbre',currentTimbre);
+  applyTimbrePreset(currentTimbre);
+});
 
 // ══ SESSION HISTORY ══
 const LS_SESSIONS_KEY='earTrainer_sessions';
