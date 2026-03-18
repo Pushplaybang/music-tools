@@ -56,27 +56,20 @@ jobs:
           COMMITS=$(git log "${TAG}..HEAD" --pretty=format:"%s" 2>/dev/null || git log --max-count=50 --pretty=format:"%s")
 
           declare -A NOTES
-          NOTES=(
-            [feat]=""
-            [fix]=""
-            [docs]=""
-            [style]=""
-            [refactor]=""
-            [perf]=""
-            [test]=""
-            [build]=""
-            [ci]=""
-            [chore]=""
-            [revert]=""
-            [other]=""
-          )
+          for key in feat fix docs style refactor perf test build ci chore revert other; do
+            NOTES["$key"]=""
+          done
 
           while IFS= read -r line; do
             [[ -z "$line" ]] && continue
             if [[ "$line" =~ ^([a-z]+)(\(([^)]+)\))?(!)?:[[:space:]]*(.+)$ ]]; then
               type="${BASH_REMATCH[1]}"
               scope="${BASH_REMATCH[3]}"
+              breaking="${BASH_REMATCH[4]}"
               msg="${BASH_REMATCH[5]}"
+              if [[ -n "$breaking" ]]; then
+                msg="[BREAKING] ${msg}"
+              fi
               if [[ -n "$scope" ]]; then
                 entry="- ${scope}: ${msg}"
               else
