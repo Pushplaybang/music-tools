@@ -37,7 +37,7 @@ try {
     const target = path.join(outputDir, file);
 
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
-    await page.waitForSelector('.app-footer', { timeout: timeoutMs });
+    await page.waitForSelector('.card', { timeout: timeoutMs });
     await page.screenshot({ path: target, fullPage: true });
 
     manifest.pages.push({
