@@ -39,8 +39,8 @@
 [data-mode="dark"]{
   --bg:#080A0F; --bg-deep:#040608; --surface:#0D1019;
   --surface-hi:#121620; --surface-lo:#080A12; --surface-lo2:#050710;
-  --border:rgba(120,150,220,0.07); --border-hi:rgba(140,170,255,0.05); --border-lo:rgba(100,130,200,0.04);
-  --text:#D8E8F8; --text-2:#5A78A0; --text-3:#2E4060;
+  --border:rgba(120,150,220,0.12); --border-hi:rgba(140,170,255,0.08); --border-lo:rgba(100,130,200,0.06);
+  --text:#D8E8F8; --text-2:#8AA0C0; --text-3:#5A7898;
   --accent:#00D8FF; --accent-glow:rgba(0,216,255,0.28);
   --accent-2:#FF2688; --accent-2-glow:rgba(255,38,136,0.24);
   --correct:#00E8A8; --correct-glow:rgba(0,232,168,0.22);
