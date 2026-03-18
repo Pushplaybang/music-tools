@@ -42,7 +42,14 @@ try {
     try {
       await page.waitForSelector(primaryReadySelector, { timeout: pageLoadTimeoutMs });
     } catch (error) {
-      await page.waitForSelector(fallbackReadySelector, { timeout: pageLoadTimeoutMs });
+      try {
+        await page.waitForSelector(fallbackReadySelector, { timeout: pageLoadTimeoutMs });
+      } catch (fallbackError) {
+        throw new Error(
+          `Selector checks failed. Primary "${primaryReadySelector}": ${error.message}. ` +
+            `Fallback "${fallbackReadySelector}": ${fallbackError.message}`
+        );
+      }
     }
     await page.screenshot({ path: target, fullPage: true });
 
