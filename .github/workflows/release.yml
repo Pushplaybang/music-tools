@@ -50,15 +50,16 @@ jobs:
 
       - name: Generate release notes
         id: notes
+        shell: bash
         run: |
           TAG="${{ steps.latest_tag.outputs.tag }}"
           DELIMITER="NOTES_$(openssl rand -hex 8)"
           COMMITS=$(git log "${TAG}..HEAD" --pretty=format:"%s" 2>/dev/null || git log --max-count=50 --pretty=format:"%s")
-          TYPES="feat fix docs style refactor perf test build ci chore revert"
-          TYPE_REGEX="${TYPES// /|}"
+          TYPES=(feat fix docs style refactor perf test build ci chore revert)
+          TYPE_REGEX="$(IFS='|'; echo "${TYPES[*]}")"
 
           declare -A NOTES
-          for key in ${TYPES} other; do
+          for key in "${TYPES[@]}" other; do
             NOTES["$key"]=""
           done
 
