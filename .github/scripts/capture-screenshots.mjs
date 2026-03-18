@@ -18,7 +18,8 @@ const pages = [
 
 const viewport = { width: 1440, height: 900 };
 const pageLoadTimeoutMs = 30000;
-const readySelectors = ['.card', '.app-footer'];
+const primaryReadySelector = '.card';
+const fallbackReadySelector = '.app-footer';
 
 await fs.mkdir(outputDir, { recursive: true });
 
@@ -38,11 +39,11 @@ try {
     const target = path.join(outputDir, file);
 
     await page.goto(url, { waitUntil: 'load', timeout: pageLoadTimeoutMs });
-    await page.waitForFunction(
-      (selectors) => selectors.some((selector) => document.querySelector(selector)),
-      readySelectors,
-      { timeout: pageLoadTimeoutMs }
-    );
+    try {
+      await page.waitForSelector(primaryReadySelector, { timeout: pageLoadTimeoutMs });
+    } catch (error) {
+      await page.waitForSelector(fallbackReadySelector, { timeout: pageLoadTimeoutMs });
+    }
     await page.screenshot({ path: target, fullPage: true });
 
     manifest.pages.push({
