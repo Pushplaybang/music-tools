@@ -27,6 +27,7 @@ jobs:
           # Escaped brackets keep the literal "[bot]" intact through YAML and grep regex parsing.
           # Keep this list explicit to avoid matching non-agent bots like dependabot or renovate.
           # Use [cC] for Copilot to handle name/email capitalisation variations without case-insensitive matching.
+          # Avoiding -i keeps matching tight to the known bot patterns.
           AGENT_AUTHOR_PATTERN: "([cC]opilot-swe-agent\\[bot\\]|[cC]opilot-swe\\[bot\\]|[cC]opilot\\[bot\\]|swe-agent\\[bot\\]|[cC]opilot@users\\.noreply\\.github\\.com)"
         run: |
           BASE_SHA=${{ github.event.pull_request.base.sha }}
@@ -39,7 +40,7 @@ jobs:
 
           FAILED=0
           AGENT_COMMITS=0
-          # Format is subject<TAB>author name<TAB>author email (matches git log format below).
+          # Format is subject<TAB>author name<TAB>author email (git log uses %x09 tab escapes below).
           while IFS=$'\t' read -r MSG AUTHOR EMAIL; do
             AUTHOR_INFO="${AUTHOR} <${EMAIL}>"
             if [ -n "$AGENT_AUTHOR_PATTERN" ] && echo "$AUTHOR_INFO" | grep -qE "$AGENT_AUTHOR_PATTERN"; then
