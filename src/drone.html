@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Drone — Sustained Reference Tones for Practice</title>
-<meta name="description" content="A free browser-based sustained reference tone generator for musicians. Four voicings, four timbres, glitch-free playback. No install, no account.">
+<meta name="description" content="A free browser-based sustained reference tone generator for musicians. Four voicings, four timbres, optional LFO filter, tape delay and spring reverb. No install, no account.">
 <!-- Shared design system — works offline via relative path from src/ -->
 <link rel="stylesheet" href="style/music-tools.css">
 <style>
 /* tool-specific styles — shared design system in style/music-tools.css */
 
 /* ── CONTENT (narrower max-width for drone) ── */
-.content{max-width:560px;}
+.content{max-width:580px;}
 
 /* ── DRONE RING (hero play button) ── */
 .play-section{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:20px;}
@@ -67,14 +67,30 @@
 
 /* ── VOLUME SLIDER ── */
 .vol-group{margin-top:14px;}
-.vol-group label{display:block;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-family:var(--font-b);}
+.vol-group label{display:flex;justify-content:space-between;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-family:var(--font-b);}
 .vol-row{display:flex;align-items:center;gap:10px;}
 .vol-slider{flex:1;accent-color:var(--accent);cursor:pointer;height:3px;}
 .vol-val{font-family:var(--font-b);font-size:.78rem;color:var(--accent);min-width:36px;text-align:right;}
+.param-val{color:var(--accent);font-style:normal;font-size:.72rem;}
+
+/* ── EFFECTS CARD ── */
+.fx-section{padding:12px 0;}
+.fx-section:first-child{padding-top:0;}
+.fx-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0;}
+.fx-title{font-family:var(--font-b);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text);font-weight:600;}
+.fx-body{margin-top:10px;transition:opacity .2s;}
+.fx-body.fx-off{opacity:.35;pointer-events:none;}
+.fx-sep{height:1px;background:var(--border);margin:0;}
+.fx-params{display:flex;flex-direction:column;gap:6px;}
 
 /* ── MODAL OVERRIDES ── */
 .modal-card{max-width:600px;}
 .modal-close:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── LINKS BAR ── */
+.links-bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:20px 16px 8px;margin-top:8px;}
+.link-pill{font-family:var(--font-b);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:5px 12px;border:1px solid var(--border);border-radius:20px;transition:all .2s;}
+.link-pill:hover{color:var(--text);border-color:var(--accent);}
 </style>
 </head>
 <body data-mode="light">
@@ -113,8 +129,16 @@
         <li><strong>Pad</strong> — triangle wave through a lowpass filter with slow LFO. Soft and ambient.</li>
       </ul>
 
+      <h3>Effects</h3>
+      <ul>
+        <li><strong>LFO Filter</strong> — a resonant filter (lowpass, bandpass, or highpass) whose cutoff frequency is swept by a slow oscillator. Creates a breathing, evolving texture. Rate controls the sweep speed, Depth controls how wide the sweep is, and Cutoff sets the centre frequency.</li>
+        <li><strong>Tape Delay</strong> — an echo effect with feedback that creates repeating echoes. A subtle pitch wobble emulates the wow-and-flutter of analogue tape. Time sets the delay interval, Feedback controls the number of echoes, and Mix blends wet and dry signal.</li>
+        <li><strong>Spring Reverb</strong> — a synthesised spring reverb with a characteristic metallic resonance and long decay. Size controls the reverb tail length (0.5s to 4s) and Mix blends wet and dry signal.</li>
+      </ul>
+
       <h3>Controls</h3>
       <p>Select a <strong>Root Note</strong> and <strong>Octave</strong>, choose a voicing and timbre, then press the large play button to start the drone. Adjust the volume slider at any time. All parameters can be changed while the drone is playing — crossfades happen automatically with no clicks or pops.</p>
+      <p>Effects can be enabled individually using their toggle switches. Parameters update in real time while the drone is playing.</p>
     </div>
   </div>
 </div>
@@ -122,9 +146,13 @@
 <!-- MODE BAR -->
 <div class="theme-bar">
   <div class="bar-left">
-    <button class="bar-icon-btn" onclick="openModal('helpOverlay')" title="Help">📖</button>
+    <a href="../index.html" class="bar-icon-btn" title="Home">←</a>
+    <span class="bar-sep"></span>
+    <span class="bar-title">Drone</span>
   </div>
   <div class="bar-right">
+    <button class="bar-icon-btn" onclick="openModal('helpOverlay')" title="Help">📖</button>
+    <span class="bar-sep"></span>
     <span class="mode-badge" id="modeBadge">LIGHT</span>
     <div class="mode-toggle" id="modeToggle" title="Toggle dark / light mode"></div>
   </div>
@@ -175,17 +203,130 @@
     </div>
 
     <div class="vol-group">
-      <label>Volume</label>
+      <label>Volume <span class="param-val" id="volVal">70%</span></label>
       <div class="vol-row">
         <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="70" oninput="onVolumeChange()">
-        <span class="vol-val" id="volVal">70%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- EFFECTS CARD -->
+  <div class="card">
+    <div class="card-title">// Effects</div>
+
+    <!-- ── LFO Filter ── -->
+    <div class="fx-section">
+      <div class="fx-header">
+        <span class="fx-title">LFO Filter</span>
+        <label class="toggle-label" title="Enable LFO filter">
+          <input type="checkbox" id="fxLFOEnabled" onchange="onFxLFOToggle()">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+      <div class="fx-body fx-off" id="fxLFOBody">
+        <div class="seg-group" style="margin:10px 0 8px;">
+          <div class="seg-group-label">Filter Type</div>
+          <div class="seg-row" id="fxLFOTypeRow"></div>
+        </div>
+        <div class="fx-params">
+          <div class="vol-group" style="margin-top:0;">
+            <label>Rate <span class="param-val" id="fxLFORateVal">0.50 Hz</span></label>
+            <div class="vol-row">
+              <input type="range" class="vol-slider" id="fxLFORate" min="0" max="100" value="50" oninput="onFxLFORate(this.value)">
+            </div>
+          </div>
+          <div class="vol-group" style="margin-top:0;">
+            <label>Depth <span class="param-val" id="fxLFODepthVal">40%</span></label>
+            <div class="vol-row">
+              <input type="range" class="vol-slider" id="fxLFODepth" min="0" max="100" value="40" oninput="onFxLFODepth(this.value)">
+            </div>
+          </div>
+          <div class="vol-group" style="margin-top:0;">
+            <label>Cutoff <span class="param-val" id="fxLFOCutoffVal">800 Hz</span></label>
+            <div class="vol-row">
+              <input type="range" class="vol-slider" id="fxLFOCutoff" min="0" max="100" value="55" oninput="onFxLFOCutoff(this.value)">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fx-sep"></div>
+
+    <!-- ── Tape Delay ── -->
+    <div class="fx-section">
+      <div class="fx-header">
+        <span class="fx-title">Tape Delay</span>
+        <label class="toggle-label" title="Enable tape delay">
+          <input type="checkbox" id="fxDelayEnabled" onchange="onFxDelayToggle()">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+      <div class="fx-body fx-off" id="fxDelayBody">
+        <div class="fx-params" style="margin-top:10px;">
+          <div class="vol-group" style="margin-top:0;">
+            <label>Time <span class="param-val" id="fxDelayTimeVal">350 ms</span></label>
+            <div class="vol-row">
+              <input type="range" class="vol-slider" id="fxDelayTime" min="0" max="100" value="35" oninput="onFxDelayTime(this.value)">
+            </div>
+          </div>
+          <div class="vol-group" style="margin-top:0;">
+            <label>Feedback <span class="param-val" id="fxDelayFbVal">35%</span></label>
+            <div class="vol-row">
+              <input type="range" class="vol-slider" id="fxDelayFb" min="0" max="85" value="35" oninput="onFxDelayFb(this.value)">
+            </div>
+          </div>
+          <div class="vol-group" style="margin-top:0;">
+            <label>Mix <span class="param-val" id="fxDelayMixVal">30%</span></label>
+            <div class="vol-row">
+              <input type="range" class="vol-slider" id="fxDelayMix" min="0" max="100" value="30" oninput="onFxDelayMix(this.value)">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fx-sep"></div>
+
+    <!-- ── Spring Reverb ── -->
+    <div class="fx-section" style="padding-bottom:4px;">
+      <div class="fx-header">
+        <span class="fx-title">Spring Reverb</span>
+        <label class="toggle-label" title="Enable spring reverb">
+          <input type="checkbox" id="fxReverbEnabled" onchange="onFxReverbToggle()">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+      <div class="fx-body fx-off" id="fxReverbBody">
+        <div class="fx-params" style="margin-top:10px;">
+          <div class="vol-group" style="margin-top:0;">
+            <label>Size <span class="param-val" id="fxReverbSizeVal">70%</span></label>
+            <div class="vol-row">
+              <input type="range" class="vol-slider" id="fxReverbSize" min="0" max="100" value="70" oninput="onFxReverbSize(this.value)">
+            </div>
+          </div>
+          <div class="vol-group" style="margin-top:0;">
+            <label>Mix <span class="param-val" id="fxReverbMixVal">35%</span></label>
+            <div class="vol-row">
+              <input type="range" class="vol-slider" id="fxReverbMix" min="0" max="100" value="35" oninput="onFxReverbMix(this.value)">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
 </div>
 
-<div class="app-footer">made with ♥ by Paul van Zyl</div>
+<!-- LINKS BAR -->
+<div class="links-bar">
+  <a class="link-pill" href="../index.html">← All Tools</a>
+  <a class="link-pill" href="ear-trainer.html">Ear Trainer</a>
+  <a class="link-pill" href="tuner.html">Tuner</a>
+  <a class="link-pill" href="pulse.html">Metronome</a>
+  <a class="link-pill" href="chord-reference.html">Chords</a>
+  <a class="link-pill" href="practice-timer.html">Practice Timer</a>
+</div>
 
 <script>
 // ══════════════════════════════════════════════════════
@@ -193,11 +334,11 @@
 //  LS_KEY: musicTool_drone_v1
 // ══════════════════════════════════════════════════════
 
-const LS_KEY = 'musicTool_drone_v1';
+var LS_KEY = 'musicTool_drone_v1';
 
 // ── PERSISTENCE ──
 function savePref(k, v){
-  try { const d = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); d[k] = v; localStorage.setItem(LS_KEY, JSON.stringify(d)); } catch(e){}
+  try { var d = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); d[k] = v; localStorage.setItem(LS_KEY, JSON.stringify(d)); } catch(e){}
 }
 function loadPrefs(){
   try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch(e){ return {}; }
@@ -206,30 +347,30 @@ function loadPrefs(){
 // ── MODE ──
 function applyMode(m, noSave){
   document.body.dataset.mode = m;
-  const badge = document.getElementById('modeBadge');
+  var badge = document.getElementById('modeBadge');
   if(badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
   if(!noSave) savePref('mode', m);
 }
-document.getElementById('modeToggle').addEventListener('click', () => {
+document.getElementById('modeToggle').addEventListener('click', function(){
   applyMode(document.body.dataset.mode === 'dark' ? 'light' : 'dark');
 });
 
 // ── MODALS ──
 function openModal(id){ document.getElementById(id).classList.add('show'); document.body.style.overflow = 'hidden'; }
 function closeModal(id){ document.getElementById(id).classList.remove('show'); document.body.style.overflow = ''; }
-document.querySelectorAll('.modal-overlay').forEach(ov => {
-  ov.addEventListener('click', e => { if(e.target === ov) closeModal(ov.id); });
+document.querySelectorAll('.modal-overlay').forEach(function(ov){
+  ov.addEventListener('click', function(e){ if(e.target === ov) closeModal(ov.id); });
 });
 
 // ── MUSIC DATA ──
-const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-const ENH = {'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb'};
-const nn = n => ENH[n] ? n + '/' + ENH[n] : n;
-const midiFreq = midi => 440 * Math.pow(2, (midi - 69) / 12);
-const noteFreq = (note, oct) => midiFreq((oct + 1) * 12 + NOTES.indexOf(note));
+var NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+var ENH = {'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb'};
+var nn = function(n){ return ENH[n] ? n + '/' + ENH[n] : n; };
+var midiFreq = function(midi){ return 440 * Math.pow(2, (midi - 69) / 12); };
+var noteFreq = function(note, oct){ return midiFreq((oct + 1) * 12 + NOTES.indexOf(note)); };
 
 // ── AUDIO ENGINE ──
-let audioCtx = null;
+var audioCtx = null;
 function getCtx(){
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -237,23 +378,48 @@ function getCtx(){
 }
 
 // ── STATE ──
-const VOICINGS = ['Root', 'Root + 5th', 'Power', 'Octaves'];
-const TIMBRES = ['Warm', 'Tanpura', 'Organ', 'Pad'];
-let rootNote = 'A';
-let octave = 3;
-let voicing = 'Root';
-let timbre = 'Warm';
-let volume = 70;
-let playing = false;
-let currentNodes = null; // { gain, oscs[], lfo[], filters[] } — active graph
-let crossfadeTimer = null;
+var VOICINGS = ['Root', 'Root + 5th', 'Power', 'Octaves'];
+var TIMBRES = ['Warm', 'Tanpura', 'Organ', 'Pad'];
+var rootNote = 'A';
+var octave = 3;
+var voicing = 'Root';
+var timbre = 'Warm';
+var volume = 70;
+var playing = false;
+var currentNodes = null; // { master, perVoice, voices[] } — active voice graph
+var effectsChain = null; // persistent effects chain
+var cachedReverbIR = null; // { size, buffer }
+
+// ── EFFECTS STATE ──
+var fxLFOEnabled = false;
+var fxLFOType = 'lowpass';
+var fxLFORate = 50;      // slider 0-100
+var fxLFODepth = 40;     // slider 0-100
+var fxLFOCutoff = 55;    // slider 0-100
+
+var fxDelayEnabled = false;
+var fxDelayTime = 35;    // slider 0-100
+var fxDelayFeedback = 35;// slider 0-85
+var fxDelayMix = 30;     // slider 0-100
+
+var fxReverbEnabled = false;
+var fxReverbSize = 70;   // slider 0-100
+var fxReverbMix = 35;    // slider 0-100
+
+// ── EFFECTS PARAMETER CONVERSIONS ──
+function lfoRateHz(v){ return 0.05 * Math.pow(100, v / 100); } // 0.05-5 Hz
+function lfoCutoffHz(v){ return Math.round(100 * Math.pow(80, v / 100)); } // 100-8000 Hz
+function delayTimeSec(v){ return 0.05 * Math.pow(40, v / 100); } // 50ms-2000ms
+function fmtLFORate(v){ var h = lfoRateHz(v); return h < 1 ? h.toFixed(2)+' Hz' : h.toFixed(1)+' Hz'; }
+function fmtCutoff(v){ var h = lfoCutoffHz(v); return h >= 1000 ? (h/1000).toFixed(1)+' kHz' : h+' Hz'; }
+function fmtDelayTime(v){ return Math.round(delayTimeSec(v)*1000)+' ms'; }
 
 // ── UI BUILDERS ──
 function buildRootSelect(){
-  const sel = document.getElementById('rootSelect');
+  var sel = document.getElementById('rootSelect');
   sel.innerHTML = '';
-  NOTES.forEach(n => {
-    const opt = document.createElement('option');
+  NOTES.forEach(function(n){
+    var opt = document.createElement('option');
     opt.value = n;
     opt.textContent = nn(n);
     sel.appendChild(opt);
@@ -261,10 +427,10 @@ function buildRootSelect(){
   sel.value = rootNote;
 }
 function buildOctaveSelect(){
-  const sel = document.getElementById('octaveSelect');
+  var sel = document.getElementById('octaveSelect');
   sel.innerHTML = '';
-  for(let i = 2; i <= 5; i++){
-    const opt = document.createElement('option');
+  for(var i = 2; i <= 5; i++){
+    var opt = document.createElement('option');
     opt.value = i;
     opt.textContent = 'Octave ' + i;
     sel.appendChild(opt);
@@ -272,14 +438,14 @@ function buildOctaveSelect(){
   sel.value = octave;
 }
 function buildSegmented(containerId, options, active, onChange){
-  const row = document.getElementById(containerId);
+  var row = document.getElementById(containerId);
   row.innerHTML = '';
-  options.forEach(opt => {
-    const btn = document.createElement('button');
+  options.forEach(function(opt){
+    var btn = document.createElement('button');
     btn.className = 'seg-btn' + (opt === active ? ' active' : '');
     btn.textContent = opt;
-    btn.addEventListener('click', () => {
-      row.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+    btn.addEventListener('click', function(){
+      row.querySelectorAll('.seg-btn').forEach(function(b){ b.classList.remove('active'); });
       btn.classList.add('active');
       onChange(opt);
     });
@@ -289,14 +455,14 @@ function buildSegmented(containerId, options, active, onChange){
 
 // ── UPDATE DISPLAY ──
 function updateDisplay(){
-  const freq = noteFreq(rootNote, octave);
+  var freq = noteFreq(rootNote, octave);
   document.getElementById('noteDisplay').innerHTML = nn(rootNote).split('/')[0] + '<span class="oct">' + octave + '</span>';
   document.getElementById('freqDisplay').textContent = freq.toFixed(2) + ' Hz';
 }
 
-// ── VOICING: compute MIDI notes for current voicing ──
+// ── VOICING: compute MIDI notes ──
 function getVoicingMidis(){
-  const root = (octave + 1) * 12 + NOTES.indexOf(rootNote);
+  var root = (octave + 1) * 12 + NOTES.indexOf(rootNote);
   switch(voicing){
     case 'Root':       return [root];
     case 'Root + 5th': return [root, root + 7];
@@ -308,21 +474,20 @@ function getVoicingMidis(){
 
 // ── TIMBRE: build oscillator graph for one voice ──
 function buildVoice(ctx, freq, masterGain){
-  const nodes = { oscs: [], gains: [], filters: [], lfos: [] };
+  var nodes = { oscs: [], gains: [], filters: [], lfos: [] };
 
   if(timbre === 'Warm'){
-    // Sawtooth through lowpass at 800Hz with slow LFO on cutoff
-    const osc = ctx.createOscillator();
+    var osc = ctx.createOscillator();
     osc.type = 'sawtooth';
     osc.frequency.value = freq;
-    const filter = ctx.createBiquadFilter();
+    var filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.value = 800;
     filter.Q.value = 1;
-    const lfo = ctx.createOscillator();
+    var lfo = ctx.createOscillator();
     lfo.type = 'sine';
     lfo.frequency.value = 0.3;
-    const lfoGain = ctx.createGain();
+    var lfoGain = ctx.createGain();
     lfoGain.gain.value = 200;
     lfo.connect(lfoGain);
     lfoGain.connect(filter.frequency);
@@ -335,28 +500,25 @@ function buildVoice(ctx, freq, masterGain){
     nodes.lfos.push(lfo, lfoGain);
   }
   else if(timbre === 'Tanpura'){
-    // Two sawtooths detuned ±2 cents
-    const osc1 = ctx.createOscillator();
+    var osc1 = ctx.createOscillator();
     osc1.type = 'sawtooth';
     osc1.frequency.value = freq;
     osc1.detune.value = 2;
-    const osc2 = ctx.createOscillator();
+    var osc2 = ctx.createOscillator();
     osc2.type = 'sawtooth';
     osc2.frequency.value = freq;
     osc2.detune.value = -2;
-    // Quiet sine one octave below root (-12dB)
-    const sub = ctx.createOscillator();
+    var sub = ctx.createOscillator();
     sub.type = 'sine';
     sub.frequency.value = freq / 2;
-    const subGain = ctx.createGain();
-    subGain.gain.value = 0.25; // -12dB ≈ 0.25
-    // Tremolo LFO on amplitude
-    const trem = ctx.createOscillator();
+    var subGain = ctx.createGain();
+    subGain.gain.value = 0.25;
+    var trem = ctx.createOscillator();
     trem.type = 'sine';
     trem.frequency.value = 0.15;
-    const tremGain = ctx.createGain();
-    tremGain.gain.value = 0.08; // subtle tremolo
-    const voiceGain = ctx.createGain();
+    var tremGain = ctx.createGain();
+    tremGain.gain.value = 0.08;
+    var voiceGain = ctx.createGain();
     voiceGain.gain.value = 1.0;
     trem.connect(tremGain);
     tremGain.connect(voiceGain.gain);
@@ -374,20 +536,19 @@ function buildVoice(ctx, freq, masterGain){
     nodes.lfos.push(trem, tremGain);
   }
   else if(timbre === 'Organ'){
-    // Sine + 2nd harmonic at -6dB + 3rd harmonic at -12dB
-    const osc1 = ctx.createOscillator();
+    var osc1 = ctx.createOscillator();
     osc1.type = 'sine';
     osc1.frequency.value = freq;
-    const osc2 = ctx.createOscillator();
+    var osc2 = ctx.createOscillator();
     osc2.type = 'sine';
     osc2.frequency.value = freq * 2;
-    const g2 = ctx.createGain();
-    g2.gain.value = 0.5; // -6dB
-    const osc3 = ctx.createOscillator();
+    var g2 = ctx.createGain();
+    g2.gain.value = 0.5;
+    var osc3 = ctx.createOscillator();
     osc3.type = 'sine';
     osc3.frequency.value = freq * 3;
-    const g3 = ctx.createGain();
-    g3.gain.value = 0.25; // -12dB
+    var g3 = ctx.createGain();
+    g3.gain.value = 0.25;
     osc1.connect(masterGain);
     osc2.connect(g2);
     g2.connect(masterGain);
@@ -400,18 +561,17 @@ function buildVoice(ctx, freq, masterGain){
     nodes.gains.push(g2, g3);
   }
   else if(timbre === 'Pad'){
-    // Triangle through lowpass at 1200Hz with slow LFO
-    const osc = ctx.createOscillator();
+    var osc = ctx.createOscillator();
     osc.type = 'triangle';
     osc.frequency.value = freq;
-    const filter = ctx.createBiquadFilter();
+    var filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.value = 1200;
     filter.Q.value = 0.7;
-    const lfo = ctx.createOscillator();
+    var lfo = ctx.createOscillator();
     lfo.type = 'sine';
     lfo.frequency.value = 0.2;
-    const lfoGain = ctx.createGain();
+    var lfoGain = ctx.createGain();
     lfoGain.gain.value = 300;
     lfo.connect(lfoGain);
     lfoGain.connect(filter.frequency);
@@ -427,60 +587,274 @@ function buildVoice(ctx, freq, masterGain){
   return nodes;
 }
 
-// ── BUILD FULL GRAPH ──
-function buildGraph(){
-  const ctx = getCtx();
-  const master = ctx.createGain();
-  master.gain.value = 0; // start silent for crossfade
-  master.connect(ctx.destination);
+// ── SPRING REVERB IMPULSE RESPONSE ──
+function buildReverbIR(ctx, duration){
+  var sr = ctx.sampleRate;
+  var len = Math.floor(sr * duration);
+  var buf = ctx.createBuffer(2, len, sr);
+  var predelay = Math.floor(0.004 * sr); // 4ms pre-delay
 
-  const midis = getVoicingMidis();
-  const voiceCount = midis.length;
-  // Scale per-voice gain so total doesn't clip
-  const perVoice = ctx.createGain();
+  for(var c = 0; c < 2; c++){
+    var data = buf.getChannelData(c);
+    // Slightly different spring resonance per channel for width
+    var springFreq1 = c === 0 ? 29 : 31;
+    var springFreq2 = c === 0 ? 62 : 67;
+    var decayRate = 0.8 + 4 * (1 - duration / 5);
+
+    for(var i = 0; i < len; i++){
+      if(i < predelay){ data[i] = 0; continue; }
+      var t = (i - predelay) / sr;
+      var decay = Math.exp(-t * decayRate);
+      // Spring character: resonant frequencies giving metallic boing
+      var spring = 0.4 * Math.sin(2 * Math.PI * springFreq1 * t)
+                 + 0.25 * Math.sin(2 * Math.PI * springFreq2 * t);
+      // Early reflection boost (first 60ms)
+      var early = t < 0.06 ? (1 + Math.exp(-t * 40) * 1.5) : 1;
+      var noise = Math.random() * 2 - 1;
+      data[i] = (noise * 0.65 + spring * 0.35) * decay * early;
+    }
+    // Normalise to avoid clipping
+    var peak = 0;
+    for(var i = 0; i < len; i++) if(Math.abs(data[i]) > peak) peak = Math.abs(data[i]);
+    if(peak > 0) for(var i = 0; i < len; i++) data[i] = data[i] / (peak * 2.5);
+  }
+  return buf;
+}
+
+function getReverbIR(ctx){
+  if(cachedReverbIR && cachedReverbIR.size === fxReverbSize) return cachedReverbIR.buffer;
+  var duration = 0.5 + (fxReverbSize / 100) * 3.5; // 0.5s to 4s
+  var buf = buildReverbIR(ctx, duration);
+  cachedReverbIR = { size: fxReverbSize, buffer: buf };
+  return buf;
+}
+
+// ── BUILD EFFECTS CHAIN ──
+// Creates a persistent chain: inputGain → [LFO filter] → [tape delay] → [spring reverb] → destination
+// Returns an object with live refs for param updates.
+function buildEffectsChain(){
+  destroyEffectsChain();
+  var ctx = getCtx();
+  var chain = {
+    nodes: { lfos: [], gains: [], filters: [], delays: [], convolvers: [] },
+    fxRefs: {}
+  };
+
+  var inputGain = ctx.createGain();
+  inputGain.gain.value = 1;
+  chain.input = inputGain;
+  chain.nodes.gains.push(inputGain);
+  var lastNode = inputGain;
+
+  // ── LFO Filter ──
+  if(fxLFOEnabled){
+    var filter = ctx.createBiquadFilter();
+    filter.type = fxLFOType;
+    var cutHz = lfoCutoffHz(fxLFOCutoff);
+    filter.frequency.value = cutHz;
+    filter.Q.value = 1.2;
+
+    var lfo = ctx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.value = lfoRateHz(fxLFORate);
+    var lfoGain = ctx.createGain();
+    lfoGain.gain.value = (fxLFODepth / 100) * cutHz;
+    lfo.connect(lfoGain);
+    lfoGain.connect(filter.frequency);
+    lfo.start();
+
+    lastNode.connect(filter);
+    lastNode = filter;
+    chain.nodes.filters.push(filter);
+    chain.nodes.lfos.push(lfo, lfoGain);
+    chain.fxRefs.lfoFilter = {
+      filter: filter,
+      lfoFreq: lfo.frequency,
+      lfoGain: lfoGain.gain,
+      filterFreq: filter.frequency
+    };
+  }
+
+  // ── Tape Delay ──
+  if(fxDelayEnabled){
+    var delayNode = ctx.createDelay(3.0);
+    delayNode.delayTime.value = delayTimeSec(fxDelayTime);
+
+    var feedbackGain = ctx.createGain();
+    feedbackGain.gain.value = fxDelayFeedback / 100;
+
+    var wetGain = ctx.createGain();
+    wetGain.gain.value = fxDelayMix / 100;
+    var dryGain = ctx.createGain();
+    dryGain.gain.value = 1 - fxDelayMix / 100;
+    var mixOut = ctx.createGain();
+    mixOut.gain.value = 1;
+
+    // Tape wow-and-flutter: slow LFO subtly wobbles the delay time
+    var wobble = ctx.createOscillator();
+    wobble.type = 'sine';
+    wobble.frequency.value = 0.6 + Math.random() * 0.4; // 0.6-1.0 Hz
+    var wobbleGain = ctx.createGain();
+    wobbleGain.gain.value = 0.0025; // ±2.5ms
+    wobble.connect(wobbleGain);
+    wobbleGain.connect(delayNode.delayTime);
+    wobble.start();
+
+    lastNode.connect(dryGain);
+    lastNode.connect(delayNode);
+    delayNode.connect(feedbackGain);
+    feedbackGain.connect(delayNode);
+    delayNode.connect(wetGain);
+    dryGain.connect(mixOut);
+    wetGain.connect(mixOut);
+
+    lastNode = mixOut;
+    chain.nodes.delays.push(delayNode);
+    chain.nodes.gains.push(feedbackGain, wetGain, dryGain, mixOut, wobbleGain);
+    chain.nodes.lfos.push(wobble);
+    chain.fxRefs.delay = {
+      delayTime: delayNode.delayTime,
+      feedback: feedbackGain.gain,
+      wet: wetGain.gain,
+      dry: dryGain.gain
+    };
+  }
+
+  // ── Spring Reverb ──
+  if(fxReverbEnabled){
+    var convolver = ctx.createConvolver();
+    convolver.buffer = getReverbIR(ctx);
+
+    var wetGain = ctx.createGain();
+    wetGain.gain.value = fxReverbMix / 100;
+    var dryGain = ctx.createGain();
+    dryGain.gain.value = 1 - fxReverbMix / 100;
+    var mixOut = ctx.createGain();
+    mixOut.gain.value = 1;
+
+    lastNode.connect(dryGain);
+    lastNode.connect(convolver);
+    convolver.connect(wetGain);
+    dryGain.connect(mixOut);
+    wetGain.connect(mixOut);
+
+    lastNode = mixOut;
+    chain.nodes.convolvers.push(convolver);
+    chain.nodes.gains.push(wetGain, dryGain, mixOut);
+    chain.fxRefs.reverb = { wet: wetGain.gain, dry: dryGain.gain };
+  }
+
+  // Connect chain output to destination
+  lastNode.connect(ctx.destination);
+  chain.output = lastNode;
+  effectsChain = chain;
+}
+
+// ── DESTROY EFFECTS CHAIN ──
+function destroyEffectsChain(){
+  if(!effectsChain) return;
+  var n = effectsChain.nodes;
+  n.lfos.forEach(function(l){ try{ if(l.stop) l.stop(); l.disconnect(); }catch(e){} });
+  n.gains.forEach(function(g){ try{ g.disconnect(); }catch(e){} });
+  n.filters.forEach(function(f){ try{ f.disconnect(); }catch(e){} });
+  n.delays.forEach(function(d){ try{ d.disconnect(); }catch(e){} });
+  n.convolvers.forEach(function(c){ try{ c.disconnect(); }catch(e){} });
+  effectsChain = null;
+}
+
+// ── REBUILD EFFECTS CHAIN WHILE PLAYING ──
+// Disconnects current voice graph from old chain, builds new chain, reconnects.
+function rebuildEffectsChain(){
+  if(!playing) return;
+  // Disconnect live voice graph from old chain
+  if(currentNodes){
+    try{ currentNodes.master.disconnect(); }catch(e){}
+  }
+  buildEffectsChain();
+  // Reconnect voice graph to new chain
+  if(currentNodes){
+    var dest = effectsChain ? effectsChain.input : getCtx().destination;
+    currentNodes.master.connect(dest);
+  }
+}
+
+// ── UPDATE EFFECTS LIVE (without rebuild) ──
+function updateFxLFOLive(){
+  if(!effectsChain || !effectsChain.fxRefs.lfoFilter) return;
+  var r = effectsChain.fxRefs.lfoFilter;
+  var cutHz = lfoCutoffHz(fxLFOCutoff);
+  r.lfoFreq.value = lfoRateHz(fxLFORate);
+  r.lfoGain.value = (fxLFODepth / 100) * cutHz;
+  r.filterFreq.value = cutHz;
+  r.filter.type = fxLFOType;
+}
+function updateFxDelayLive(){
+  if(!effectsChain || !effectsChain.fxRefs.delay) return;
+  var r = effectsChain.fxRefs.delay;
+  r.delayTime.value = delayTimeSec(fxDelayTime);
+  r.feedback.value = fxDelayFeedback / 100;
+  r.wet.value = fxDelayMix / 100;
+  r.dry.value = 1 - fxDelayMix / 100;
+}
+function updateFxReverbLive(){
+  if(!effectsChain || !effectsChain.fxRefs.reverb) return;
+  var r = effectsChain.fxRefs.reverb;
+  r.wet.value = fxReverbMix / 100;
+  r.dry.value = 1 - fxReverbMix / 100;
+}
+
+// ── BUILD FULL VOICE GRAPH ──
+function buildGraph(){
+  var ctx = getCtx();
+  var master = ctx.createGain();
+  master.gain.value = 0; // start silent for crossfade
+  var dest = effectsChain ? effectsChain.input : ctx.destination;
+  master.connect(dest);
+
+  var midis = getVoicingMidis();
+  var voiceCount = midis.length;
+  var perVoice = ctx.createGain();
   perVoice.gain.value = 1 / Math.max(voiceCount, 1);
   perVoice.connect(master);
 
-  const allNodes = { master, perVoice, voices: [] };
-  midis.forEach(midi => {
-    const freq = 440 * Math.pow(2, (midi - 69) / 12);
-    const voice = buildVoice(ctx, freq, perVoice);
+  var allNodes = { master: master, perVoice: perVoice, voices: [] };
+  midis.forEach(function(midi){
+    var freq = 440 * Math.pow(2, (midi - 69) / 12);
+    var voice = buildVoice(ctx, freq, perVoice);
     allNodes.voices.push(voice);
   });
 
   return allNodes;
 }
 
-// ── CLEANUP GRAPH ──
+// ── CLEANUP VOICE GRAPH ──
 function destroyGraph(graph){
   if(!graph) return;
-  graph.voices.forEach(v => {
-    v.oscs.forEach(o => { try { o.stop(); } catch(e){} try { o.disconnect(); } catch(e){} });
-    v.gains.forEach(g => { try { g.disconnect(); } catch(e){} });
-    v.filters.forEach(f => { try { f.disconnect(); } catch(e){} });
-    v.lfos.forEach(l => { try { if(l.stop) l.stop(); } catch(e){} try { l.disconnect(); } catch(e){} });
+  graph.voices.forEach(function(v){
+    v.oscs.forEach(function(o){ try{ o.stop(); }catch(e){} try{ o.disconnect(); }catch(e){} });
+    v.gains.forEach(function(g){ try{ g.disconnect(); }catch(e){} });
+    v.filters.forEach(function(f){ try{ f.disconnect(); }catch(e){} });
+    v.lfos.forEach(function(l){ try{ if(l.stop) l.stop(); }catch(e){} try{ l.disconnect(); }catch(e){} });
   });
-  try { graph.perVoice.disconnect(); } catch(e){}
-  try { graph.master.disconnect(); } catch(e){}
+  try{ graph.perVoice.disconnect(); }catch(e){}
+  try{ graph.master.disconnect(); }catch(e){}
 }
 
-// ── CROSSFADE ──
+// ── CROSSFADE VOICE GRAPHS ──
 function crossfadeTo(newGraph){
-  const ctx = getCtx();
-  const now = ctx.currentTime;
-  const rampTime = 0.15;
-  const targetVol = volume / 100;
+  var ctx = getCtx();
+  var now = ctx.currentTime;
+  var rampTime = 0.15;
+  var targetVol = volume / 100;
 
   if(currentNodes){
-    // Ramp old down
     currentNodes.master.gain.cancelScheduledValues(now);
     currentNodes.master.gain.setValueAtTime(currentNodes.master.gain.value, now);
     currentNodes.master.gain.linearRampToValueAtTime(0, now + rampTime);
-    const oldGraph = currentNodes;
-    setTimeout(() => destroyGraph(oldGraph), (rampTime + 0.05) * 1000);
+    var oldGraph = currentNodes;
+    setTimeout(function(){ destroyGraph(oldGraph); }, (rampTime + 0.05) * 1000);
   }
 
-  // Ramp new up
   newGraph.master.gain.cancelScheduledValues(now);
   newGraph.master.gain.setValueAtTime(0, now);
   newGraph.master.gain.linearRampToValueAtTime(targetVol, now + rampTime);
@@ -489,15 +863,12 @@ function crossfadeTo(newGraph){
 
 // ── TOGGLE DRONE ──
 function toggleDrone(){
-  if(playing){
-    stopDrone();
-  } else {
-    startDrone();
-  }
+  if(playing){ stopDrone(); } else { startDrone(); }
 }
 
 function startDrone(){
-  const graph = buildGraph();
+  buildEffectsChain();
+  var graph = buildGraph();
   crossfadeTo(graph);
   playing = true;
   document.getElementById('playBtn').classList.add('active');
@@ -507,15 +878,20 @@ function startDrone(){
 
 function stopDrone(){
   if(currentNodes){
-    const ctx = getCtx();
-    const now = ctx.currentTime;
-    const rampTime = 0.15;
+    var ctx = getCtx();
+    var now = ctx.currentTime;
+    var rampTime = 0.15;
     currentNodes.master.gain.cancelScheduledValues(now);
     currentNodes.master.gain.setValueAtTime(currentNodes.master.gain.value, now);
     currentNodes.master.gain.linearRampToValueAtTime(0, now + rampTime);
-    const oldGraph = currentNodes;
+    var oldGraph = currentNodes;
     currentNodes = null;
-    setTimeout(() => destroyGraph(oldGraph), (rampTime + 0.05) * 1000);
+    // Destroy voice graph, then effects chain (allow reverb tail to ring briefly)
+    var tailMs = fxReverbEnabled ? Math.min((0.5 + fxReverbSize / 100 * 3.5) * 500, 2500) : 300;
+    setTimeout(function(){
+      destroyGraph(oldGraph);
+      setTimeout(function(){ destroyEffectsChain(); }, tailMs);
+    }, (rampTime + 0.05) * 1000);
   }
   playing = false;
   document.getElementById('playBtn').classList.remove('active');
@@ -523,14 +899,14 @@ function stopDrone(){
   document.getElementById('playLabel').textContent = 'TAP TO PLAY';
 }
 
-// ── PARAMETER CHANGE WHILE PLAYING ──
+// ── REBUILD VOICES (voicing/timbre/note changes) ──
 function rebuildIfPlaying(){
   if(!playing) return;
-  const newGraph = buildGraph();
+  var newGraph = buildGraph();
   crossfadeTo(newGraph);
 }
 
-// ── EVENT HANDLERS ──
+// ── VOICE PARAMETER HANDLERS ──
 function onRootChange(){
   rootNote = document.getElementById('rootSelect').value;
   savePref('root', rootNote);
@@ -558,23 +934,171 @@ function onVolumeChange(){
   document.getElementById('volVal').textContent = volume + '%';
   savePref('volume', volume);
   if(currentNodes){
-    const ctx = getCtx();
-    const now = ctx.currentTime;
+    var ctx = getCtx();
+    var now = ctx.currentTime;
     currentNodes.master.gain.cancelScheduledValues(now);
     currentNodes.master.gain.setValueAtTime(currentNodes.master.gain.value, now);
     currentNodes.master.gain.linearRampToValueAtTime(volume / 100, now + 0.02);
   }
 }
 
+// ── EFFECTS TOGGLE HANDLERS ──
+function onFxLFOToggle(){
+  fxLFOEnabled = document.getElementById('fxLFOEnabled').checked;
+  document.getElementById('fxLFOBody').classList.toggle('fx-off', !fxLFOEnabled);
+  savePref('fxLFOEnabled', fxLFOEnabled);
+  rebuildEffectsChain();
+}
+function onFxDelayToggle(){
+  fxDelayEnabled = document.getElementById('fxDelayEnabled').checked;
+  document.getElementById('fxDelayBody').classList.toggle('fx-off', !fxDelayEnabled);
+  savePref('fxDelayEnabled', fxDelayEnabled);
+  rebuildEffectsChain();
+}
+function onFxReverbToggle(){
+  fxReverbEnabled = document.getElementById('fxReverbEnabled').checked;
+  document.getElementById('fxReverbBody').classList.toggle('fx-off', !fxReverbEnabled);
+  savePref('fxReverbEnabled', fxReverbEnabled);
+  rebuildEffectsChain();
+}
+
+// ── EFFECTS PARAM HANDLERS ──
+function onFxLFOType(type){
+  fxLFOType = type;
+  savePref('fxLFOType', fxLFOType);
+  updateFxLFOLive();
+}
+function onFxLFORate(val){
+  fxLFORate = parseInt(val);
+  document.getElementById('fxLFORateVal').textContent = fmtLFORate(fxLFORate);
+  savePref('fxLFORate', fxLFORate);
+  updateFxLFOLive();
+}
+function onFxLFODepth(val){
+  fxLFODepth = parseInt(val);
+  document.getElementById('fxLFODepthVal').textContent = fxLFODepth + '%';
+  savePref('fxLFODepth', fxLFODepth);
+  updateFxLFOLive();
+}
+function onFxLFOCutoff(val){
+  fxLFOCutoff = parseInt(val);
+  document.getElementById('fxLFOCutoffVal').textContent = fmtCutoff(fxLFOCutoff);
+  savePref('fxLFOCutoff', fxLFOCutoff);
+  updateFxLFOLive();
+}
+function onFxDelayTime(val){
+  fxDelayTime = parseInt(val);
+  document.getElementById('fxDelayTimeVal').textContent = fmtDelayTime(fxDelayTime);
+  savePref('fxDelayTime', fxDelayTime);
+  updateFxDelayLive();
+}
+function onFxDelayFb(val){
+  fxDelayFeedback = parseInt(val);
+  document.getElementById('fxDelayFbVal').textContent = fxDelayFeedback + '%';
+  savePref('fxDelayFeedback', fxDelayFeedback);
+  updateFxDelayLive();
+}
+function onFxDelayMix(val){
+  fxDelayMix = parseInt(val);
+  document.getElementById('fxDelayMixVal').textContent = fxDelayMix + '%';
+  savePref('fxDelayMix', fxDelayMix);
+  updateFxDelayLive();
+}
+function onFxReverbSize(val){
+  fxReverbSize = parseInt(val);
+  document.getElementById('fxReverbSizeVal').textContent = fxReverbSize + '%';
+  savePref('fxReverbSize', fxReverbSize);
+  cachedReverbIR = null; // invalidate cached IR
+  rebuildEffectsChain(); // must rebuild to use new IR
+}
+function onFxReverbMix(val){
+  fxReverbMix = parseInt(val);
+  document.getElementById('fxReverbMixVal').textContent = fxReverbMix + '%';
+  savePref('fxReverbMix', fxReverbMix);
+  updateFxReverbLive();
+}
+
+// ── SYNC EFFECTS UI FROM STATE ──
+function syncEffectsUI(){
+  // Toggles
+  document.getElementById('fxLFOEnabled').checked = fxLFOEnabled;
+  document.getElementById('fxLFOBody').classList.toggle('fx-off', !fxLFOEnabled);
+  document.getElementById('fxDelayEnabled').checked = fxDelayEnabled;
+  document.getElementById('fxDelayBody').classList.toggle('fx-off', !fxDelayEnabled);
+  document.getElementById('fxReverbEnabled').checked = fxReverbEnabled;
+  document.getElementById('fxReverbBody').classList.toggle('fx-off', !fxReverbEnabled);
+
+  // LFO sliders
+  document.getElementById('fxLFORate').value = fxLFORate;
+  document.getElementById('fxLFORateVal').textContent = fmtLFORate(fxLFORate);
+  document.getElementById('fxLFODepth').value = fxLFODepth;
+  document.getElementById('fxLFODepthVal').textContent = fxLFODepth + '%';
+  document.getElementById('fxLFOCutoff').value = fxLFOCutoff;
+  document.getElementById('fxLFOCutoffVal').textContent = fmtCutoff(fxLFOCutoff);
+
+  // Delay sliders
+  document.getElementById('fxDelayTime').value = fxDelayTime;
+  document.getElementById('fxDelayTimeVal').textContent = fmtDelayTime(fxDelayTime);
+  document.getElementById('fxDelayFb').value = fxDelayFeedback;
+  document.getElementById('fxDelayFbVal').textContent = fxDelayFeedback + '%';
+  document.getElementById('fxDelayMix').value = fxDelayMix;
+  document.getElementById('fxDelayMixVal').textContent = fxDelayMix + '%';
+
+  // Reverb sliders
+  document.getElementById('fxReverbSize').value = fxReverbSize;
+  document.getElementById('fxReverbSizeVal').textContent = fxReverbSize + '%';
+  document.getElementById('fxReverbMix').value = fxReverbMix;
+  document.getElementById('fxReverbMixVal').textContent = fxReverbMix + '%';
+
+  // LFO type segmented buttons
+  buildSegmented('fxLFOTypeRow', ['lowpass','bandpass','highpass'], fxLFOType, function(t){
+    // Update active button label display
+    var labelMap = { lowpass:'LP', bandpass:'BP', highpass:'HP' };
+    // Rebuild with display labels
+    onFxLFOType(t);
+  });
+  // Re-build with nicer labels
+  var typeRow = document.getElementById('fxLFOTypeRow');
+  typeRow.innerHTML = '';
+  var typeLabels = [['lowpass','LP'],['bandpass','BP'],['highpass','HP']];
+  typeLabels.forEach(function(pair){
+    var t = pair[0], label = pair[1];
+    var btn = document.createElement('button');
+    btn.className = 'seg-btn' + (t === fxLFOType ? ' active' : '');
+    btn.textContent = label;
+    btn.addEventListener('click', function(){
+      typeRow.querySelectorAll('.seg-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      onFxLFOType(t);
+    });
+    typeRow.appendChild(btn);
+  });
+}
+
 // ── RESTORE SETTINGS ──
 function restoreSettings(){
-  const p = loadPrefs();
+  var p = loadPrefs();
   if(p.root && NOTES.includes(p.root)) rootNote = p.root;
   if(p.octave !== undefined && p.octave >= 2 && p.octave <= 5) octave = p.octave;
   if(p.voicing && VOICINGS.includes(p.voicing)) voicing = p.voicing;
   if(p.timbre && TIMBRES.includes(p.timbre)) timbre = p.timbre;
   if(p.volume !== undefined && p.volume >= 0 && p.volume <= 100) volume = p.volume;
-  applyMode(p.mode||'light', true);
+
+  // Effects
+  if(p.fxLFOEnabled !== undefined) fxLFOEnabled = !!p.fxLFOEnabled;
+  if(p.fxLFOType && ['lowpass','bandpass','highpass'].includes(p.fxLFOType)) fxLFOType = p.fxLFOType;
+  if(p.fxLFORate !== undefined) fxLFORate = +p.fxLFORate;
+  if(p.fxLFODepth !== undefined) fxLFODepth = +p.fxLFODepth;
+  if(p.fxLFOCutoff !== undefined) fxLFOCutoff = +p.fxLFOCutoff;
+  if(p.fxDelayEnabled !== undefined) fxDelayEnabled = !!p.fxDelayEnabled;
+  if(p.fxDelayTime !== undefined) fxDelayTime = +p.fxDelayTime;
+  if(p.fxDelayFeedback !== undefined) fxDelayFeedback = +p.fxDelayFeedback;
+  if(p.fxDelayMix !== undefined) fxDelayMix = +p.fxDelayMix;
+  if(p.fxReverbEnabled !== undefined) fxReverbEnabled = !!p.fxReverbEnabled;
+  if(p.fxReverbSize !== undefined) fxReverbSize = +p.fxReverbSize;
+  if(p.fxReverbMix !== undefined) fxReverbMix = +p.fxReverbMix;
+
+  applyMode(p.mode || 'light', true);
 }
 
 // ── INIT ──
@@ -588,6 +1112,7 @@ document.getElementById('octaveSelect').value = octave;
 document.getElementById('volSlider').value = volume;
 document.getElementById('volVal').textContent = volume + '%';
 updateDisplay();
+syncEffectsUI();
 </script>
 </body>
 </html>
