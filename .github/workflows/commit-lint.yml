@@ -24,6 +24,7 @@ jobs:
           IGNORE_PATTERN: "^Initial plan$|^Merge "
           # Commit author names or emails matching this pattern are treated as agent commits.
           # Pattern matches known agent bot names (literal "[bot]" requires escaping) and Copilot noreply email.
+          # Double backslashes keep the literal brackets intact through YAML and grep regex parsing.
           # The "-agent[bot]" suffix keeps coverage for future agent bots without matching non-bot users.
           AGENT_AUTHOR_PATTERN: "([a-z0-9-]+-agent\\[bot\\]|copilot\\[bot\\]|copilot@users\\.noreply\\.github\\.com)"
         run: |
