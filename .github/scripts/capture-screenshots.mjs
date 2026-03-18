@@ -35,7 +35,7 @@ try {
     const file = `${entry.name}.png`;
     const target = path.join(outputDir, file);
 
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+    await page.goto(url, { waitUntil: 'load', timeout: 60000 });
     await page.screenshot({ path: target, fullPage: true });
 
     manifest.pages.push({
