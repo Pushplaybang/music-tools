@@ -121,6 +121,9 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
   .config-panel.open{max-height:500px;}
 }
 
+/* ── BAR TITLE ── */
+.bar-title{font-family:var(--font-h);font-size:.9rem;color:var(--accent);letter-spacing:.04em;white-space:nowrap;}
+
 /* ── KNOBS ── */
 .knob-row{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:center;padding:8px 0;}
 .knob-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;}
@@ -233,19 +236,21 @@ svg.ukulele{display:block;min-width:480px;width:100%;}
 <!-- MODE BAR -->
 <div class="theme-bar">
   <div class="bar-left">
-    <button class="bar-icon-btn" onclick="openModal('helpOverlay')" title="Help">📖</button>
+    <a href="../index.html" class="bar-icon-btn" title="Home">←</a>
+    <span class="bar-sep"></span>
+    <span class="bar-title">Ear Trainer</span>
   </div>
   <div class="bar-right">
+    <button class="bar-icon-btn" onclick="openModal('planOverlay')" title="Beginner guide">🎓</button>
+    <button class="bar-icon-btn" onclick="openModal('helpOverlay')" title="Help">📖</button>
+    <button class="bar-icon-btn" onclick="openSessionsOverlay()" title="Session history">📊</button>
+    <span class="bar-sep"></span>
     <span class="mode-badge" id="modeBadge">LIGHT</span>
     <div class="mode-toggle" id="modeToggle" title="Toggle dark / light mode"></div>
   </div>
 </div>
 
 <div class="content">
-  <header>
-    <h1 id="appTitle">Ear Trainer</h1>
-    <p id="appSub">Scales · Intervals · Chords · Ear Training</p>
-  </header>
 
   <!-- Config -->
   <div class="card">
