@@ -54,15 +54,17 @@ jobs:
           TAG="${{ steps.latest_tag.outputs.tag }}"
           DELIMITER="NOTES_$(openssl rand -hex 8)"
           COMMITS=$(git log "${TAG}..HEAD" --pretty=format:"%s" 2>/dev/null || git log --max-count=50 --pretty=format:"%s")
+          TYPES="feat fix docs style refactor perf test build ci chore revert"
+          TYPE_REGEX="${TYPES// /|}"
 
           declare -A NOTES
-          for key in feat fix docs style refactor perf test build ci chore revert other; do
+          for key in ${TYPES} other; do
             NOTES["$key"]=""
           done
 
           while IFS= read -r line; do
             [[ -z "$line" ]] && continue
-            if [[ "$line" =~ ^([a-z]+)(\(([^)]+)\))?(!)?:[[:space:]]*(.+)$ ]]; then
+            if [[ "$line" =~ ^(${TYPE_REGEX})(\(([^)]+)\))?(!)?:[[:space:]]*(.+)$ ]]; then
               type="${BASH_REMATCH[1]}"
               scope="${BASH_REMATCH[3]}"
               breaking="${BASH_REMATCH[4]}"
@@ -80,11 +82,6 @@ jobs:
               entry="- ${line}"
             fi
 
-            case "$type" in
-              feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert) ;;
-              *) type="other" ;;
-            esac
-
             NOTES["$type"]+="${entry}"$'\n'
           done <<< "$COMMITS"
 
@@ -92,9 +89,9 @@ jobs:
             local key="$1"
             local title="$2"
             if [[ -n "${NOTES[$key]}" ]]; then
-              echo "## ${title}"
+              printf "## %s\n" "${title}"
               printf "%s" "${NOTES[$key]}"
-              echo ""
+              printf "\n"
             fi
           }
 
