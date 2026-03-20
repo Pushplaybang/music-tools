@@ -1,0 +1,787 @@
+/* tuner.css — Instrument Tuner tool-specific styles. Requires music-tools.css. */
+
+/* ── TUNER-SPECIFIC TOKENS ── */
+
+/* Define semantic colour aliases for tuner UI elements.
+   Both modes intentionally share the same mapping — the base
+   design-system tokens already differ per mode. */
+[data-mode="light"] {
+  --needle: var(--accent);
+  --meter-bg: var(--surface-lo);
+  --meter-track: var(--surface-lo2);
+  --note-disp: var(--text);
+  --cents-sharp: var(--wrong);      /* positive cents → sharp → red */
+  --cents-flat: var(--accent);      /* negative cents → flat → accent */
+  --cents-in: var(--correct);       /* within ±2 ¢ → green */
+  --led-on: var(--correct);
+  --led-off: var(--surface-lo);
+}
+
+[data-mode="dark"] {
+  --needle: var(--accent);
+  --meter-bg: var(--surface-lo);
+  --meter-track: var(--surface-lo2);
+  --note-disp: var(--text);
+  --cents-sharp: var(--wrong);
+  --cents-flat: var(--accent);
+  --cents-in: var(--correct);
+  --led-on: var(--correct);
+  --led-off: var(--surface-lo);
+}
+
+
+/* ── TUNER LAYOUT OVERRIDE (narrower max-width) ── */
+
+/* Tuner content is narrower than the default content width */
+.content {
+  max-width: 700px;
+}
+
+
+/* ── MAIN TUNER DISPLAY ── */
+
+/* Outer container for the whole tuner readout panel */
+.tuner-display {
+  background: var(--meter-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  margin-bottom: 16px;
+  transition: box-shadow .3s;
+}
+
+/* Glowing border ring applied when pitch is in tune */
+.tuner-display.in-tune {
+  box-shadow: 0 0 0 2px var(--correct), 0 0 20px var(--correct-glow);
+}
+
+
+/* ── PITCH TRACE ── */
+
+/* Container that clips the scrolling canvas */
+.strobe-container {
+  position: relative;
+  height: 72px;
+  overflow: hidden;
+  background: var(--meter-bg);
+}
+
+/* Full-bleed canvas — sized via JS to honour device pixel ratio */
+.strobe-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Thin input-level bar sitting between the trace and note readout */
+.level-bar {
+  height: 4px;
+  background: var(--meter-track);
+  border-radius: 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Animated fill; width and colour are set by JS based on RMS level */
+.level-fill {
+  height: 100%;
+  border-radius: 0;
+  transition: width .05s, background .15s;
+  width: 0%;
+}
+
+
+/* ── NOTE + CENTS READOUT ── */
+
+/* Row holding note name, octave, and detected-frequency readout */
+.note-readout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 18px 20px 14px;
+  position: relative;
+}
+
+/* Large note name — fluid size between 3 rem and 4 rem */
+.note-name {
+  font-family: var(--font-b);
+  font-size: clamp(3rem, 10vw, 4rem);
+  color: var(--note-disp);
+  line-height: 1;
+  font-weight: 300;
+  letter-spacing: -.02em;
+  transition: color .2s;
+  min-width: 100px;
+  text-align: center;
+}
+
+/* Superscript sharp symbol rendered inline inside note-name */
+.note-sharp {
+  font-size: 0.42em;
+  vertical-align: super;
+  margin-left: 2px;
+  color: var(--accent);
+}
+
+/* Small octave number aligned to the bottom-right of the note name */
+.octave-num {
+  font-family: var(--font-b);
+  font-size: .9rem;
+  color: var(--muted);
+  margin-left: 6px;
+  margin-top: auto;
+  margin-bottom: 12px;
+}
+
+/* Absolute-positioned Hz readout in the bottom-right of the note row */
+.freq-readout {
+  position: absolute;
+  right: 20px;
+  bottom: 18px;
+  font-family: var(--font-b);
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: .06em;
+  text-align: right;
+  text-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* "DETECTED" label above the Hz value */
+.freq-readout span {
+  display: block;
+  font-size: .58rem;
+  letter-spacing: .1em;
+  opacity: .6;
+  margin-bottom: 2px;
+}
+
+
+/* ── NEEDLE METER ── */
+
+.needle-wrap {
+  padding: 4px 20px 16px;
+  position: relative;
+}
+
+/* Flat/sharp label row above the track */
+.needle-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-family: var(--font-b);
+  font-size: .55rem;
+  color: var(--muted);
+  letter-spacing: .04em;
+  padding: 0 4px;
+}
+
+/* The full-width horizontal track the needle slides along */
+.meter-track {
+  height: 8px;
+  background: var(--meter-track);
+  border-radius: 4px;
+  position: relative;
+  overflow: visible;
+}
+
+/* Subtle blue gradient on the flat (left) side of the track */
+.meter-zone-flat {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(75, 138, 232, 0.18));
+  border-radius: 4px 0 0 4px;
+}
+
+/* Subtle red gradient on the sharp (right) side of the track */
+.meter-zone-sharp {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(232, 75, 75, 0.18), transparent);
+  border-radius: 0 4px 4px 0;
+}
+
+/* Faint green pill marking the ±2 ¢ in-tune zone at centre */
+.meter-zone-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -2px;
+  height: 12px;
+  width: 16px;
+  border-radius: 2px;
+  background: var(--correct);
+  opacity: .25;
+}
+
+/* The circular needle dot — left% is driven by JS (smoothed cents) */
+.meter-needle {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--needle);
+  transform: translate(-50%, -50%);
+  /* Spring easing gives the needle a natural elastic feel */
+  transition: left 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), background .3s, box-shadow .3s;
+  box-shadow: 0 0 0 2px var(--meter-bg), 0 0 8px var(--needle);
+}
+
+/* Cents text label below the track */
+.cents-readout {
+  text-align: center;
+  margin-top: 10px;
+  font-family: var(--font-b);
+  font-size: .78rem;
+  letter-spacing: .06em;
+  height: 18px;
+  transition: color .2s;
+}
+
+.cents-readout.in-tune { color: var(--cents-in); }
+.cents-readout.sharp   { color: var(--cents-sharp); }
+.cents-readout.flat    { color: var(--cents-flat); }
+
+
+/* ── STATUS INDICATOR ── */
+
+/* Small LED dot (top-left of display) that glows when in tune */
+.in-tune-ring {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--led-off);
+  transition: background .2s, box-shadow .2s;
+  border: 1px solid var(--border);
+}
+
+/* Active state: bright green glow */
+.in-tune-ring.lit {
+  background: var(--led-on);
+  box-shadow: 0 0 10px var(--led-on), 0 0 24px var(--led-on);
+}
+
+
+/* ── MIC BUTTON ── */
+
+.mic-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0 8px;
+}
+
+/* Circular microphone toggle button */
+.mic-btn {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  border: 2px solid var(--border);
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover glow overlay */
+.mic-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.mic-btn:hover::after { opacity: .08; }
+
+/* When mic is active: accent fill + pulsing ring animation */
+.mic-btn.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 0 0 var(--accent);
+  animation: pulseRing 2s ease-out infinite;
+}
+
+.mic-btn.active::after { opacity: 0; }
+
+/* Radiating ring pulse while mic is active */
+@keyframes pulseRing {
+  0%   { box-shadow: 0 0 0 0 var(--accent-glow); }
+  70%  { box-shadow: 0 0 0 16px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+/* Gentle pulsing glow on the display border when pitch is perfectly in tune */
+@keyframes pulseInTune {
+  0%, 100% { box-shadow: 0 0 0 2px var(--correct), 0 0 20px var(--correct-glow); }
+  50%       { box-shadow: 0 0 0 3px var(--correct), 0 0 28px var(--correct-glow); }
+}
+
+.tuner-display.in-tune.pulse {
+  animation: pulseInTune 1.8s ease-in-out infinite;
+}
+
+/* Small label below the mic button */
+.mic-btn-label {
+  font-family: var(--font-b);
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.mic-status {
+  font-family: var(--font-b);
+  font-size: .65rem;
+  color: var(--muted);
+  letter-spacing: .06em;
+  height: 14px;
+  text-align: center;
+}
+
+
+/* ── STRING BUTTONS ── */
+
+/* Horizontal row of circular string-selector buttons */
+.string-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+/* Individual string button — pill shape with neumorphic shadow */
+.str-btn {
+  font-family: var(--font-b);
+  font-size: .62rem;
+  width: 48px;
+  min-width: 48px;
+  height: 52px;
+  padding: 4px 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.18s var(--spring);
+  text-align: center;
+  letter-spacing: .04em;
+  box-shadow: var(--neu-out);
+  flex: 0 0 auto;
+}
+
+.str-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Filled accent state when this string is the active target */
+.str-btn.active {
+  background: var(--accent);
+  color: var(--pill-text);
+  border-color: var(--accent);
+  font-weight: 700;
+  transform: scale(1.08);
+}
+
+
+/* ── TUNING PRESETS ── */
+
+.preset-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+/* Pill-shaped preset selector button */
+.preset-btn {
+  font-family: var(--font-b);
+  font-size: .62rem;
+  letter-spacing: .05em;
+  padding: 6px 12px;
+  border-radius: 50px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+
+.preset-btn:hover {
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+
+.preset-btn.active {
+  background: var(--accent2);
+  color: var(--pill-text);
+  border-color: var(--accent2);
+}
+
+
+/* ── REFERENCE NOTE DISPLAY ── */
+
+/* Box showing the current target note and its frequency */
+.ref-note-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--br);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.ref-note-label {
+  font-family: var(--font-b);
+  font-size: .58rem;
+  color: var(--muted);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* Large accent-coloured note name inside the box */
+.ref-note-val {
+  font-family: var(--font-h);
+  font-size: 1.4rem;
+  color: var(--accent);
+  line-height: 1;
+}
+
+/* Hz value pushed to the right edge of the box */
+.ref-freq-val {
+  font-family: var(--font-b);
+  font-size: .72rem;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+
+/* ── A4 CALIBRATION ── */
+
+/* Row containing label, ± buttons, value, and slider */
+.calib-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.calib-label {
+  font-family: var(--font-b);
+  font-size: .62rem;
+  color: var(--muted);
+  letter-spacing: .08em;
+  flex-shrink: 0;
+}
+
+.calib-val {
+  font-family: var(--font-b);
+  font-size: .88rem;
+  color: var(--accent);
+  min-width: 42px;
+}
+
+/* Small circular ± increment button */
+.calib-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.calib-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Native range slider — accent-coloured thumb via accent-color shorthand */
+.calib-slider {
+  flex: 1;
+  min-width: 120px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  height: 3px;
+}
+
+/* Focus ring on the range slider when dragged */
+input[type=range]:active {
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+
+/* ── MODAL ── */
+
+/* Full-screen semi-transparent backdrop */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow-y: auto;
+  padding: 24px 16px;
+}
+
+.modal-overlay.show { display: flex; }
+
+/* Centred content card with pop-in animation */
+.modal-card {
+  background: var(--overlay-surface);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--r) * 1.5);
+  padding: 36px 32px 32px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .5);
+  animation: overlayPop .28s cubic-bezier(.34, 1.56, .64, 1);
+  position: relative;
+}
+
+/* Spring-scale entry animation for the modal card */
+@keyframes overlayPop {
+  from { transform: scale(.92) translateY(16px); opacity: 0; }
+  to   { transform: scale(1)   translateY(0);    opacity: 1; }
+}
+
+/* Circular close button in the top-right corner */
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: .9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+}
+
+.modal-close:hover {
+  border-color: var(--wrong);
+  color: var(--wrong);
+}
+
+/* Help modal typography */
+.doc-header {
+  font-family: var(--font-h);
+  font-size: 1.5rem;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.doc-sub {
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 24px;
+  font-family: var(--font-b);
+}
+
+.doc-body {
+  text-align: left;
+  font-size: .82rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.doc-body h3 {
+  font-family: var(--font-h);
+  color: var(--accent);
+  margin: 20px 0 8px;
+  font-size: 1.05rem;
+}
+
+.doc-body p,
+.doc-body ul { margin-bottom: 10px; }
+
+.doc-body ul { margin-left: 18px; }
+.doc-body li { margin-bottom: 5px; }
+
+
+/* ── PLAY REFERENCE BUTTON ── */
+
+/* Small button inside the ref-note-box for auditioning the target pitch */
+.play-ref-btn {
+  font-family: var(--font-b);
+  font-size: .65rem;
+  padding: 6px 11px;
+  border-radius: var(--br);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  margin-left: auto;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  text-transform: none;
+}
+
+.play-ref-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Active/playing state: filled accent background */
+.play-ref-btn.playing {
+  background: var(--accent);
+  color: var(--pill-text);
+  border-color: var(--accent);
+}
+
+.play-ref-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+/* Ensure tap-target height on mobile */
+@media (max-width: 600px) {
+  .play-ref-btn { min-height: 44px; }
+}
+
+/* App footer credit line */
+.app-footer {
+  font-family: var(--font-b);
+  font-size: .62rem;
+  color: var(--muted);
+  letter-spacing: .1em;
+  text-align: center;
+  padding: 16px 0 8px;
+  opacity: .55;
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure all buttons inherit the design-system font */
+button { font-family: var(--font-b); cursor: pointer; }
+
+
+/* ── AUTODETECT TOGGLE ── */
+
+/* Row that can hold one or more toggle labels */
+.toggles-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+/* Toggle label wraps a hidden checkbox + custom track/thumb */
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .72rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-b);
+}
+
+/* Hide the native checkbox; appearance controlled by the track */
+.toggle-label input { display: none; }
+
+.toggle-track {
+  width: 36px;
+  height: 20px;
+  background: var(--border);
+  border-radius: 20px;
+  position: relative;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+
+/* Checked state: track fills with accent colour */
+.toggle-label input:checked + .toggle-track { background: var(--accent); }
+
+/* Sliding thumb dot */
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: left .2s;
+}
+
+/* Thumb slides to the right when checked */
+.toggle-label input:checked + .toggle-track .toggle-thumb { left: 19px; }
+
+/* Small text hint below the autodetect toggle showing nearest detected note */
+.autodetect-note {
+  font-family: var(--font-b);
+  font-size: .62rem;
+  color: var(--muted);
+  letter-spacing: .06em;
+  margin-top: 6px;
+  min-height: 16px;
+  text-align: center;
+}
+
+
+/* ── RESPONSIVE OVERRIDES ── */
+
+/* Ensure all icon/calib buttons meet the 44 × 44 px touch-target minimum */
+@media (max-width: 600px) {
+  .bar-icon-btn { width: 44px; height: 44px; }
+  .str-btn      { width: 48px; min-width: 48px; height: 52px; }
+  .calib-btn    { width: 44px; height: 44px; }
+}
+
+/* Reduce modal padding and cap help-body height on small screens */
+@media (max-width: 480px) {
+  .modal-card  { padding: 20px 16px; }
+  .doc-body    { overflow-y: auto; max-height: 60vh; }
+  .modal-close { width: 44px; height: 44px; }
+}
