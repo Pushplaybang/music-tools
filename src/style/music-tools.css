@@ -125,6 +125,12 @@ body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);pointer
 .mode-toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:transform .3s,background .22s;}
 [data-mode="dark"] .mode-toggle::after{transform:translateX(22px);background:var(--accent);}
 
+/* Accent colour selector */
+.accent-selector{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.accent-swatch{width:14px;height:14px;border-radius:50%;background:var(--sw);border:2px solid transparent;padding:0;cursor:pointer;flex-shrink:0;transition:transform .15s;}
+.accent-swatch:hover{transform:scale(1.3);}
+.accent-swatch.active{outline:2px solid var(--text);outline-offset:2px;transform:scale(1.15);}
+
 /* ── CONTENT LAYOUT ──────────────────────────────────────────── */
 .content{position:relative;z-index:1;width:100%;max-width:860px;padding:28px 16px 0;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
 header{text-align:center;margin-bottom:28px;}

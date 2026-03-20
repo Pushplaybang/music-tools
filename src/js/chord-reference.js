@@ -61,7 +61,8 @@ function applyMode(m, noSave) {
   document.body.dataset.mode = m;
   const badge = document.getElementById('modeBadge');
   if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
-  if (!noSave) savePref('mode', m);
+  if (!noSave) saveTheme('mode', m);
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'pink', true);
 }
 
 // Toggle between light and dark when the mode button is clicked.
@@ -1285,9 +1286,9 @@ function restoreSettings() {
   if (p.scaleType && [...document.getElementById('scaleType').options].some(o => o.value === p.scaleType))
     document.getElementById('scaleType').value = p.scaleType;
 
-  // Restore mode (chords/scales) and light/dark theme
+  // Restore chord/scale view mode and light/dark theme (stored separately)
   if (p.mode && (p.mode === 'chords' || p.mode === 'scales')) currentMode = p.mode;
-  applyMode(p.mode || 'light', true); // noSave=true to avoid redundant write on load
+  applyMode(loadTheme().mode || 'dark', true); // noSave=true to avoid redundant write on load
 }
 
 // ── Bootstrap sequence ──

@@ -48,6 +48,13 @@
     <button class="bar-icon-btn" onclick="openModal('helpOverlay')" title="Help">📖</button>
   </div>
   <div class="bar-right">
+    <div class="accent-selector">
+      <button class="accent-swatch" data-accent="pink"   title="Pink accent"   style="--sw:#FF2688"></button>
+      <button class="accent-swatch" data-accent="orange" title="Orange accent" style="--sw:#FF6830"></button>
+      <button class="accent-swatch" data-accent="teal"   title="Teal accent"   style="--sw:#00CCB8"></button>
+      <button class="accent-swatch" data-accent="olive"  title="Olive accent"  style="--sw:#C4E020"></button>
+    </div>
+    <span class="bar-sep"></span>
     <span class="mode-badge" id="modeBadge">LIGHT</span>
     <div class="mode-toggle" id="modeToggle" title="Toggle dark / light mode"></div>
   </div>
@@ -147,6 +154,7 @@
 
 <div class="app-footer">made with ♥ by Paul van Zyl</div>
 
+<script src="js/music-tools.js"></script>
 <script src="js/chord-reference.js"></script>
 </body>
 </html>

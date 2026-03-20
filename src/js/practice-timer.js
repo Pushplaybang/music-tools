@@ -130,7 +130,8 @@ function applyMode(m, noSave) {
   document.body.dataset.mode = m;
   const badge = document.getElementById('modeBadge');
   if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
-  if (!noSave) savePref('mode', m);
+  if (!noSave) saveTheme('mode', m);
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'pink', true);
 }
 
 /* Toggle between light and dark on every click of the mode toggle widget. */
@@ -920,8 +921,8 @@ function renderChart() {
 function init() {
   const prefs = loadPrefs();
 
-  /* 1. Restore colour mode (default: light) */
-  applyMode(prefs.mode || 'light', true); // noSave=true avoids a redundant write
+  /* 1. Restore colour mode from global theme key */
+  applyMode(loadTheme().mode || 'dark', true); // noSave=true avoids a redundant write
 
   /* 2. Restore saved blocks; validate each field to guard against stale data */
   if (Array.isArray(prefs.blocks) && prefs.blocks.length > 0) {

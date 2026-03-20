@@ -126,6 +126,13 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
     </a>
   </div>
   <div class="bar-right">
+    <div class="accent-selector">
+      <button class="accent-swatch" data-accent="pink"   title="Pink accent"   style="--sw:#FF2688"></button>
+      <button class="accent-swatch" data-accent="orange" title="Orange accent" style="--sw:#FF6830"></button>
+      <button class="accent-swatch" data-accent="teal"   title="Teal accent"   style="--sw:#00CCB8"></button>
+      <button class="accent-swatch" data-accent="olive"  title="Olive accent"  style="--sw:#C4E020"></button>
+    </div>
+    <span class="bar-sep"></span>
     <span class="mode-badge" id="modeBadge">DARK</span>
     <div class="mode-toggle" id="modeToggle" title="Toggle dark / light mode"></div>
   </div>
@@ -447,31 +454,20 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
 
 <div class="app-footer">made with ♥ by Paul van Zyl</div>
 
+<script src="src/js/music-tools.js"></script>
 <script>
-// ══════════════════════════════════════════════
-//  Music Tools Index — mode persistence
-//  LS_KEY unique per-page to avoid collisions
-// ══════════════════════════════════════════════
-const LS_KEY = 'musicTools_index_v1';
-
-function savePref(key, val){
-  try{const d=JSON.parse(localStorage.getItem(LS_KEY)||'{}');d[key]=val;localStorage.setItem(LS_KEY,JSON.stringify(d));}catch(e){}
-}
-function loadPrefs(){
-  try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){return{}}
-}
-function applyMode(m, noSave){
+function applyMode(m, noSave) {
   document.body.dataset.mode = m;
   var badge = document.getElementById('modeBadge');
-  if(badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
-  if(!noSave) savePref('mode', m);
+  if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
+  if (!noSave) saveTheme('mode', m);
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'pink', true);
 }
-document.getElementById('modeToggle').addEventListener('click', function(){
+document.getElementById('modeToggle').addEventListener('click', function() {
   applyMode(document.body.dataset.mode === 'dark' ? 'light' : 'dark');
 });
-(function init(){
-  var p = loadPrefs();
-  applyMode(p.mode || 'dark', true);
+(function init() {
+  applyMode(loadTheme().mode || 'dark', true);
 })();
 </script>
 </body>

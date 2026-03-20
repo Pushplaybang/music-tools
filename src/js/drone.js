@@ -66,7 +66,8 @@ function applyMode(m, noSave) {
   document.body.dataset.mode = m;
   var badge = document.getElementById('modeBadge');
   if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
-  if (!noSave) savePref('mode', m);
+  if (!noSave) saveTheme('mode', m);
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'pink', true);
 }
 
 /* Toggle mode on click */
@@ -1375,7 +1376,7 @@ function restoreSettings() {
   if (p.fxReverbMix     !== undefined) fxReverbMix     = +p.fxReverbMix;
 
   /* Theme mode */
-  applyMode(p.mode || 'light', true);
+  applyMode(loadTheme().mode || 'dark', true);
 }
 
 

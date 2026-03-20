@@ -300,12 +300,13 @@ function applyMode(m, noSave) {
   document.body.dataset.mode = m;
   const badge = document.getElementById('modeBadge');
   if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
+  if (!noSave) saveTheme('mode', m);
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'pink', true);
   // Defer colour cache refresh one frame so CSS variables have resolved
   requestAnimationFrame(() => {
     refreshThemeCache();
     if (showArm && !isPlaying) drawPendulumIdle();
   });
-  if (!noSave) savePref('mode', m);
 }
 
 // Toggle mode on mode-toggle click
@@ -1723,7 +1724,7 @@ function restoreSettings() {
   const p = loadPrefs();
 
   // 1. Mode — must come first so CSS custom properties resolve correctly
-  applyMode(p.mode || 'light', true);
+  applyMode(loadTheme().mode || 'dark', true);
 
   // 2. Scalar state
   if (p.bpm) setBpm(p.bpm);

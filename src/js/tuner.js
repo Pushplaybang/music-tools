@@ -60,7 +60,8 @@ function applyMode(m, noSave) {
   document.body.dataset.mode = m;
   const badge = document.getElementById('modeBadge');
   if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
-  if (!noSave) savePref('mode', m);
+  if (!noSave) saveTheme('mode', m);
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'pink', true);
 }
 
 /* Toggle light ↔ dark when the mode pill is clicked */
@@ -1110,7 +1111,7 @@ function restoreSettings() {
   const p = loadPrefs();
 
   /* Theme mode — apply silently (no save) to avoid a redundant write */
-  applyMode(p.mode || 'light', true);
+  applyMode(loadTheme().mode || 'dark', true);
 
   /* A4 calibration */
   if (p.a4) setA4(p.a4);

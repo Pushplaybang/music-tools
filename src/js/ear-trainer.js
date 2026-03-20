@@ -67,8 +67,10 @@ function applyMode(m, noSave) {
   document.body.dataset.mode = m;
   const badge = document.getElementById('modeBadge');
   if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
-  if (!noSave) savePref('mode', m);
-  // Refresh knob SVG colours to match the new mode
+  if (!noSave) saveTheme('mode', m);
+  // Re-apply accent colours for the new mode (values differ between light and dark)
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'pink', true);
+  // Refresh knob SVG colours to match the new mode + accent
   Object.keys(soundKnobRefs).forEach(function(k) {
     if (soundKnobRefs[k]) soundKnobRefs[k].refresh();
   });
@@ -879,7 +881,7 @@ function restoreSettings() {
   }
 
   updateTuningVisibility();
-  applyMode(p.mode || 'light', true);
+  applyMode(loadTheme().mode || 'dark', true);
   updateConfigSummary();
 }
 
