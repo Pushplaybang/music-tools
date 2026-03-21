@@ -62,7 +62,7 @@ function applyMode(m, noSave) {
   const badge = document.getElementById('modeBadge');
   if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
   if (!noSave) saveTheme('mode', m);
-  applyAccent(document.body.dataset.accent || loadTheme().accent || 'pink', true);
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'orange', true);
 }
 
 // Toggle between light and dark when the mode button is clicked.

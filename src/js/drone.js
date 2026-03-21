@@ -67,7 +67,7 @@ function applyMode(m, noSave) {
   var badge = document.getElementById('modeBadge');
   if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
   if (!noSave) saveTheme('mode', m);
-  applyAccent(document.body.dataset.accent || loadTheme().accent || 'pink', true);
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'orange', true);
 }
 
 /* Toggle mode on click */

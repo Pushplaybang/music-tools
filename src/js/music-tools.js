@@ -45,24 +45,69 @@ const ACCENT_PRESETS = {
   },
 };
 
+// Vivid representative swatch colors (used in the dropdown trigger dot).
+// These are the dark-mode accent2 values — always vivid regardless of page mode.
+const ACCENT_DOT_COLORS = {
+  pink:   '#FF2688',
+  orange: '#FF6830',
+  teal:   '#00CCB8',
+  olive:  '#C4E020',
+};
+
 /**
  * Applies an accent preset to the page.
  * Sets CSS custom properties as inline styles on <body> (overriding the
- * stylesheet), marks the active swatch, and persists the choice globally.
+ * stylesheet), updates the dropdown trigger dot and active item, and
+ * persists the choice globally.
  * Must be called AFTER the mode is already set on body so the correct
  * light/dark colour values are used.
  */
 function applyAccent(name, noSave) {
-  const mode   = document.body.dataset.mode || 'light';
-  const preset = ACCENT_PRESETS[name] || ACCENT_PRESETS.pink;
-  const vars   = preset[mode] || preset.light;
+  const mode   = document.body.dataset.mode || 'dark';
+  const preset = ACCENT_PRESETS[name] || ACCENT_PRESETS.orange;
+  const vars   = preset[mode] || preset.dark;
   Object.entries(vars).forEach(([k, v]) => document.body.style.setProperty(k, v));
   document.body.dataset.accent = name;
-  document.querySelectorAll('.accent-swatch').forEach(s => s.classList.toggle('active', s.dataset.accent === name));
+
+  // Update the trigger button's colour dot
+  const dot = document.querySelector('.accent-drop-dot');
+  if (dot) dot.style.setProperty('--sw', ACCENT_DOT_COLORS[name] || ACCENT_DOT_COLORS.orange);
+
+  // Mark the active item in the dropdown panel
+  document.querySelectorAll('.accent-drop-item').forEach(item =>
+    item.classList.toggle('active', item.dataset.accent === name));
+
   if (!noSave) saveTheme('accent', name);
 }
 
-// Wire up swatch click handlers for whichever swatches are on this page
-document.querySelectorAll('.accent-swatch').forEach(s => {
-  s.addEventListener('click', () => applyAccent(s.dataset.accent));
+// ── Accent dropdown interaction ────────────────────────────────────
+// Uses a single delegated listener on document so it works whether the
+// dropdown is opened or closed, and handles outside-click to dismiss.
+
+document.addEventListener('click', function(e) {
+  const drop = document.getElementById('accentDrop');
+  if (!drop) return;
+  const btn = document.getElementById('accentDropBtn');
+
+  // Click on a menu item → apply accent and close
+  const item = e.target.closest('.accent-drop-item');
+  if (item && drop.contains(item)) {
+    applyAccent(item.dataset.accent);
+    drop.classList.remove('open');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+    return;
+  }
+
+  // Click on the toggle button → flip open/closed
+  if (btn && (e.target === btn || btn.contains(e.target))) {
+    const isOpen = drop.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(isOpen));
+    return;
+  }
+
+  // Click anywhere else → close
+  if (!drop.contains(e.target)) {
+    drop.classList.remove('open');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
 });

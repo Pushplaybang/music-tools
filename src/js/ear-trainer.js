@@ -69,7 +69,7 @@ function applyMode(m, noSave) {
   if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
   if (!noSave) saveTheme('mode', m);
   // Re-apply accent colours for the new mode (values differ between light and dark)
-  applyAccent(document.body.dataset.accent || loadTheme().accent || 'pink', true);
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'orange', true);
   // Refresh knob SVG colours to match the new mode + accent
   Object.keys(soundKnobRefs).forEach(function(k) {
     if (soundKnobRefs[k]) soundKnobRefs[k].refresh();

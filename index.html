@@ -50,11 +50,28 @@ body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);pointer
 .bar-icon-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:var(--br);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .18s;flex-shrink:0;text-decoration:none;}
 .bar-icon-btn:hover{border-color:var(--accent);color:var(--accent);}
 
+/* ── BAR SEP ── */
+.bar-sep{width:1px;height:22px;background:var(--border);margin:0 2px;flex-shrink:0;}
+
 /* ── MODE TOGGLE ── */
 .mode-badge{font-family:var(--font-b,monospace);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
 .mode-toggle{width:48px;height:26px;border-radius:13px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;}
 .mode-toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:transform .3s,background .22s;}
 [data-mode="dark"] .mode-toggle::after{transform:translateX(22px);background:var(--accent);}
+
+/* ── ACCENT DROPDOWN ── */
+.accent-drop{position:relative;flex-shrink:0;}
+.accent-drop-btn{display:flex;align-items:center;gap:5px;height:26px;padding:0 8px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--muted);cursor:pointer;transition:border-color .18s,color .18s;}
+.accent-drop-btn:hover{border-color:var(--accent);color:var(--accent);}
+.accent-drop-dot{width:10px;height:10px;border-radius:50%;background:var(--sw,var(--accent2));flex-shrink:0;pointer-events:none;}
+.accent-drop-chev{flex-shrink:0;transition:transform .18s;pointer-events:none;}
+.accent-drop.open .accent-drop-chev{transform:rotate(180deg);}
+.accent-drop-panel{position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;flex-direction:column;gap:2px;min-width:110px;box-shadow:0 8px 24px rgba(0,0,0,.22);z-index:300;display:none;}
+.accent-drop.open .accent-drop-panel{display:flex;}
+.accent-drop-item{display:flex;align-items:center;gap:8px;width:100%;padding:6px 10px;border:none;background:transparent;color:var(--text);cursor:pointer;border-radius:8px;font-family:var(--font-b,monospace);font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;text-align:left;transition:background .15s;}
+.accent-drop-item:hover{background:var(--surface2);}
+.accent-drop-item.active{background:var(--surface2);color:var(--accent);}
+.accent-drop-item-dot{width:10px;height:10px;border-radius:50%;background:var(--sw);flex-shrink:0;display:block;}
 
 /* ── CONTENT ── */
 .content{position:relative;z-index:1;width:100%;max-width:1120px;padding:40px 20px 0;display:flex;flex-direction:column;align-items:center;}
@@ -126,11 +143,17 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
     </a>
   </div>
   <div class="bar-right">
-    <div class="accent-selector">
-      <button class="accent-swatch" data-accent="pink"   title="Pink accent"   style="--sw:#FF2688"></button>
-      <button class="accent-swatch" data-accent="orange" title="Orange accent" style="--sw:#FF6830"></button>
-      <button class="accent-swatch" data-accent="teal"   title="Teal accent"   style="--sw:#00CCB8"></button>
-      <button class="accent-swatch" data-accent="olive"  title="Olive accent"  style="--sw:#C4E020"></button>
+    <div class="accent-drop" id="accentDrop">
+      <button class="accent-drop-btn" id="accentDropBtn" title="Choose accent colour" aria-haspopup="listbox" aria-expanded="false">
+        <span class="accent-drop-dot"></span>
+        <svg class="accent-drop-chev" width="9" height="6" viewBox="0 0 9 6" fill="none"><path d="M1 1l3.5 3.5L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="accent-drop-panel" role="listbox">
+        <button class="accent-drop-item" data-accent="pink"   role="option"><span class="accent-drop-item-dot" style="--sw:#FF2688"></span>Pink</button>
+        <button class="accent-drop-item" data-accent="orange" role="option"><span class="accent-drop-item-dot" style="--sw:#FF6830"></span>Orange</button>
+        <button class="accent-drop-item" data-accent="teal"   role="option"><span class="accent-drop-item-dot" style="--sw:#00CCB8"></span>Teal</button>
+        <button class="accent-drop-item" data-accent="olive"  role="option"><span class="accent-drop-item-dot" style="--sw:#C4E020"></span>Olive</button>
+      </div>
     </div>
     <span class="bar-sep"></span>
     <span class="mode-badge" id="modeBadge">DARK</span>
@@ -461,7 +484,7 @@ function applyMode(m, noSave) {
   var badge = document.getElementById('modeBadge');
   if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
   if (!noSave) saveTheme('mode', m);
-  applyAccent(document.body.dataset.accent || loadTheme().accent || 'pink', true);
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'orange', true);
 }
 document.getElementById('modeToggle').addEventListener('click', function() {
   applyMode(document.body.dataset.mode === 'dark' ? 'light' : 'dark');

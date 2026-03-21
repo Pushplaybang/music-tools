@@ -125,11 +125,19 @@ body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);pointer
 .mode-toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:transform .3s,background .22s;}
 [data-mode="dark"] .mode-toggle::after{transform:translateX(22px);background:var(--accent);}
 
-/* Accent colour selector */
-.accent-selector{display:flex;align-items:center;gap:5px;flex-shrink:0;}
-.accent-swatch{width:14px;height:14px;border-radius:50%;background:var(--sw);border:2px solid transparent;padding:0;cursor:pointer;flex-shrink:0;transition:transform .15s;}
-.accent-swatch:hover{transform:scale(1.3);}
-.accent-swatch.active{outline:2px solid var(--text);outline-offset:2px;transform:scale(1.15);}
+/* Accent colour dropdown */
+.accent-drop{position:relative;flex-shrink:0;}
+.accent-drop-btn{display:flex;align-items:center;gap:5px;height:26px;padding:0 8px;border:1px solid var(--border);border-radius:var(--br);background:transparent;color:var(--muted);cursor:pointer;transition:border-color .18s,color .18s;}
+.accent-drop-btn:hover{border-color:var(--accent);color:var(--accent);}
+.accent-drop-dot{width:10px;height:10px;border-radius:50%;background:var(--sw,var(--accent2));flex-shrink:0;pointer-events:none;}
+.accent-drop-chev{flex-shrink:0;transition:transform .18s;pointer-events:none;}
+.accent-drop.open .accent-drop-chev{transform:rotate(180deg);}
+.accent-drop-panel{position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--br);padding:4px;flex-direction:column;gap:2px;min-width:110px;box-shadow:0 8px 24px rgba(0,0,0,.22);z-index:300;display:none;}
+.accent-drop.open .accent-drop-panel{display:flex;}
+.accent-drop-item{display:flex;align-items:center;gap:8px;width:100%;padding:6px 10px;border:none;background:transparent;color:var(--text);cursor:pointer;border-radius:calc(var(--br) - 2px);font-family:var(--font-b,monospace);font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;text-align:left;transition:background .15s;}
+.accent-drop-item:hover{background:var(--surface2);}
+.accent-drop-item.active{background:var(--surface2);color:var(--accent);}
+.accent-drop-item-dot{width:10px;height:10px;border-radius:50%;background:var(--sw);flex-shrink:0;display:block;}
 
 /* ── CONTENT LAYOUT ──────────────────────────────────────────── */
 .content{position:relative;z-index:1;width:100%;max-width:860px;padding:28px 16px 0;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}

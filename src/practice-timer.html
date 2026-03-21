@@ -70,11 +70,17 @@
     <button class="bar-icon-btn" onclick="openHistory()" title="Practice History">📊</button>
   </div>
   <div class="bar-right">
-    <div class="accent-selector">
-      <button class="accent-swatch" data-accent="pink"   title="Pink accent"   style="--sw:#FF2688"></button>
-      <button class="accent-swatch" data-accent="orange" title="Orange accent" style="--sw:#FF6830"></button>
-      <button class="accent-swatch" data-accent="teal"   title="Teal accent"   style="--sw:#00CCB8"></button>
-      <button class="accent-swatch" data-accent="olive"  title="Olive accent"  style="--sw:#C4E020"></button>
+    <div class="accent-drop" id="accentDrop">
+      <button class="accent-drop-btn" id="accentDropBtn" title="Choose accent colour" aria-haspopup="listbox" aria-expanded="false">
+        <span class="accent-drop-dot"></span>
+        <svg class="accent-drop-chev" width="9" height="6" viewBox="0 0 9 6" fill="none"><path d="M1 1l3.5 3.5L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="accent-drop-panel" role="listbox">
+        <button class="accent-drop-item" data-accent="pink"   role="option"><span class="accent-drop-item-dot" style="--sw:#FF2688"></span>Pink</button>
+        <button class="accent-drop-item" data-accent="orange" role="option"><span class="accent-drop-item-dot" style="--sw:#FF6830"></span>Orange</button>
+        <button class="accent-drop-item" data-accent="teal"   role="option"><span class="accent-drop-item-dot" style="--sw:#00CCB8"></span>Teal</button>
+        <button class="accent-drop-item" data-accent="olive"  role="option"><span class="accent-drop-item-dot" style="--sw:#C4E020"></span>Olive</button>
+      </div>
     </div>
     <span class="bar-sep"></span>
     <span class="mode-badge" id="modeBadge">LIGHT</span>
