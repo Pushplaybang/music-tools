@@ -4,6 +4,6 @@
   "scripts": {
     "test": "node --test tests/*.test.js",
     "start": "node server.js",
-    "kill-server": "lsof -ti :3000 | xargs kill -9"
+    "kill-server": "PID=$(lsof -ti :3000) && [ -n \"$PID\" ] && kill \"$PID\" || true"
   }
 }
