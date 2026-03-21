@@ -833,7 +833,7 @@ function updateTunerDisplay(note, oct, freq, cents, autodetect, smoothed) {
     /* Green gradient when in tune, accent gradient when off */
     pitchFill.style.background = Math.abs(cents) < 5
       ? 'linear-gradient(90deg, var(--correct), var(--accent))'
-      : 'linear-gradient(90deg, var(--accent), var(--accent-2))';
+      : 'linear-gradient(90deg, var(--accent), var(--accent2))';
   }
 }
 

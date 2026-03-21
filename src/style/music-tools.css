@@ -2,7 +2,8 @@
  ╔══════════════════════════════════════════════════════════════════╗
  ║  MUSIC TOOLS SHARED DESIGN SYSTEM                               ║
  ║  Shared across all tools in src/                                ║
- ║  5 themes, localStorage persistence, modal system               ║
+ ║  Light/Dark modes + accent presets, localStorage persistence,   ║
+ ║  modal system                                                    ║
  ╚══════════════════════════════════════════════════════════════════╝
 */
 
@@ -27,7 +28,6 @@
   --neu-in:inset 3px 3px 9px rgba(30,50,140,0.10),inset -3px -3px 9px rgba(255,255,255,0.80);
   --neu-flat:2px 2px 7px rgba(30,50,140,0.08),-1px -1px 5px rgba(255,255,255,0.94);
   --neu-deep:inset 4px 4px 12px rgba(25,45,130,0.13),inset -2px -2px 8px rgba(255,255,255,0.68);
-  --accent-2:var(--accent2); --accent-2-glow:var(--accent2-glow);
   --surface2:var(--surface-lo); --muted:var(--text-3);
   --font-h:'Syne',sans-serif; --font-b:'DM Mono',monospace; --r:18px; --br:10px;
   --bar-bg:var(--surface); --pill-active:var(--accent); --pill-text:var(--bg);
@@ -54,7 +54,6 @@
   --neu-in:inset 4px 4px 12px rgba(0,0,0,0.58),inset -2px -2px 5px rgba(255,255,255,0.025);
   --neu-flat:3px 3px 10px rgba(0,0,0,0.52),-1px -1px 3px rgba(255,255,255,0.02);
   --neu-deep:inset 5px 5px 14px rgba(0,0,0,0.62),inset -1px -1px 4px rgba(255,255,255,0.018);
-  --accent-2:var(--accent2); --accent-2-glow:var(--accent2-glow);
   --surface2:var(--surface-lo); --muted:var(--text-3);
   --font-h:'Syne',sans-serif; --font-b:'DM Mono',monospace; --r:18px; --br:10px;
   --bar-bg:var(--surface); --pill-active:var(--accent); --pill-text:var(--bg);
@@ -173,7 +172,7 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
 .progress-val{font-family:var(--font-b,monospace);font-size:.68rem;font-weight:500;color:var(--accent);}
 .progress-track{height:5px;border-radius:3px;background:var(--surface-lo2);box-shadow:var(--neu-in);position:relative;overflow:hidden;}
 .progress-track.thin{height:3px;}
-.progress-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:3px;box-shadow:0 0 8px var(--accent-glow);transition:width .3s ease,box-shadow .3s ease;}
+.progress-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;box-shadow:0 0 8px var(--accent-glow);transition:width .3s ease,box-shadow .3s ease;}
 .progress-track.block .progress-fill{background:linear-gradient(90deg,var(--correct),var(--accent));box-shadow:0 0 6px var(--correct-glow);}
 
 /* Status bar (simple) */
