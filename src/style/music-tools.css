@@ -17,7 +17,7 @@
   --border:rgba(70,100,190,0.10); --border-hi:rgba(255,255,255,0.92); --border-lo:rgba(55,85,170,0.07);
   --text:#0A1220; --text-2:#344A68; --text-3:#7088A8; --text-hi:#2e5075;
   --accent:#0080C0; --accent-glow:rgba(0,128,192,0.22);
-  --accent-2:#C0006E; --accent-2-glow:rgba(192,0,110,0.18);
+  --accent2:#C0006E; --accent2-glow:rgba(192,0,110,0.18);
   --correct:#009E70; --correct-glow:rgba(0,158,112,0.18);
   --wrong:#D4003C; --wrong-glow:rgba(212,0,60,0.16);
   --kw:var(--surface-hi); --kw-active:var(--accent); --kb:#181C28; --kb-active:#005A8C;
@@ -28,10 +28,10 @@
   --neu-in:inset 3px 3px 9px rgba(30,50,140,0.10),inset -3px -3px 9px rgba(255,255,255,0.80);
   --neu-flat:2px 2px 7px rgba(30,50,140,0.08),-1px -1px 5px rgba(255,255,255,0.94);
   --neu-deep:inset 4px 4px 12px rgba(25,45,130,0.13),inset -2px -2px 8px rgba(255,255,255,0.68);
-  --surface2:var(--surface-lo); --accent2:var(--accent-2); --muted:var(--text-3);
+  --surface2:var(--surface-lo); --muted:var(--text-3);
   --font-h:'Syne',sans-serif; --font-b:'DM Mono',monospace; --r:18px; --br:10px;
   --bar-bg:var(--surface); --pill-active:var(--accent); --pill-text:var(--bg);
-  --grad:linear-gradient(90deg,var(--accent),var(--accent-2));
+  --grad:linear-gradient(90deg,var(--accent),var(--accent2));
   --overlay-bg:rgba(180,190,220,0.65); --overlay-surface:var(--surface-hi);
   --bg-grad:none;
 }
@@ -43,7 +43,7 @@
   --border:rgba(120,150,220,0.12); --border-hi:rgba(140,170,255,0.08); --border-lo:rgba(100,130,200,0.06);
   --text:#D8E8F8; --text-2:#8AA0C0; --text-3:#5A7898; --text-hi:#9dbada;
   --accent:#00D8FF; --accent-glow:rgba(0,216,255,0.28);
-  --accent-2:#FF2688; --accent-2-glow:rgba(255,38,136,0.24);
+  --accent2:#FF2688; --accent2-glow:rgba(255,38,136,0.24);
   --correct:#00E8A8; --correct-glow:rgba(0,232,168,0.22);
   --wrong:#FF2855; --wrong-glow:rgba(255,40,85,0.22);
   --kw:#1A1E2C; --kw-active:var(--accent); --kb:#060810; --kb-active:#005C78;
@@ -54,10 +54,10 @@
   --neu-in:inset 4px 4px 12px rgba(0,0,0,0.58),inset -2px -2px 5px rgba(255,255,255,0.025);
   --neu-flat:3px 3px 10px rgba(0,0,0,0.52),-1px -1px 3px rgba(255,255,255,0.02);
   --neu-deep:inset 5px 5px 14px rgba(0,0,0,0.62),inset -1px -1px 4px rgba(255,255,255,0.018);
-  --surface2:var(--surface-lo); --accent2:var(--accent-2); --muted:var(--text-3);
+  --surface2:var(--surface-lo); --muted:var(--text-3);
   --font-h:'Syne',sans-serif; --font-b:'DM Mono',monospace; --r:18px; --br:10px;
   --bar-bg:var(--surface); --pill-active:var(--accent); --pill-text:var(--bg);
-  --grad:linear-gradient(90deg,var(--accent),var(--accent-2));
+  --grad:linear-gradient(90deg,var(--accent),var(--accent2));
   --overlay-bg:rgba(0,0,0,0.72); --overlay-surface:var(--surface-hi);
   --bg-grad:none;
 }
@@ -172,7 +172,7 @@ button{font-family:var(--font-b);font-size:.72rem;letter-spacing:.06em;border:no
 .progress-val{font-family:var(--font-b,monospace);font-size:.68rem;font-weight:500;color:var(--accent);}
 .progress-track{height:5px;border-radius:3px;background:var(--surface-lo2);box-shadow:var(--neu-in);position:relative;overflow:hidden;}
 .progress-track.thin{height:3px;}
-.progress-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:3px;box-shadow:0 0 8px var(--accent-glow);transition:width .3s ease,box-shadow .3s ease;}
+.progress-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;box-shadow:0 0 8px var(--accent-glow);transition:width .3s ease,box-shadow .3s ease;}
 .progress-track.block .progress-fill{background:linear-gradient(90deg,var(--correct),var(--accent));box-shadow:0 0 6px var(--correct-glow);}
 
 /* Status bar (simple) */
