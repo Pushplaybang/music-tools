@@ -1,0 +1,43 @@
+name: Build dist-web
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  minify-dist-web:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install minifiers
+        run: npm install --no-save terser@5 clean-css-cli@5
+
+      - name: Build dist-web from src
+        run: |
+          rm -rf dist-web
+          mkdir -p dist-web
+          cp -R src/. dist-web/
+
+          find dist-web -type f -name '*.js' -print0 | while IFS= read -r -d '' file; do
+            npx terser "$file" --compress --mangle --output "$file"
+          done
+
+          find dist-web -type f -name '*.css' -print0 | while IFS= read -r -d '' file; do
+            npx cleancss --output "$file" "$file"
+          done
+
+      - name: Upload dist-web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-web
+          path: dist-web
+          if-no-files-found: error
