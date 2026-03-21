@@ -4,29 +4,45 @@
 Browser-based music practice tools for everyday use. Each tool is a single self-contained HTML file — no build step, no backend, no npm runtime dependencies, no CDN libraries. Web Audio API for all sound. Fully offline after first load (Google Fonts degrade gracefully to system fonts).
 
 ## Hard constraints — NEVER violate these
-- Every tool is ONE `.html` file in `src/` containing HTML and JS inline, linking to `music-tools.css` for shared styles
+- Every tool is ONE `.html` file in `src/` — HTML only, no inline JS
+- All tool JS lives in `src/js/<tool>.js`; shared utilities in `src/js/music-tools.js`
 - All shared CSS lives in `src/style/music-tools.css` — never duplicate token blocks in tool HTML
 - Tool HTML links to the shared CSS via `<link rel="stylesheet" href="style/music-tools.css">` (relative from `src/`)
 - Tool HTML `<style>` blocks contain ONLY tool-specific CSS
+- Tool HTML loads shared JS first: `<script src="js/music-tools.js"></script>` then `<script src="js/<tool>.js"></script>`
 - Zero runtime dependencies. No npm imports, no CDN scripts, no frameworks
 - No user data collection, no analytics, no cookies, no server communication
-- All persistent state via localStorage only — each tool uses a unique LS key
+- All persistent state via localStorage only — see keys below; mode+accent use the global `musicTools_theme_v1` key
 - Tools must work offline after first page load
 - All audio through Web Audio API using the shared getCtx() pattern
 
 ## Repository structure
 music-tools/
 ├── CLAUDE.md              ← You are here. Claude Code reads this automatically.
-├── index.html             # Collection home/landing page
+├── index.html             # Collection home/landing page (own inline <style>, loads src/js/music-tools.js)
 ├── src/
 │   ├── style/
-│   │   └── music-tools.css  # Shared design system (tokens, components, chrome)
-│   ├── ear-trainer.html   # LS key: earTrainer_v6
-│   ├── tuner.html         # LS key: musicTool_StrobeTuner_v1
-│   ├── pulse.html         # LS key: musicTool_pulse_v1
-│   ├── drone.html         # LS key: musicTool_drone_v1
-│   ├── practice-timer.html # LS key: musicTool_practiceTimer_v1
-│   └── chord-reference.html # LS key: musicTool_chordRef_v1
+│   │   ├── music-tools.css      # Shared design system (tokens, components, chrome)
+│   │   ├── ear-trainer.css
+│   │   ├── tuner.css
+│   │   ├── pulse.css
+│   │   ├── drone.css
+│   │   ├── practice-timer.css
+│   │   └── chord-reference.css
+│   ├── js/
+│   │   ├── music-tools.js       # Shared: global theme key, loadTheme/saveTheme, applyAccent, accent dropdown
+│   │   ├── ear-trainer.js       # LS key: earTrainer_v6
+│   │   ├── tuner.js             # LS key: musicTool_StrobeTuner_v1
+│   │   ├── pulse.js             # LS key: musicTool_pulse_v1
+│   │   ├── drone.js             # LS key: musicTool_drone_v1
+│   │   ├── practice-timer.js   # LS key: musicTool_practiceTimer_v1
+│   │   └── chord-reference.js  # LS key: musicTool_chordRef_v1
+│   ├── ear-trainer.html
+│   ├── tuner.html
+│   ├── pulse.html
+│   ├── drone.html
+│   ├── practice-timer.html
+│   └── chord-reference.html
 ├── music-tools-boilerplate.html  # Design system reference (read-only, not served as a tool)
 ├── docs/
 │   ├── ARCHITECTURE.md    # Shared patterns, audio engine, theme system
@@ -46,17 +62,37 @@ Fonts: Syne (headings) + DM Mono (body/mono). Tokens defined in `src/style/music
 
 See music-tools-boilerplate.html for the canonical reference. NEVER hardcode colours — always use CSS custom properties. After ANY CSS change, verify both modes render correctly.
 
+### Key colour tokens
+| Token | Light | Dark | Usage |
+|---|---|---|---|
+| `--text` | `#0A1220` | `#D8E8F8` | Primary body text |
+| `--text-2` | `#344A68` | `#8AA0C0` | Secondary / supporting text |
+| `--text-3` / `--muted` | `#7088A8` | `#5A7898` | Muted / caption text |
+| `--text-hi` | `#2e5075` | `#9dbada` | Section headings, control labels, tags — use instead of `--muted` for structural UI chrome |
+| `--accent` | varies | varies | Primary interactive colour — set by accent preset, never hardcode |
+| `--accent2` | varies | varies | Secondary accent — set by accent preset |
+
 ## Shared code patterns
 
-### Audio engine (identical in every tool)
+### Global theme (mode + accent) — `src/js/music-tools.js`
+This file is loaded before every tool's own JS. It provides:
+- `loadTheme()` / `saveTheme(k, v)` — read/write `musicTools_theme_v1` in localStorage
+- `ACCENT_PRESETS` — colour maps for pink / orange / teal / olive × light / dark
+- `applyAccent(name, noSave)` — sets CSS vars on `<body>`, updates dropdown UI
+- Delegated click listener — manages `.accent-drop` open/close/select
+
+### Audio engine (identical in every tool JS)
+```js
 let audioCtx = null;
 function getCtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
+```
 
 ### localStorage (unique LS key per tool)
+```js
 const LS = 'uniqueToolKey_v1';
 function savePref(k, v) {
   try { const d = JSON.parse(localStorage.getItem(LS) || '{}'); d[k] = v; localStorage.setItem(LS, JSON.stringify(d)); } catch(e) {}
@@ -64,14 +100,21 @@ function savePref(k, v) {
 function loadPrefs() {
   try { return JSON.parse(localStorage.getItem(LS) || '{}'); } catch(e) { return {}; }
 }
+```
 
-### Mode switching
+### Mode switching (every tool JS — calls saveTheme, not savePref)
+```js
 function applyMode(m, noSave) {
   document.body.dataset.mode = m;
   const badge = document.getElementById('modeBadge');
   if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
-  if (!noSave) savePref('mode', m);
+  if (!noSave) saveTheme('mode', m);
+  // Re-apply accent CSS vars for the new mode
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'orange', true);
 }
+```
+
+Default mode: `'dark'`. Default accent: `'orange'`.
 
 ### Music data constants
 const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
@@ -81,12 +124,13 @@ const noteFreq = (note, oct) => midiFreq((oct + 1) * 12 + NOTES.indexOf(note));
 const noteToMidi = (note, oct) => (oct + 1) * 12 + NOTES.indexOf(note);
 
 ## CSS component vocabulary
-- `.card` with `.card-title` — main content containers
-- `.controls` grid — config dropdowns (`.control-group > label + select`)
+- `.card` with `.card-title` — main content containers; `.card-title` uses `--text-hi`
+- `.controls` grid — config dropdowns (`.control-group > label + select`); labels use `--text-hi`
 - `.btn-primary` / `.btn-secondary` / `.btn-accent2` / `.btn-danger`
 - `.toggle-label` with hidden checkbox + `.toggle-track` / `.toggle-thumb`
 - `.modal-overlay.show` > `.modal-card` with `.modal-close`
-- `.theme-bar` > `.bar-left` + `.bar-right` with `.bar-icon-btn`, `.bar-sep`
+- `.theme-bar` > `.bar-left` + `.bar-right` with `.bar-icon-btn`, `.bar-sep`, `.bar-title`
+- `.accent-drop` > `.accent-drop-btn` + `.accent-drop-panel` > `.accent-drop-item` — colour picker dropdown
 - `.mode-toggle` + `.mode-badge` — light/dark mode switcher
 - `.progress-wrap` > `.progress-track` > `.progress-fill` — gradient progress bars
 - `.vis-tab` / `.vis-panel` — tabbed visualiser switching
@@ -95,7 +139,6 @@ const noteToMidi = (note, oct) => (oct + 1) * 12 + NOTES.indexOf(note);
 - Minimum usable width: 320px. Primary mobile test width: 375px
 - CSS Grid breakpoints: 3+ cols → 2-col at 600px → 1-col at 380px
 - Touch targets: minimum 44×44px
-- Mode toggle replaces former 5-pill theme switcher
 - Horizontal scroll OK for piano and fretboards
 
 ## Git & commit conventions — ALWAYS follow these
