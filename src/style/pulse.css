@@ -303,12 +303,12 @@ header h1 {
   background: var(--surface2);
 }
 
-/* Downbeat (beat 1) uses accent-2 colour to distinguish it */
+/* Downbeat (beat 1) uses accent2 colour to distinguish it */
 .beat-dot.downbeat {
-  border-color: var(--accent-2);
+  border-color: var(--accent2);
 }
 .beat-dot.downbeat.active-beat {
-  box-shadow: 0 0 14px var(--accent-2-glow);
+  box-shadow: 0 0 14px var(--accent2-glow);
 }
 
 /* Flash animation triggered on every scheduled beat tick */
