@@ -1,0 +1,430 @@
+/*
+ * drone.css — Tool-specific styles for the Drone tool
+ *
+ * Drone is a sustained reference tone generator for musicians. This file
+ * contains only the component styles unique to drone.html. All shared design
+ * tokens (colours, typography, spacing, card/button/toggle primitives) live in
+ * music-tools.css, which must be loaded before this file.
+ *
+ * Load order in drone.html:
+ *   <link rel="stylesheet" href="style/music-tools.css">
+ *   <link rel="stylesheet" href="style/drone.css">
+ */
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   CONTENT WIDTH
+   Drone is a simple single-column layout; 580 px is narrower than the default
+   to keep the controls feeling compact and centred on wide screens.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.content {
+  max-width: 580px;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   DRONE RING — hero play / stop button
+   A circular button that animates a spinning dashed ring and a pulsing icon
+   while the drone is active.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Outer wrapper that centres the ring and its caption label */
+.play-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* The circular button itself */
+.drone-ring {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface2);
+  box-shadow: var(--neu-out);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  transition: all .25s;
+  position: relative; /* needed for the ::before dashed ring overlay */
+}
+
+/* Dashed accent ring that appears and spins when active */
+.drone-ring::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--accent);
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+}
+
+.drone-ring:hover {
+  border-color: var(--accent);
+}
+
+/* Active state: glowing border + visible spinning dashed ring */
+.drone-ring.active {
+  border-color: var(--accent);
+  box-shadow: var(--neu-out), 0 0 18px var(--accent-glow);
+}
+
+.drone-ring.active::before {
+  opacity: 0.6;
+  animation: droneSpin 8s linear infinite, dronePulse 2s ease-in-out infinite;
+}
+
+/* Tint the icon and pulse it while playing */
+.drone-ring.active .drone-ring-icon {
+  color: var(--accent);
+  animation: dronePulse 2s ease-in-out infinite;
+}
+
+/* Slow scale-and-fade pulse used by both the dashed ring and the icon */
+@keyframes dronePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.5;
+  }
+}
+
+/* Full rotation for the dashed ring overlay */
+@keyframes droneSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/*
+ * When the ring is active, also pulse the note/frequency display below it.
+ * :has() is used here so the sibling note-display can react to the play button
+ * state without JS class management.
+ */
+.play-section:has(.drone-ring.active) ~ .note-display {
+  animation: notePulse 2s ease-in-out infinite;
+}
+
+@keyframes notePulse {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.15); }
+}
+
+/* The ▶ / ■ icon inside the ring */
+.drone-ring-icon {
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+  pointer-events: none;
+  color: var(--muted);
+  transition: color .25s;
+}
+
+/* "TAP TO PLAY" / "PLAYING" caption below the ring */
+.play-label {
+  font-family: var(--font-b);
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   NOTE DISPLAY — shows the current root note name and frequency
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.note-display {
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+/* Large note name, e.g. "A3" */
+.note-big {
+  font-family: var(--font-b);
+  font-weight: 300;
+  font-size: 1.6rem;
+  color: var(--text);
+  line-height: 1;
+  transition: color .35s;
+}
+
+/* Octave number rendered in accent colour, e.g. the "3" in "A3" */
+.note-big .oct {
+  color: var(--accent);
+}
+
+/* Small frequency readout beneath the note name */
+.freq-display {
+  font-family: var(--font-b);
+  font-size: .72rem;
+  color: var(--text-3);
+  letter-spacing: .06em;
+  margin-top: 2px;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   SEGMENTED BUTTONS — used for Voicing, Timbre, and LFO filter type selectors
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Wrapper adds bottom spacing between each segmented group */
+.seg-group {
+  margin-bottom: 14px;
+}
+
+/* Small uppercase label above the button row */
+.seg-group-label {
+  display: block;
+  font-size: .6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-family: var(--font-b);
+}
+
+/* The flex row that holds the buttons — zero gap so borders merge */
+.seg-row {
+  display: flex;
+  gap: 0;
+}
+
+/* Individual segment button — all expand equally */
+.seg-btn {
+  font-family: var(--font-b);
+  font-size: .68rem;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  letter-spacing: .04em;
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Rounded left cap */
+.seg-btn:first-child {
+  border-radius: var(--br) 0 0 var(--br);
+}
+
+/* Rounded right cap */
+.seg-btn:last-child {
+  border-radius: 0 var(--br) var(--br) 0;
+}
+
+/* Collapse shared borders between adjacent buttons */
+.seg-btn:not(:first-child) {
+  border-left: none;
+}
+
+/* On hover, show accent border and restore the left border of the next sibling */
+.seg-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.seg-btn:hover + .seg-btn {
+  border-left-color: var(--accent);
+}
+
+/* Active/selected segment — filled accent background */
+.seg-btn.active {
+  background: var(--accent);
+  color: var(--pill-text);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+/* Keep the accent border on the right side of an active button visible */
+.seg-btn.active + .seg-btn {
+  border-left-color: var(--accent);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   CONTROLS GRID — 2-column override for the Configuration card
+   The shared .controls class defaults to 3+ columns; drone needs exactly 2 for
+   the Root / Octave dropdowns, collapsing to 1 column on very small screens.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.controls {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 380px) {
+  .controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   VOLUME SLIDER — horizontal range input with an accent-coloured readout
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.vol-group {
+  margin-top: 14px;
+}
+
+/* Row label with the current value pushed to the right */
+.vol-group label {
+  display: flex;
+  justify-content: space-between;
+  font-size: .6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-family: var(--font-b);
+}
+
+/* Flex row containing the range track and the numeric value */
+.vol-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* The range input itself — thin track with accent thumb */
+.vol-slider {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+  height: 3px;
+}
+
+/* Current value readout to the right of the slider */
+.vol-val {
+  font-family: var(--font-b);
+  font-size: .78rem;
+  color: var(--accent);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* Shared style for inline parameter value spans inside effect labels */
+.param-val {
+  color: var(--accent);
+  font-style: normal;
+  font-size: .72rem;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   EFFECTS CARD — LFO Filter / Tape Delay / Spring Reverb sections
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Each effect occupies its own padded section inside the card */
+.fx-section {
+  padding: 12px 0;
+}
+
+.fx-section:first-child {
+  padding-top: 0;
+}
+
+/* Header row: effect name on the left, enable toggle on the right */
+.fx-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+/* Effect name label */
+.fx-title {
+  font-family: var(--font-b);
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Collapsible body containing the effect's parameter sliders */
+.fx-body {
+  margin-top: 10px;
+  transition: opacity .2s;
+}
+
+/* Greyed-out, non-interactive state when the effect is disabled */
+.fx-body.fx-off {
+  opacity: .35;
+  pointer-events: none;
+}
+
+/* 1 px separator line between effect sections */
+.fx-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 0;
+}
+
+/* Vertical stack of parameter rows within each effect body */
+.fx-params {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   MODAL OVERRIDES — widen the help modal slightly for the longer content
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.modal-card {
+  max-width: 600px;
+}
+
+/* Accent-coloured border/text on close button hover */
+.modal-close:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   LINKS BAR — bottom navigation pills to other tools
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.links-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 20px 16px 8px;
+  margin-top: 8px;
+}
+
+/* Individual pill link */
+.link-pill {
+  font-family: var(--font-b);
+  font-size: .62rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  transition: all .2s;
+}
+
+.link-pill:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}

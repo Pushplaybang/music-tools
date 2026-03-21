@@ -1,0 +1,965 @@
+/* pulse.css — Metronome/Pulse tool-specific styles. Requires music-tools.css. */
+
+/* ── Pulse-specific mode tokens ─────────────────────── */
+/* Both modes share identical beat-indicator token values here;
+   values reference the shared design-system tokens so they will
+   automatically follow any accent/surface changes in music-tools.css. */
+[data-mode="light"] {
+  --beat-accent: var(--accent);
+  --beat-normal: var(--surface);
+  --beat-sub: var(--surface-lo);
+  --beat-ring: var(--border);
+  --pendulum: var(--accent);
+}
+[data-mode="dark"] {
+  --beat-accent: var(--accent);
+  --beat-normal: var(--surface);
+  --beat-sub: var(--surface-lo);
+  --beat-ring: var(--border);
+  --pendulum: var(--accent);
+}
+
+/* ── Pulse layout overrides ─────────────────────────── */
+/* Slightly wider content column than the default to accommodate the beat grid */
+.content {
+  max-width: 900px;
+}
+header h1 {
+  font-size: var(--h1);
+}
+
+/* ════════════════════════
+   METRONOME STYLES
+════════════════════════ */
+
+/* Main visual card that houses the BPM display, beat grid, and transport */
+.metro-visual-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 28px 24px 24px;
+  width: 100%;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  transition: background .35s, border-color .35s, border-radius .35s;
+}
+
+/* ── BPM display ── */
+.bpm-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Large clamp-sized BPM readout — uses heading font for visual weight */
+.bpm-number {
+  font-family: var(--font-h);
+  font-size: clamp(3rem, 12vw, 6rem);
+  color: var(--accent);
+  line-height: 1;
+  transition: color .35s;
+  cursor: default;
+  user-select: none;
+  letter-spacing: -2px;
+}
+.bpm-label {
+  font-family: var(--font-b);
+  font-size: .58rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+/* Italian tempo name displayed below the BPM number (e.g. "Allegro") */
+.bpm-tempo-name {
+  font-family: var(--font-b);
+  font-size: .65rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-top: 2px;
+}
+
+/* Slider + tap button in a horizontal row */
+.bpm-slider-wrap {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.bpm-slider-wrap input[type=range] {
+  flex: 1;
+}
+
+/* Tap-tempo button — flashes .tapped on each tap for visual feedback */
+.bpm-tap {
+  flex-shrink: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--br);
+  padding: 8px 14px;
+  font-family: var(--font-b);
+  font-size: .65rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.bpm-tap:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+/* Active state applied briefly via JS on each tap */
+.bpm-tap.tapped {
+  background: var(--accent);
+  color: var(--pill-text);
+  border-color: var(--accent);
+}
+
+/* ── Pendulum canvas wrapper ── */
+/* Canvas-based pendulum — always correct sizing */
+.pendulum-wrap {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  justify-content: center;
+}
+/* Hidden class toggled by the "Arm" chip */
+.pendulum-wrap.hidden {
+  display: none;
+}
+/* Canvas fills its wrapper width; JS sets pixel dimensions to match DPR */
+#pendulumCanvas {
+  display: block;
+  width: 100%;
+  height: 120px;
+}
+
+/* ── Top-panel controls row ── */
+/* Row of chip toggles (Arm, Count-in, Mute bars) and click-rate selector */
+.panel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Pill-shaped toggle chip with a coloured indicator dot */
+.panel-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 5px 12px 5px 8px;
+  cursor: pointer;
+  transition: all .2s;
+  user-select: none;
+}
+.panel-chip:hover {
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+.panel-chip.active {
+  border-color: var(--accent2);
+  background: color-mix(in srgb, var(--accent2) 15%, var(--surface2));
+}
+
+/* Small circular status dot inside each chip */
+.chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.panel-chip.active .chip-dot {
+  background: var(--accent2);
+}
+.chip-label {
+  font-family: var(--font-b);
+  font-size: .58rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color .2s;
+}
+.panel-chip.active .chip-label {
+  color: var(--accent2);
+}
+
+/* ½× / 1× / 2× click-rate selector — segmented pill */
+.rate-chip {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  overflow: hidden;
+}
+.rate-btn {
+  font-family: var(--font-b);
+  font-size: .58rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.rate-btn:hover {
+  color: var(--accent);
+}
+/* Active rate segment fills with accent2 */
+.rate-btn.active {
+  background: var(--accent2);
+  color: var(--bg);
+}
+/* Thin divider between rate segments */
+.rate-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* ── Beat grid ── */
+/* Horizontal row of beat dots — flex + wrap handles odd time signatures */
+.beat-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 660px;
+}
+.beat-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+}
+
+/* Individual beat dot — circular indicator that flashes on each beat */
+.beat-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--beat-ring);
+  background: var(--beat-normal);
+  transition: background .07s, border-color .07s, transform .07s, box-shadow .07s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+/* Subtle specular highlight overlay on every dot */
+.beat-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, .14), transparent 60%);
+}
+/* Accent level 3 dot — strong accent */
+.beat-dot.accent {
+  border-color: var(--beat-accent);
+  background: var(--surface2);
+}
+/* Centre pip visible on accented dots */
+.beat-dot.accent::before {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--beat-accent);
+  opacity: .5;
+}
+/* Smaller subdivision dot */
+.beat-dot.sub {
+  width: 22px;
+  height: 22px;
+  border-width: 1px;
+  background: var(--beat-sub);
+}
+.beat-dot.sub.accent {
+  background: var(--surface2);
+}
+
+/* Downbeat (beat 1) uses accent2 colour to distinguish it */
+.beat-dot.downbeat {
+  border-color: var(--accent2);
+}
+.beat-dot.downbeat.active-beat {
+  box-shadow: 0 0 14px var(--accent2-glow);
+}
+
+/* Flash animation triggered on every scheduled beat tick */
+.beat-dot.active-beat {
+  background: var(--beat-accent) !important;
+  border-color: var(--beat-accent) !important;
+  /* Pop up then settle slightly above rest scale */
+  animation: beatPop 80ms ease-out forwards;
+  box-shadow: 0 0 24px var(--accent-glow), 0 4px 12px rgba(0, 0, 0, .4);
+}
+/* Scale pop: springs to 1.35 then rests at 1.12 */
+@keyframes beatPop {
+  0%   { transform: scale(1.35); }
+  100% { transform: scale(1.12); }
+}
+/* Sub-division dot highlight — uses accent2 colour to differentiate from main beats */
+.beat-dot.active-sub {
+  background: var(--accent2) !important;
+  border-color: var(--accent2) !important;
+  transform: scale(1.09);
+}
+/* Smooth return to resting state after a beat has fired */
+.beat-dot.flash-out {
+  transform: scale(1) !important;
+  transition: transform .18s, background .18s, border-color .18s, box-shadow .18s !important;
+}
+.beat-num {
+  font-family: var(--font-b);
+  font-size: .54rem;
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+/* Thin vertical rule separating beat groups */
+.beat-sep {
+  width: 1px;
+  height: 42px;
+  background: var(--border);
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+/* Accent ring for level 2 — partially visible inner ring */
+.accent-ring {
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  border: 2px solid var(--beat-accent);
+  opacity: 0;
+  transition: opacity .2s;
+}
+/* Show the ring when accent data-attribute indicates level 2 */
+.beat-dot[data-accent="2"] .accent-ring {
+  opacity: .55;
+}
+
+/* ── Beat grid hero wrap ── */
+/* Inset-shadowed container that frames the beat indicator row */
+.beat-grid-wrap {
+  background: var(--surface-lo);
+  border-radius: var(--r-md, 18px);
+  box-shadow: var(--neu-in);
+  padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.beat-grid-label {
+  font-family: var(--font-b, monospace);
+  font-size: .55rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* Compact BPM row inside the visual card (number left, slider + nudges right) */
+.bpm-compact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+.bpm-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.bpm-right {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  flex: 1;
+  max-width: 260px;
+}
+/* Compact numeric BPM display used inside the visual card */
+.bpm-compact-num {
+  font-family: var(--font-b);
+  font-weight: 300;
+  font-size: clamp(1.8rem, 8vw, 2.2rem);
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: -1px;
+  cursor: default;
+  user-select: none;
+}
+.bpm-nudge-row {
+  display: flex;
+  gap: 6px;
+}
+/* Ghost-style nudge buttons (−10, −1, +1, +10) */
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm, 10px);
+  color: var(--text-2);
+  font-family: var(--font-b, monospace);
+  font-size: .62rem;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all .18s;
+}
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Time-sig + tap row ── */
+/* Row housing time-signature preset buttons and the circular tap-tempo button */
+.timesig-tap-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 12px;
+}
+.timesig-segs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+/* Individual time-sig preset button (3/4, 4/4, 6/8, 5/4…) */
+.timesig-seg-btn {
+  font-family: var(--font-b, monospace);
+  font-size: .7rem;
+  padding: 7px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm, 10px);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all .18s;
+}
+.timesig-seg-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.timesig-seg-btn.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+/* Circular tap-tempo button — presses with scale effect via CSS :active */
+.tap-compact {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--neu-out);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1px;
+  transition: all .15s;
+  font-family: var(--font-b, monospace);
+  font-size: .58rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+/* Depressed state — inset shadow mimics physical press */
+.tap-compact:active {
+  box-shadow: var(--neu-in);
+  transform: scale(0.92);
+}
+
+/* Compact sub-division row inside the visual card */
+.sub-row-compact {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* ── Position bar ── */
+/* Thin horizontal bar that sweeps from left to right across each bar */
+.position-bar {
+  width: 100%;
+  max-width: 440px;
+  background: var(--surface2);
+  border-radius: 4px;
+  height: 5px;
+  overflow: hidden;
+}
+/* Fill element — width is driven by JS on each beat tick */
+.position-fill {
+  height: 100%;
+  background: var(--grad);
+  border-radius: 4px;
+  width: 0%;
+  transition: width .04s linear;
+}
+
+/* ── Transport ── */
+.transport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+/* Generic circular transport button */
+.transport-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  font-family: var(--font-b);
+  font-size: .65rem;
+}
+.transport-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+/* Primary play/stop button — larger and accent-coloured */
+.transport-btn.play-btn {
+  width: 66px;
+  height: 66px;
+  font-size: 1.3rem;
+  background: var(--accent);
+  color: var(--pill-text);
+  border-color: var(--accent);
+}
+.transport-btn.play-btn:hover {
+  filter: brightness(1.12);
+  transform: scale(1.05);
+}
+
+/* ── Subdivision buttons ── */
+/* Row of note-value selector buttons: None / 8ths / Triplets / 16ths */
+.sub-selector {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.sub-btn {
+  font-family: var(--font-b);
+  font-size: .56rem;
+  letter-spacing: .03em;
+  text-transform: none;
+  padding: 5px 9px;
+  border-radius: var(--br);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  line-height: 1.3;
+}
+.sub-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+/* Active subdivision uses accent2 background */
+.sub-btn.active {
+  background: var(--accent2);
+  color: var(--bg);
+  border-color: var(--accent2);
+  font-weight: 700;
+}
+/* Music-symbol icon displayed above the text label */
+.sub-icon {
+  font-size: .88rem;
+  line-height: 1;
+}
+
+/* ── Quick preset buttons (Time Signature card) ── */
+.preset-row {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.preset-btn {
+  font-family: var(--font-b);
+  font-size: .65rem;
+  letter-spacing: .04em;
+  padding: 5px 10px;
+  border-radius: var(--br);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+.preset-btn:hover {
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+.preset-btn.active {
+  background: var(--accent2);
+  color: var(--bg);
+  border-color: var(--accent2);
+  font-weight: 700;
+}
+
+/* ── Check row (Sound card toggles) ── */
+.check-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 14px;
+}
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .62rem;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--font-b);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  user-select: none;
+}
+.check-item input[type=checkbox] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Beat 1 screen flash ── */
+/* Full-viewport overlay — fades in to opacity:1 then JS removes .flash to fade out */
+.beat-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0;
+  /* Normal state: slow fade-out */
+  transition: opacity .08s;
+  background: radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, .07), transparent 70%);
+}
+/* .flash class applied momentarily by JS — instant fade-in */
+.beat-flash.flash {
+  opacity: 1;
+  transition: opacity 0s;
+}
+
+/* ── Mute-bar dimming ── */
+/* Grid dims when mute-bar phase is active so the user knows clicks are silent */
+.beat-grid.muted {
+  opacity: .6;
+  transition: opacity .25s;
+}
+
+/* ── Speed Trainer card body ── */
+/* Collapsible body — max-height animation provides a smooth expand/collapse */
+.st-card-body {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height .35s ease, opacity .25s ease;
+  padding: 0;
+}
+.st-card-body.open {
+  max-height: 600px;
+  opacity: 1;
+  padding-top: 14px;
+}
+.st-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.st-row label {
+  font-size: .6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: var(--font-b);
+  white-space: nowrap;
+}
+/* Numeric input for start/end BPM and duration */
+.st-num {
+  width: 72px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--br);
+  color: var(--text);
+  font-family: var(--font-b);
+  font-size: .82rem;
+  padding: 7px 10px;
+  text-align: center;
+  transition: border-color .2s, background .35s;
+}
+.st-num:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+/* Speed-trainer progress bar (thin, below duration row) */
+.st-progress {
+  width: 100%;
+  height: 5px;
+  background: var(--surface2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.st-progress-fill {
+  height: 100%;
+  background: var(--grad);
+  border-radius: 4px;
+  width: 0%;
+  transition: width .3s linear;
+}
+
+/* ── Preset save slots card ── */
+.preset-slots-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 20px;
+  width: 100%;
+  margin-bottom: 16px;
+  transition: background .35s, border-color .35s, border-radius .35s, box-shadow .35s;
+}
+@media (min-width: 480px) {
+  .preset-slots-card {
+    padding: 16px 24px;
+  }
+}
+.preset-slots-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Individual preset slot pill — unfilled slots are dimmed */
+.preset-slot {
+  font-family: var(--font-b);
+  font-size: .6rem;
+  letter-spacing: .04em;
+  padding: 5px 12px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  user-select: none;
+  position: relative;
+  min-width: 36px;
+  text-align: center;
+  opacity: .55;
+}
+/* Filled slots have a visible accent2 border and dot indicator */
+.preset-slot.filled {
+  opacity: 1;
+  background: var(--surface2);
+  border-color: var(--accent2);
+  color: var(--text);
+}
+/* Small pip below a filled slot to show it holds data */
+.preset-slot.filled::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent2);
+}
+.preset-slot:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  opacity: 1;
+}
+/* Briefly applied when a preset is loaded */
+.preset-slot.active-load {
+  background: var(--accent2);
+  color: var(--bg);
+  border-color: var(--accent2);
+  font-weight: 700;
+}
+
+/* Save mode: all slots pulse to indicate they are ready to receive a save */
+.save-mode .preset-slot {
+  animation: slotPulse 1s ease-in-out infinite;
+}
+@keyframes slotPulse {
+  0%, 100% { border-color: var(--border); }
+  50% {
+    border-color: var(--accent);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+}
+/* Filled slots pulse with their accent2 border as the base colour */
+.save-mode .preset-slot.filled {
+  animation-name: slotPulseFilled;
+}
+@keyframes slotPulseFilled {
+  0%, 100% { border-color: var(--accent2); }
+  50% {
+    border-color: var(--accent);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+}
+
+/* Save / cancel button */
+.preset-save-btn {
+  font-family: var(--font-b);
+  font-size: .6rem;
+  letter-spacing: .04em;
+  padding: 5px 12px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  user-select: none;
+}
+.preset-save-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+/* Highlighted when in save mode (acts as "Cancel" button) */
+.preset-save-btn.active {
+  background: var(--accent);
+  color: var(--pill-text);
+  border-color: var(--accent);
+}
+
+/* Temporary toast notification for preset save/load confirmation */
+.preset-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent2);
+  color: var(--bg);
+  font-family: var(--font-b);
+  font-size: .72rem;
+  letter-spacing: .06em;
+  padding: 8px 18px;
+  border-radius: 50px;
+  z-index: 600;
+  opacity: 0;
+  transition: opacity .2s;
+  pointer-events: none;
+}
+.preset-toast.show {
+  opacity: 1;
+}
+
+/* ── Number stepper (mute-bar count) ── */
+/* Compact − / value / + control used to set how many bars per mute phase */
+.num-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  overflow: hidden;
+}
+.num-stepper-btn {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--font-b);
+  font-size: .8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  padding: 0;
+}
+.num-stepper-btn:hover {
+  color: var(--accent);
+}
+.num-stepper-val {
+  font-family: var(--font-b);
+  font-size: .62rem;
+  color: var(--text);
+  min-width: 20px;
+  text-align: center;
+  letter-spacing: .04em;
+}
+
+/* ── Responsive overrides ── */
+@media (max-width: 500px) {
+  /* Maintain 44px touch target minimum by keeping dots at full size on small screens */
+  .beat-dot {
+    width: 36px;
+    height: 36px;
+  }
+  .beat-dot.sub {
+    width: 22px;
+    height: 22px;
+  }
+  /* Scale down the BPM number on very narrow viewports */
+  .bpm-number {
+    font-size: clamp(2.5rem, 15vw, 4rem);
+  }
+}
+@media (max-width: 600px) {
+  /* Enforce 44×44px minimum touch targets on subdivision buttons */
+  .sub-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

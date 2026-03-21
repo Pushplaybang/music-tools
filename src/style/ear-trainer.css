@@ -1,0 +1,742 @@
+/* ear-trainer.css — Ear Trainer tool-specific styles. Requires music-tools.css. */
+
+/* ── PIANO ── */
+
+/* Horizontal scroll wrapper for the piano; hides overflow cleanly. */
+.piano-wrap {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+/* Thin scrollbar for piano and fretboard wrappers (WebKit). */
+.piano-wrap::-webkit-scrollbar,
+.fret-wrap::-webkit-scrollbar {
+  height: 4px;
+}
+.piano-wrap::-webkit-scrollbar-track,
+.fret-wrap::-webkit-scrollbar-track {
+  background: var(--surface);
+  border-radius: 2px;
+}
+.piano-wrap::-webkit-scrollbar-thumb,
+.fret-wrap::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+/* Firefox thin scrollbar equivalent. */
+.piano-wrap,
+.fret-wrap {
+  scrollbar-width: thin;
+}
+
+.piano {
+  display: flex;
+  position: relative;
+  height: 144px;
+  width: max-content;
+  margin: 0 auto;
+}
+
+/* White piano key — uses themed surface colour to adapt to light/dark mode. */
+.white-key {
+  width: 42px;
+  height: 144px;
+  background: var(--surface-hi);
+  border-right: 1px solid var(--border-lo);
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
+  border-radius: 0 0 6px 6px;
+  margin-right: 2px;
+  position: relative;
+  cursor: pointer;
+  transition: background .15s, box-shadow .15s;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.white-key .key-label {
+  font-size: .52rem;
+  color: var(--kl);
+  font-family: var(--font-b);
+  pointer-events: none;
+}
+
+.white-key:hover {
+  background: var(--kw-hover);
+}
+
+/* Brief flash applied via JS when a note is played. */
+.white-key.playing {
+  background: var(--accent) !important;
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+
+/* Keys that belong to the currently selected scale get a subtle accent tint. */
+.white-key.in-scale {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-hi));
+  border-color: var(--accent);
+}
+.white-key.in-scale .key-label {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Quiz result colouring — correct (green) and wrong (red) responses. */
+.white-key.quiz-correct {
+  background: color-mix(in srgb, var(--correct) 18%, var(--surface-hi)) !important;
+  border-color: var(--correct) !important;
+  box-shadow: 0 0 14px var(--correct-glow);
+}
+.white-key.quiz-wrong {
+  background: color-mix(in srgb, var(--wrong) 15%, var(--surface-hi)) !important;
+  border-color: var(--wrong) !important;
+  box-shadow: 0 0 14px var(--wrong-glow);
+}
+
+/* Black piano key — absolutely positioned on top of white keys. */
+.black-key {
+  width: 26px;
+  height: 90px;
+  background: var(--kb);
+  border-radius: 0 0 5px 5px;
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  cursor: pointer;
+  transition: background .15s, box-shadow .15s;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6px;
+  border: 1px solid var(--kb-border);
+}
+
+.black-key .key-label {
+  font-size: .42rem;
+  color: var(--kbl);
+  font-family: var(--font-b);
+  pointer-events: none;
+}
+
+.black-key:hover {
+  background: var(--kb-hover);
+}
+
+.black-key.playing {
+  background: var(--kb-active) !important;
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+
+/* Black keys in-scale use accent2 (secondary accent) for differentiation. */
+.black-key.in-scale {
+  background: var(--kb-scale);
+  border-color: var(--accent2);
+}
+.black-key.in-scale .key-label {
+  color: var(--accent2);
+}
+
+.black-key.quiz-correct {
+  background: color-mix(in srgb, var(--correct) 22%, var(--kb)) !important;
+  border-color: var(--correct) !important;
+  box-shadow: 0 0 14px var(--correct-glow);
+}
+.black-key.quiz-wrong {
+  background: color-mix(in srgb, var(--wrong) 18%, var(--kb)) !important;
+  border-color: var(--wrong) !important;
+  box-shadow: 0 0 14px var(--wrong-glow);
+}
+
+
+/* ── FRETBOARD ── */
+
+.fret-wrap {
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+/* SVG fretboards — minimum widths prevent them from collapsing on small screens. */
+svg.fretboard {
+  display: block;
+  min-width: 680px;
+  width: 100%;
+}
+svg.bass {
+  display: block;
+  min-width: 560px;
+  width: 100%;
+}
+svg.ukulele {
+  display: block;
+  min-width: 480px;
+  width: 100%;
+}
+
+
+/* ── QUIZ ── */
+
+.quiz-area {
+  text-align: center;
+}
+
+.quiz-mode-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+/* Quiz mode pill buttons (Note Names / Intervals / Chords). */
+.quiz-mode-btn {
+  font-family: var(--font-b);
+  font-size: .62rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: var(--br);
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+.quiz-mode-btn.active {
+  background: transparent;
+  color: var(--accent2);
+  border-color: var(--accent2);
+  font-weight: 700;
+}
+.quiz-mode-btn:hover:not(.active) {
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+
+/* Quiz card gets a subtle accent2 border tint to distinguish it from config/visualiser cards. */
+.card-quiz {
+  border-color: color-mix(in srgb, var(--accent2) 30%, var(--border));
+}
+
+
+/* ── READOUT ── */
+
+.quiz-prompt {
+  font-family: var(--font-h);
+  font-size: 1.05rem;
+  color: var(--text);
+  margin-bottom: 12px;
+  min-height: 30px;
+}
+.quiz-prompt .readout-main {
+  font-family: var(--font-h);
+  font-size: 1.8rem;
+  color: var(--accent);
+  line-height: 1.2;
+}
+.quiz-prompt .readout-main .unit {
+  font-size: 1rem;
+  color: var(--text-2);
+  font-family: var(--font-b);
+  margin-left: 4px;
+}
+.quiz-prompt .readout-sub {
+  font-family: var(--font-b);
+  font-size: .68rem;
+  color: var(--text-3);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.quiz-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+/* Answer option buttons — neutral by default, coloured after the user responds. */
+.quiz-opt {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--br);
+  color: var(--text);
+  font-family: var(--font-b);
+  font-size: .8rem;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: all .15s;
+  min-width: 54px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.quiz-opt:hover:not(:disabled) {
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+.quiz-opt.correct {
+  background: rgba(78, 220, 140, .15);
+  border-color: var(--correct);
+  color: var(--correct);
+  box-shadow: 0 0 14px var(--correct-glow);
+}
+.quiz-opt.wrong {
+  background: rgba(220, 80, 80, .12);
+  border-color: var(--wrong);
+  color: var(--wrong);
+  box-shadow: 0 0 14px var(--wrong-glow);
+  animation: shakeX 0.25s;
+}
+.quiz-opt:disabled {
+  cursor: not-allowed;
+}
+
+/* Horizontal shake animation applied to wrong answer buttons. */
+@keyframes shakeX {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-4px); }
+  75%       { transform: translateX(4px); }
+}
+
+.quiz-feedback {
+  font-family: var(--font-b);
+  font-size: .88rem;
+  min-height: 22px;
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+  transition: color .2s;
+}
+.quiz-feedback.correct {
+  color: var(--correct);
+  text-shadow: 0 0 8px var(--correct-glow);
+}
+.quiz-feedback.wrong {
+  color: var(--wrong);
+  text-shadow: 0 0 8px var(--wrong-glow);
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+
+/* ── COUNTDOWN TIMER (quiz) ── */
+
+/* Hidden by default; toggled to display:flex when a timer duration is selected. */
+.timer-wrap {
+  display: none;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.timer-wrap.active {
+  display: flex;
+}
+
+/* SVG ring is rotated so the arc starts at the top (12 o'clock position). */
+.timer-svg {
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+.timer-track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 4;
+}
+
+/* stroke-dashoffset is manipulated by JS to animate the countdown arc. */
+.timer-arc {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 100.53; /* circumference of r=16 circle: 2π×16 */
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1s linear, stroke .4s;
+}
+
+/* Arc and number turn red in the final 3 seconds. */
+.timer-arc.urgent {
+  stroke: var(--wrong);
+}
+.timer-num {
+  font-family: var(--font-b);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--text);
+  text-anchor: middle;
+  dominant-baseline: central;
+  transition: fill .4s;
+  /* Counter-rotate the number so it reads upright despite the SVG rotation. */
+  transform: rotate(90deg);
+  transform-origin: 18px 18px;
+}
+.timer-num.urgent {
+  fill: var(--wrong);
+}
+
+
+/* ── SCORE ROW ── */
+
+/* Hidden until the first answer is submitted. */
+.score-row {
+  display: none;
+  gap: 18px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.score-row.visible {
+  display: flex;
+}
+
+.sc-item {
+  font-size: .86rem;
+  color: var(--muted);
+  letter-spacing: .06em;
+  font-family: var(--font-b);
+}
+.sc-correct  { color: var(--correct); font-weight: 700; }
+.sc-wrong    { color: var(--wrong);   font-weight: 700; }
+.sc-timeout  { color: var(--wrong);   font-weight: 700; }
+.sc-acc      { color: var(--accent);  font-weight: 700; }
+
+
+/* ── EXTRA BUTTON VARIANT ── */
+
+/* Randomise button — ghost style using accent2 colour. */
+.btn-rand {
+  background: transparent;
+  color: var(--accent2);
+  border: 1px solid var(--accent2);
+}
+.btn-rand:hover {
+  background: rgba(100, 200, 200, .08);
+}
+
+.scale-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  justify-content: center;
+}
+.scale-actions button {
+  padding: 5px 12px;
+  font-size: .65rem;
+}
+
+#btnSpeed {
+  min-width: 36px;
+  text-align: center;
+}
+
+/* Small square icon button used for randomise (⚄) triggers. */
+.btn-icon-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm, 10px);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--accent2);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .18s;
+  padding: 0;
+  line-height: 1;
+}
+.btn-icon-sm:hover {
+  border-color: var(--accent2);
+  background: rgba(192, 0, 110, 0.08);
+}
+
+
+/* ── CONFIG: 1-col mobile, 3-col above (overrides shared .controls default) ── */
+
+.controls.config-grid {
+  grid-template-columns: 1fr !important;
+}
+@media (min-width: 601px) {
+  .controls.config-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+/* Disabled tuning group styling — shown when Piano visualiser is active. */
+.control-group.disabled {
+  opacity: .35;
+  pointer-events: none;
+}
+
+/* Config summary row (mobile only) — collapsed header showing current config. */
+.config-summary {
+  display: none;
+}
+.config-chevron {
+  font-size: .7rem;
+  color: var(--muted);
+  transition: transform var(--transition, .22s);
+}
+.config-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* Wobble animation for the Finish! button when a round of 10 is completed. */
+@keyframes wobble {
+  0%, 100% { transform: rotate(0); }
+  15%       { transform: rotate(-3deg); }
+  30%       { transform: rotate(2.5deg); }
+  45%       { transform: rotate(-2deg); }
+  60%       { transform: rotate(1.5deg); }
+  75%       { transform: rotate(-1deg); }
+}
+.wobble {
+  animation: wobble 0.6s ease-in-out;
+}
+
+
+/* ── PLAN STAGES ── */
+
+/* Beginner Progression Plan overlay content layout. */
+.plan-stages {
+  text-align: left;
+}
+.plan-stages h3 {
+  font-family: var(--font-h);
+  color: var(--accent);
+  margin: 20px 0 10px;
+  font-size: 1.1rem;
+}
+.step {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+  align-items: flex-start;
+}
+.step-num {
+  background: var(--accent);
+  color: var(--pill-text);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.step-text {
+  font-size: .82rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+
+/* ── TIMER DURATION SELECTOR ── */
+
+.timer-dur-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .72rem;
+  color: var(--muted);
+  font-family: var(--font-b);
+}
+.timer-dur-label {
+  white-space: nowrap;
+}
+.timer-dur-btns {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* Individual timer preset buttons (Off / 5s / 10s / 15s / 20s). */
+.timer-dur-btn {
+  font-family: var(--font-b);
+  font-size: .65rem;
+  letter-spacing: .05em;
+  padding: 5px 9px;
+  border-radius: var(--br);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  text-transform: none;
+  line-height: 1;
+}
+.timer-dur-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.timer-dur-btn.active {
+  background: var(--accent);
+  color: var(--pill-text);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+/* Mobile overrides. */
+@media (max-width: 600px) {
+  /* Ensure quiz option buttons are tall enough to be comfortably tappable. */
+  .quiz-opt {
+    min-height: 44px;
+  }
+  .vis-tab {
+    min-height: unset;
+  }
+  /* Show the config summary row and collapse the config panel on mobile. */
+  .config-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    cursor: pointer;
+    font-family: var(--font-b);
+    font-size: .78rem;
+    color: var(--text-2);
+    letter-spacing: .04em;
+  }
+  .config-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .config-panel.open {
+    max-height: 500px;
+  }
+}
+
+
+/* ── BAR TITLE ── */
+
+.bar-title {
+  font-family: var(--font-h);
+  font-size: .9rem;
+  color: var(--accent);
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+
+/* ── LINKS BAR ── */
+
+.links-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 12px;
+  margin-top: 8px;
+}
+
+/* Pill-shaped navigation links at the bottom of the page. */
+.link-pill {
+  font-family: var(--font-b);
+  font-size: .62rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 6px 15px;
+  border-radius: 50px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: transparent;
+  text-decoration: none;
+  transition: border-color .2s, color .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.link-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+
+/* ── CARD HOVER SHADOW ── */
+
+/* Subtle lift effect on cards — separate values for light and dark modes. */
+.card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .12), 0 0 0 1px var(--border);
+}
+[data-mode="dark"] .card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .4), 0 0 0 1px var(--border);
+}
+
+
+/* ── KNOBS ── */
+
+/* Row container for the eight sound-shaping SVG knobs. */
+.knob-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+/* Individual knob wrapper — stacks SVG, label, and numeric readout. */
+.knob-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.knob-label {
+  font-family: var(--font-b);
+  font-size: .5rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.knob-value {
+  font-family: var(--font-b);
+  font-size: .62rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+/* The knob SVG element — cursor indicates vertical drag interaction. */
+.knob-svg {
+  cursor: ns-resize;
+}
+
+
+/* ── SESSION ── */
+
+/* Score overlay gets an accent glow on its modal card. */
+#scoreOverlay .modal-card {
+  box-shadow: 0 0 0 1px var(--border), 0 0 32px var(--accent-glow);
+}
+
+/* Shown in the sessions chart overlay when no sessions have been recorded yet. */
+.session-empty {
+  font-family: var(--font-b);
+  font-size: .82rem;
+  color: var(--muted);
+  padding: 24px 0;
+  text-align: center;
+}
+
+/* Summary line below the sessions bar chart (N sessions · Best · Avg). */
+.session-stats-text {
+  font-family: var(--font-b);
+  font-size: .8rem;
+  color: var(--muted);
+  margin-top: 10px;
+  text-align: center;
+  letter-spacing: .04em;
+}

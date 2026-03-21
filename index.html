@@ -9,54 +9,34 @@
 <meta property="og:description" content="Free browser-based music tools. Ear trainer, chromatic tuner, visual metronome. No install needed.">
 <meta property="og:type" content="website">
 <link rel="canonical" href="https://pushplaybang.github.io/music-tools/">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=Syne:wght@400;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
-/* ── THEME TOKENS ─────────────────────────────────────────────── */
-[data-theme="current"]{
-  --bg:#0d0f12;--bg-grad:radial-gradient(ellipse at 20% 0%,#1a2030 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,#0d1a14 0%,transparent 60%);
-  --surface:#161a1f;--surface2:#1e2329;--border:#2a3040;
-  --accent:#e8b84b;--accent2:#4be8b8;--text:#e8e4da;--muted:#6b7280;
-  --font-h:'DM Serif Display',serif;--font-b:'Space Mono',monospace;
-  --h1:clamp(2rem,6vw,3.6rem);--r:12px;--br:6px;
-  --bar-bg:#0a0c0e;--pill-active:#e8b84b;--pill-text:#0d0f12;
-  --grad:linear-gradient(90deg,#e8b84b,#4be8b8);
+/* ── MODE TOKENS ─────────────────────────────────────────────── */
+[data-mode="light"]{
+  --bg:#EAEDF5;--surface:#F3F5FC;--surface-hi:#FAFBFF;--surface-lo:#DCDFF0;
+  --surface2:#DCDFF0;--border:rgba(70,100,190,0.10);
+  --accent:#0080C0;--accent2:#C0006E;--text:#0A1220;--muted:#7088A8;--text-hi:#2e5075;
+  --font-h:'Syne',sans-serif;--font-b:'DM Mono',monospace;
+  --r:18px;--br:10px;--h1:clamp(2rem,6vw,3.6rem);
+  --bar-bg:#F3F5FC;--pill-text:#EAEDF5;
+  --grad:linear-gradient(90deg,var(--accent),var(--accent2));
+  --neu-out:7px 7px 18px rgba(40,60,150,0.12),-4px -4px 12px rgba(255,255,255,0.94);
+  --kw:var(--surface-hi);--kw-border:rgba(70,100,190,0.15);--kb:#181C28;--kb-border:rgba(0,0,0,0.3);
+  --bg-grad:none;
 }
-[data-theme="minimal"]{
-  --bg:#fafaf8;--bg-grad:none;--surface:#fff;--surface2:#f4f4f0;--border:#e2e2dc;
-  --accent:#1a1a1a;--accent2:#5a8a6e;--text:#1a1a1a;--muted:#999990;
-  --font-h:'Instrument Serif',serif;--font-b:'Syne',sans-serif;
-  --h1:clamp(2rem,6vw,4rem);--r:2px;--br:2px;
-  --bar-bg:#f0f0ec;--pill-active:#1a1a1a;--pill-text:#fafaf8;
-  --grad:linear-gradient(90deg,#1a1a1a,#5a8a6e);
-}
-[data-theme="studio"]{
-  --bg:#0e0e0e;--bg-grad:radial-gradient(ellipse at 50% -20%,#1a0a2e 0%,transparent 60%);
-  --surface:#141414;--surface2:#1c1c1c;--border:#2a2a2a;
-  --accent:#c678f0;--accent2:#78c6f0;--text:#d4d4d4;--muted:#555;
-  --font-h:'Syne',sans-serif;--font-b:'Space Mono',monospace;
-  --h1:clamp(1.6rem,5vw,3rem);--r:8px;--br:4px;
-  --bar-bg:#080808;--pill-active:#c678f0;--pill-text:#0e0e0e;
-  --grad:linear-gradient(90deg,#c678f0,#78c6f0);
-}
-[data-theme="retro"]{
-  --bg:#1c1108;--bg-grad:radial-gradient(ellipse at 50% 0%,#2e1c08 0%,transparent 70%);
-  --surface:#231508;--surface2:#2e1c08;--border:#5a3d1a;
-  --accent:#d4a843;--accent2:#c47840;--text:#e8d8b0;--muted:#8a6a3a;
-  --font-h:'Playfair Display',serif;--font-b:'Playfair Display',serif;
-  --h1:clamp(2rem,6vw,4rem);--r:4px;--br:3px;
-  --bar-bg:#120b04;--pill-active:#d4a843;--pill-text:#1c1108;
-  --grad:linear-gradient(90deg,#d4a843,#c47840);
-}
-[data-theme="playful"]{
-  --bg:#fff9f0;--bg-grad:radial-gradient(ellipse at 10% 10%,#ffe8f0 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,#e8f0ff 0%,transparent 50%);
-  --surface:#fff;--surface2:#fdf5ff;--border:#e8d8f8;
-  --accent:#ff5fa0;--accent2:#5fb8ff;--text:#2a1840;--muted:#b090c8;
-  --font-h:'Nunito',sans-serif;--font-b:'Nunito',sans-serif;
-  --h1:clamp(2rem,6vw,4rem);--r:20px;--br:50px;
-  --bar-bg:#f5e8ff;--pill-active:#ff5fa0;--pill-text:#fff;
-  --grad:linear-gradient(90deg,#ff5fa0,#5fb8ff);
+[data-mode="dark"]{
+  --bg:#080A0F;--surface:#0D1019;--surface-hi:#121620;--surface-lo:#080A12;
+  --surface2:#080A12;--border:rgba(120,150,220,0.12);
+  --accent:#00D8FF;--accent2:#FF2688;--text:#D8E8F8;--muted:#5A7898;--text-hi:#9dbada;
+  --font-h:'Syne',sans-serif;--font-b:'DM Mono',monospace;
+  --r:18px;--br:10px;--h1:clamp(2rem,6vw,3.6rem);
+  --bar-bg:#0D1019;--pill-text:#080A0F;
+  --grad:linear-gradient(90deg,var(--accent),var(--accent2));
+  --neu-out:7px 7px 20px rgba(0,0,0,0.62),-2px -2px 6px rgba(255,255,255,0.035);
+  --kw:#1A1E2C;--kw-border:rgba(120,150,220,0.1);--kb:#060810;--kb-border:rgba(0,0,0,0.5);
+  --bg-grad:none;
 }
 
 /* ── BASE ── */
@@ -66,53 +46,50 @@ body::before{content:'';position:fixed;inset:0;background:var(--bg-grad);pointer
 /* ── THEME BAR ── */
 .theme-bar{width:100%;background:var(--bar-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:6px 16px;position:sticky;top:0;z-index:200;transition:background .35s,border-color .35s;gap:8px;}
 .bar-left{display:flex;align-items:center;gap:4px;flex-shrink:0;}
-.bar-right{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;}
-.bar-sep{width:1px;height:22px;background:var(--border);margin:0 6px;flex-shrink:0;}
+.bar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto;}
 .bar-icon-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:var(--br);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .18s;flex-shrink:0;text-decoration:none;}
 .bar-icon-btn:hover{border-color:var(--accent);color:var(--accent);}
-.theme-pills-desktop{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
-.theme-pill{font-family:var(--font-b);font-size:.62rem;letter-spacing:.05em;padding:6px 13px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap;}
-.theme-pill:hover{color:var(--text);border-color:var(--accent);}
-.theme-pill.active{background:var(--pill-active);color:var(--pill-text);border-color:var(--pill-active);font-weight:700;}
-.theme-mobile{display:none;position:relative;}
-.theme-mobile-btn{font-family:var(--font-b);font-size:.7rem;padding:6px 12px;border-radius:50px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .2s;}
-.theme-mobile-btn .arrow{font-size:.5rem;transition:transform .2s;}
-.theme-mobile-btn.open .arrow{transform:rotate(180deg);}
-.theme-flyout{position:absolute;top:calc(100% + 8px);right:0;background:var(--bar-bg);border:1px solid var(--border);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:160px;z-index:300;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .18s,transform .18s;box-shadow:0 8px 24px rgba(0,0,0,.3);}
-.theme-flyout.open{opacity:1;pointer-events:all;transform:translateY(0);}
-.theme-flyout .theme-pill{border-radius:6px;text-align:left;font-size:.72rem;padding:8px 14px;}
-@media(max-width:640px){.theme-pills-desktop{display:none;}.theme-mobile{display:block;}}
+
+/* ── BAR SEP ── */
+.bar-sep{width:1px;height:22px;background:var(--border);margin:0 2px;flex-shrink:0;}
+
+/* ── MODE TOGGLE ── */
+.mode-badge{font-family:var(--font-b,monospace);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.mode-toggle{width:48px;height:26px;border-radius:13px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;position:relative;flex-shrink:0;}
+.mode-toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:transform .3s,background .22s;}
+[data-mode="dark"] .mode-toggle::after{transform:translateX(22px);background:var(--accent);}
+
+/* ── ACCENT DROPDOWN ── */
+.accent-drop{position:relative;flex-shrink:0;}
+.accent-drop-btn{display:flex;align-items:center;gap:5px;height:26px;padding:0 8px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--muted);cursor:pointer;transition:border-color .18s,color .18s;}
+.accent-drop-btn:hover{border-color:var(--accent);color:var(--accent);}
+.accent-drop-dot{width:10px;height:10px;border-radius:50%;background:var(--sw,var(--accent2));flex-shrink:0;pointer-events:none;}
+.accent-drop-chev{flex-shrink:0;transition:transform .18s;pointer-events:none;}
+.accent-drop.open .accent-drop-chev{transform:rotate(180deg);}
+.accent-drop-panel{position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;flex-direction:column;gap:2px;min-width:110px;box-shadow:0 8px 24px rgba(0,0,0,.22);z-index:300;display:none;}
+.accent-drop.open .accent-drop-panel{display:flex;}
+.accent-drop-item{display:flex;align-items:center;gap:8px;width:100%;padding:6px 10px;border:none;background:transparent;color:var(--text);cursor:pointer;border-radius:8px;font-family:var(--font-b,monospace);font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;text-align:left;transition:background .15s;}
+.accent-drop-item:hover{background:var(--surface2);}
+.accent-drop-item.active{background:var(--surface2);color:var(--accent);}
+.accent-drop-item-dot{width:10px;height:10px;border-radius:50%;background:var(--sw);flex-shrink:0;display:block;}
 
 /* ── CONTENT ── */
 .content{position:relative;z-index:1;width:100%;max-width:1120px;padding:40px 20px 0;display:flex;flex-direction:column;align-items:center;}
 
 /* ── HEADER ── */
 header{text-align:center;margin-bottom:36px;}
-header h1{font-family:var(--font-h);font-size:var(--h1);color:var(--accent);line-height:1.1;transition:color .35s,font-size .35s,font-family .35s;}
-[data-theme="current"] header h1{text-shadow:0 0 60px rgba(232,184,75,.25);}
-[data-theme="studio"] header h1{text-transform:uppercase;letter-spacing:.14em;text-shadow:0 0 30px rgba(198,120,240,.35);font-weight:800;}
-[data-theme="retro"] header h1{font-style:italic;}
-[data-theme="playful"] header h1{font-weight:800;}
-header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);letter-spacing:.1em;text-transform:uppercase;margin-top:10px;font-family:var(--font-b);transition:color .35s;}
-[data-theme="retro"] header p.sub{font-style:italic;text-transform:none;}
-[data-theme="playful"] header p.sub{text-transform:none;letter-spacing:0;}
+header h1{font-family:var(--font-h);font-size:var(--h1);color:var(--accent);line-height:1.1;transition:color .35s,font-size .35s;}
+header p.sub{color:var(--text-hi);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);letter-spacing:.1em;text-transform:uppercase;margin-top:10px;font-family:var(--font-b);transition:color .35s;}
 .grad-rule{height:2px;background:var(--grad);border-radius:2px;width:clamp(48px,12vw,96px);margin:18px auto 0;opacity:.6;}
 
 /* ── INTRO ── */
 .intro{max-width:680px;text-align:center;margin-bottom:44px;}
 .intro p{font-size:clamp(.8rem,.5rem + 1vw,.95rem);color:var(--muted);line-height:1.85;transition:color .35s;}
-[data-theme="retro"] .intro p{font-style:italic;}
 .badge-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px;}
-.badge{font-family:var(--font-b);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:50px;border:1px solid var(--border);color:var(--muted);background:transparent;transition:border-color .35s,color .35s;}
-[data-theme="retro"] .badge,[data-theme="playful"] .badge{text-transform:none;}
+.badge{font-family:var(--font-b);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:50px;border:1px solid var(--border);color:var(--text-hi);background:transparent;transition:border-color .35s,color .35s;}
 
 /* ── CARD (base) ── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);transition:background .35s,border-color .35s,border-radius .35s,box-shadow .35s;}
-[data-theme="minimal"] .card{border-left:3px solid var(--accent);}
-[data-theme="studio"] .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.03);}
-[data-theme="retro"] .card{border:2px solid var(--border);box-shadow:4px 4px 0 rgba(0,0,0,.5);}
-[data-theme="playful"] .card{border:2px solid var(--border);box-shadow:0 4px 24px rgba(255,95,160,.1);}
-[data-theme="retro"] .card .tool-illo::before{display:none;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--neu-out);transition:background .35s,border-color .35s,box-shadow .35s;}
 
 /* ── TOOLS GRID ── */
 .tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;width:100%;margin-bottom:40px;}
@@ -120,49 +97,41 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
 @media(max-width:600px){.tools-grid{grid-template-columns:1fr;gap:20px;max-width:520px;}}
 
 /* ── TOOL CARD ── */
-.tool-card{display:flex;flex-direction:column;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s,border-color .35s,background .35s,border-radius .35s;}
-.tool-card:hover{transform:translateY(-5px);box-shadow:0 20px 56px rgba(0,0,0,.35);}
-[data-theme="current"] .tool-card:hover{box-shadow:0 20px 56px rgba(0,0,0,.45),0 0 0 1px var(--accent);}
-[data-theme="studio"] .tool-card:hover{box-shadow:0 20px 56px rgba(198,120,240,.18),0 0 0 1px var(--accent);}
-[data-theme="minimal"] .tool-card:hover{box-shadow:0 10px 32px rgba(0,0,0,.1);}
-[data-theme="playful"] .tool-card:hover{box-shadow:0 20px 56px rgba(255,95,160,.22),0 0 0 2px var(--accent);}
-[data-theme="retro"] .tool-card:hover{transform:translateY(-2px);box-shadow:6px 6px 0 rgba(0,0,0,.6);}
+.tool-card{display:flex;flex-direction:column;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s,border-color .35s,background .35s;}
+.tool-card:hover{transform:translateY(-5px);box-shadow:0 20px 56px rgba(0,0,0,.35),0 0 0 1px var(--accent);}
 
 /* ── ILLUSTRATION AREA ── */
 .tool-illo{background:var(--surface2);display:flex;align-items:center;justify-content:center;padding:28px 24px;border-bottom:1px solid var(--border);transition:background .35s,border-color .35s;}
 .tool-illo svg{width:190px;height:150px;display:block;overflow:visible;}
-[data-theme="retro"] .card::before{content:'';display:block;height:3px;background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 6px,transparent 6px,transparent 12px);opacity:.3;border-radius:var(--r) var(--r) 0 0;}
 
 /* ── TOOL BODY ── */
 .tool-body{padding:22px;display:flex;flex-direction:column;flex:1;}
 @media(min-width:480px){.tool-body{padding:26px;}}
-.tool-name{font-family:var(--font-h);font-size:1.35rem;color:var(--accent);margin-bottom:10px;line-height:1.2;transition:color .35s,font-family .35s;}
-[data-theme="studio"] .tool-name{text-transform:uppercase;letter-spacing:.1em;font-size:1.05rem;font-weight:800;}
-[data-theme="retro"] .tool-name{font-style:italic;font-size:1.45rem;}
-[data-theme="playful"] .tool-name{font-weight:800;font-size:1.4rem;}
+.tool-name{font-family:var(--font-h);font-size:1.35rem;color:var(--accent);margin-bottom:10px;line-height:1.2;transition:color .35s;}
 .tool-desc{font-size:.82rem;color:var(--muted);line-height:1.75;margin-bottom:18px;flex:1;transition:color .35s;}
-[data-theme="retro"] .tool-desc{font-style:italic;}
 .tool-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
-.tool-tag{font-family:var(--font-b);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:50px;border:1px solid var(--border);color:var(--muted);transition:border-color .35s,color .35s;}
-[data-theme="retro"] .tool-tag,[data-theme="playful"] .tool-tag{text-transform:none;}
+.tool-tag{font-family:var(--font-b);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:50px;border:1px solid var(--border);color:var(--text-hi);transition:border-color .35s,color .35s;}
 
 /* ── LAUNCH BUTTON ── */
 .tool-launch{width:100%;font-family:var(--font-b);font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;padding:12px 20px;border-radius:var(--br);border:none;cursor:pointer;background:var(--accent);color:var(--pill-text);font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:filter .15s,transform .15s;}
 .tool-launch:hover{filter:brightness(1.12);transform:translateY(-1px);}
-[data-theme="retro"] .tool-launch,[data-theme="playful"] .tool-launch{text-transform:none;font-size:.9rem;}
-[data-theme="playful"] .tool-launch{font-weight:800;letter-spacing:0;}
 
 /* ── LINKS BAR ── */
 .links-bar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;margin-bottom:12px;}
 .link-pill{font-family:var(--font-b);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:6px 15px;border-radius:50px;border:1px solid var(--border);color:var(--muted);background:transparent;text-decoration:none;transition:border-color .2s,color .2s;display:inline-flex;align-items:center;gap:6px;}
 .link-pill:hover{border-color:var(--accent);color:var(--accent);}
-[data-theme="retro"] .link-pill,[data-theme="playful"] .link-pill{text-transform:none;}
 
 /* ── FOOTER ── */
 .app-footer{position:relative;z-index:1;font-family:var(--font-b);font-size:.62rem;color:var(--muted);opacity:.5;letter-spacing:.08em;margin-top:6px;padding-bottom:8px;text-align:center;}
+
+/* ── RESPONSIVE TOUCH TARGETS ── */
+@media(max-width:600px){.bar-icon-btn{width:44px;height:44px;}}
+
+/* ── REDUCED MOTION ── */
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;transition-duration:0.1ms !important;}}
 </style>
 </head>
-<body data-theme="current">
+<body data-mode="dark">
 
 <!-- ══ THEME BAR ══ -->
 <div class="theme-bar">
@@ -173,28 +142,22 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
       </svg>
     </a>
   </div>
-  <div class="bar-sep"></div>
   <div class="bar-right">
-    <div class="theme-pills-desktop">
-      <button class="theme-pill active" data-t="current">Dark Gold</button>
-      <button class="theme-pill" data-t="minimal">Clean &amp; Minimal</button>
-      <button class="theme-pill" data-t="studio">Dark Studio</button>
-      <button class="theme-pill" data-t="retro">Retro Piano</button>
-      <button class="theme-pill" data-t="playful">Bright &amp; Playful</button>
-    </div>
-    <div class="theme-mobile">
-      <button class="theme-mobile-btn" id="themeMobileBtn">
-        <span id="themeMobileLabel">Dark Gold</span>
-        <span class="arrow">▼</span>
+    <div class="accent-drop" id="accentDrop">
+      <button class="accent-drop-btn" id="accentDropBtn" title="Choose accent colour" aria-haspopup="listbox" aria-expanded="false">
+        <span class="accent-drop-dot"></span>
+        <svg class="accent-drop-chev" width="9" height="6" viewBox="0 0 9 6" fill="none"><path d="M1 1l3.5 3.5L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <div class="theme-flyout" id="themeFlyout">
-        <button class="theme-pill active" data-t="current">Dark Gold</button>
-        <button class="theme-pill" data-t="minimal">Clean &amp; Minimal</button>
-        <button class="theme-pill" data-t="studio">Dark Studio</button>
-        <button class="theme-pill" data-t="retro">Retro Piano</button>
-        <button class="theme-pill" data-t="playful">Bright &amp; Playful</button>
+      <div class="accent-drop-panel" role="listbox">
+        <button class="accent-drop-item" data-accent="pink"   role="option"><span class="accent-drop-item-dot" style="--sw:#FF2688"></span>Pink</button>
+        <button class="accent-drop-item" data-accent="orange" role="option"><span class="accent-drop-item-dot" style="--sw:#FF6830"></span>Orange</button>
+        <button class="accent-drop-item" data-accent="teal"   role="option"><span class="accent-drop-item-dot" style="--sw:#00CCB8"></span>Teal</button>
+        <button class="accent-drop-item" data-accent="olive"  role="option"><span class="accent-drop-item-dot" style="--sw:#C4E020"></span>Olive</button>
       </div>
     </div>
+    <span class="bar-sep"></span>
+    <span class="mode-badge" id="modeBadge">DARK</span>
+    <div class="mode-toggle" id="modeToggle" title="Toggle dark / light mode"></div>
   </div>
 </div>
 
@@ -202,14 +165,14 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
 <div class="content">
 
   <header>
-    <h1 id="appTitle">Music Tools</h1>
-    <p class="sub" id="appSub">free browser-based tools for musicians</p>
+    <h1>Music Tools</h1>
+    <p class="sub">free browser-based tools for musicians</p>
     <div class="grad-rule"></div>
   </header>
 
   <!-- Brief intro -->
   <div class="intro">
-    <p id="appIntro">A small collection of free, open-source, browser-based tools for musicians at any level. No account, no installation, no server — each tool is a single HTML file that runs entirely in your browser, powered by the Web Audio API.</p>
+    <p>A small collection of free, open-source, browser-based tools for musicians at any level. No account, no installation, no server — each tool is a single HTML file that runs entirely in your browser, powered by the Web Audio API.</p>
     <div class="badge-row">
       <span class="badge">Vanilla HTML · CSS · JS</span>
       <span class="badge">Web Audio API</span>
@@ -248,12 +211,12 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
           <path d="M49 122 Q72 96 95 122 Q118 148 141 122" stroke="var(--accent2)" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.2"/>
           <!-- Quiz "?" badge -->
           <circle cx="162" cy="28" r="14" fill="var(--surface2)" stroke="var(--accent2)" stroke-width="1.5"/>
-          <text x="162" y="33.5" text-anchor="middle" font-size="15" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent2)">?</text>
+          <text x="162" y="33.5" text-anchor="middle" font-size="15" font-weight="700" font-family="'DM Mono',monospace" fill="var(--accent2)">?</text>
         </svg>
       </div>
       <div class="tool-body">
         <div class="tool-name">Ear Trainer</div>
-        <p class="tool-desc">Sharpen your musical ear with interactive scale, interval, and chord quizzes across 15 scales. Visualise notes on piano keyboard, treble staff, guitar, bass, and ukulele fretboards.</p>
+        <p class="tool-desc">Sharpen your musical ear with interactive scale, interval, and chord quizzes across 15 scales. Visualise notes on piano keyboard, guitar, bass, and ukulele fretboards.</p>
         <div class="tool-tags">
           <span class="tool-tag">Ear Training</span>
           <span class="tool-tag">Scales</span>
@@ -292,12 +255,12 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
           <circle cx="95" cy="118" r="10" fill="var(--surface2)" stroke="var(--border)" stroke-width="2"/>
           <circle cx="95" cy="118" r="4.5" fill="var(--accent)"/>
           <!-- Note display -->
-          <text x="95" y="104" text-anchor="middle" font-size="26" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent)">A4</text>
+          <text x="95" y="104" text-anchor="middle" font-size="26" font-weight="700" font-family="'DM Mono',monospace" fill="var(--accent)">A4</text>
           <!-- ♭ / ♯ labels -->
-          <text x="21" y="138" text-anchor="middle" font-size="13" font-family="'Space Mono',monospace" fill="var(--muted)">♭</text>
-          <text x="169" y="138" text-anchor="middle" font-size="13" font-family="'Space Mono',monospace" fill="var(--muted)">♯</text>
+          <text x="21" y="138" text-anchor="middle" font-size="13" font-family="'DM Mono',monospace" fill="var(--muted)">♭</text>
+          <text x="169" y="138" text-anchor="middle" font-size="13" font-family="'DM Mono',monospace" fill="var(--muted)">♯</text>
           <!-- IN TUNE micro-label -->
-          <text x="95" y="149" text-anchor="middle" font-size="7.5" letter-spacing="2" font-family="'Space Mono',monospace" fill="var(--accent2)" opacity="0.75">IN TUNE</text>
+          <text x="95" y="149" text-anchor="middle" font-size="7.5" letter-spacing="2" font-family="'DM Mono',monospace" fill="var(--accent2)" opacity="0.75">IN TUNE</text>
           <!-- In-tune LED indicator (top-left) -->
           <circle cx="14" cy="46" r="5.5" fill="var(--accent2)" opacity="0.85"/>
           <circle cx="14" cy="46" r="9" stroke="var(--accent2)" stroke-width="1.5" fill="none" opacity="0.3"/>
@@ -334,7 +297,7 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
           <line x1="118" y1="100" x2="107" y2="100" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
           <!-- BPM display window -->
           <rect x="75" y="108" width="40" height="22" rx="3" fill="var(--bg)" stroke="var(--accent)" stroke-width="1.5" opacity="0.9"/>
-          <text x="95" y="124" text-anchor="middle" font-size="11" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent)">120</text>
+          <text x="95" y="124" text-anchor="middle" font-size="11" font-weight="700" font-family="'DM Mono',monospace" fill="var(--accent)">120</text>
           <!-- Pendulum pivot -->
           <circle cx="95" cy="84" r="5" fill="var(--border)"/>
           <!-- Pendulum arm (tilted right) -->
@@ -378,9 +341,9 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
           <!-- Play triangle -->
           <polygon points="92,70 92,80 100,75" fill="var(--pill-text)"/>
           <!-- Note label -->
-          <text x="95" y="118" text-anchor="middle" font-size="14" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent2)">A3</text>
+          <text x="95" y="118" text-anchor="middle" font-size="14" font-weight="700" font-family="'DM Mono',monospace" fill="var(--accent2)">A3</text>
           <!-- Frequency micro-label -->
-          <text x="95" y="132" text-anchor="middle" font-size="7.5" letter-spacing="1.5" font-family="'Space Mono',monospace" fill="var(--muted)" opacity="0.75">220 Hz</text>
+          <text x="95" y="132" text-anchor="middle" font-size="7.5" letter-spacing="1.5" font-family="'DM Mono',monospace" fill="var(--muted)" opacity="0.75">220 Hz</text>
         </svg>
       </div>
       <div class="tool-body">
@@ -420,7 +383,7 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
           <!-- Centre dot -->
           <circle cx="95" cy="82" r="3.5" fill="var(--accent)"/>
           <!-- Time display -->
-          <text x="95" y="105" text-anchor="middle" font-size="13" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent)">25:00</text>
+          <text x="95" y="105" text-anchor="middle" font-size="13" font-weight="700" font-family="'DM Mono',monospace" fill="var(--accent)">25:00</text>
           <!-- Coloured session blocks below -->
           <rect x="30" y="140" width="32" height="6" rx="2" fill="var(--accent)" opacity="0.85"/>
           <rect x="66" y="140" width="50" height="6" rx="2" fill="var(--accent2)" opacity="0.85"/>
@@ -465,19 +428,19 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
           <rect x="122" y="92" width="12" height="26" rx="1.5" fill="var(--kb)" stroke="var(--kb-border)" stroke-width="0.5"/>
           <rect x="142" y="92" width="12" height="26" rx="1.5" fill="var(--kb)" stroke="var(--kb-border)" stroke-width="0.5"/>
           <!-- Interval labels -->
-          <text x="39" y="128" text-anchor="middle" font-size="8" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent)">R</text>
-          <text x="79" y="128" text-anchor="middle" font-size="8" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent)">3</text>
-          <text x="119" y="128" text-anchor="middle" font-size="8" font-weight="700" font-family="'Space Mono',monospace" fill="var(--accent)">5</text>
+          <text x="39" y="128" text-anchor="middle" font-size="8" font-weight="700" font-family="'DM Mono',monospace" fill="var(--accent)">R</text>
+          <text x="79" y="128" text-anchor="middle" font-size="8" font-weight="700" font-family="'DM Mono',monospace" fill="var(--accent)">3</text>
+          <text x="119" y="128" text-anchor="middle" font-size="8" font-weight="700" font-family="'DM Mono',monospace" fill="var(--accent)">5</text>
           <!-- Chord symbol above -->
-          <text x="95" y="38" text-anchor="middle" font-size="22" font-weight="700" font-family="'DM Serif Display',serif" fill="var(--accent)">Cmaj</text>
+          <text x="95" y="38" text-anchor="middle" font-size="22" font-weight="700" font-family="'Syne',sans-serif" fill="var(--accent)">Cmaj</text>
           <!-- Guitar chord dots -->
           <circle cx="32" cy="60" r="4.5" fill="var(--accent2)" opacity="0.7"/>
           <circle cx="49" cy="68" r="4.5" fill="var(--accent2)" opacity="0.7"/>
           <circle cx="66" cy="60" r="4.5" fill="var(--accent2)" opacity="0.7"/>
           <!-- Scale degree badges -->
-          <text x="32" y="78" text-anchor="middle" font-size="6.5" font-family="'Space Mono',monospace" fill="var(--accent2)">I</text>
-          <text x="49" y="84" text-anchor="middle" font-size="6.5" font-family="'Space Mono',monospace" fill="var(--accent2)">IV</text>
-          <text x="66" y="78" text-anchor="middle" font-size="6.5" font-family="'Space Mono',monospace" fill="var(--accent2)">V</text>
+          <text x="32" y="78" text-anchor="middle" font-size="6.5" font-family="'DM Mono',monospace" fill="var(--accent2)">I</text>
+          <text x="49" y="84" text-anchor="middle" font-size="6.5" font-family="'DM Mono',monospace" fill="var(--accent2)">IV</text>
+          <text x="66" y="78" text-anchor="middle" font-size="6.5" font-family="'DM Mono',monospace" fill="var(--accent2)">V</text>
         </svg>
       </div>
       <div class="tool-body">
@@ -501,88 +464,33 @@ header p.sub{color:var(--muted);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);let
       <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
       GitHub
     </a>
-    <a class="link-pill" href="LICENSE.md">📄 CC&nbsp;BY-NC&nbsp;4.0 License</a>
-    <a class="link-pill" href="docs/ear-trainer.md">📖 Ear Trainer Docs</a>
-    <a class="link-pill" href="docs/instrument-tuner.md">📖 Tuner Docs</a>
-    <a class="link-pill" href="docs/pulse.md">📖 Pulse Docs</a>
-    <a class="link-pill" href="docs/drone.md">📖 Drone Docs</a>
-    <a class="link-pill" href="docs/practice-timer.md">📖 Practice Timer Docs</a>
-    <a class="link-pill" href="docs/chord-reference.md">📖 Chord Reference Docs</a>
+    <a class="link-pill" href="LICENSE.md">CC&nbsp;BY-NC&nbsp;4.0 License</a>
+    <a class="link-pill" href="docs/ear-trainer.md">Ear Trainer Docs</a>
+    <a class="link-pill" href="docs/instrument-tuner.md">Tuner Docs</a>
+    <a class="link-pill" href="docs/pulse.md">Pulse Docs</a>
+    <a class="link-pill" href="docs/drone.md">Drone Docs</a>
+    <a class="link-pill" href="docs/practice-timer.md">Practice Timer Docs</a>
+    <a class="link-pill" href="docs/chord-reference.md">Chord Reference Docs</a>
   </div>
 
 </div><!-- /content -->
 
 <div class="app-footer">made with ♥ by Paul van Zyl</div>
 
+<script src="src/js/music-tools.js"></script>
 <script>
-// ══════════════════════════════════════════════
-//  Music Tools Index — theme persistence
-//  LS_KEY unique per-page to avoid collisions
-// ══════════════════════════════════════════════
-const LS_KEY = 'musicTools_index_v1';
-
-function savePref(key, val){
-  try{const d=JSON.parse(localStorage.getItem(LS_KEY)||'{}');d[key]=val;localStorage.setItem(LS_KEY,JSON.stringify(d));}catch(e){}
+function applyMode(m, noSave) {
+  document.body.dataset.mode = m;
+  var badge = document.getElementById('modeBadge');
+  if (badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
+  if (!noSave) saveTheme('mode', m);
+  applyAccent(document.body.dataset.accent || loadTheme().accent || 'orange', true);
 }
-function loadPrefs(){
-  try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){return{}}
-}
-
-const THEMES = {
-  current: ['Music Tools',  'free browser-based tools for musicians'],
-  minimal: ['music tools',  'open source · no install · web audio'],
-  studio:  ['MUSIC TOOLS',  'BROWSER-BASED / WEB AUDIO API'],
-  retro:   ['Music Tools',  'Instruments for the modern musician'],
-  playful: ['🎵 Music Tools!', 'Free tools for every musician ✨'],
-};
-const INTROS = {
-  current: 'A small collection of free, open-source, browser-based tools for musicians at any level. No account, no installation, no server — each tool is a single HTML file that runs entirely in your browser, powered by the Web Audio API.',
-  minimal: 'A small collection of free, open-source, browser-based tools for musicians at any level. No account, no installation, no server — each tool is a single HTML file that runs entirely in your browser, powered by the Web Audio API.',
-  studio:  'A small collection of free, open-source, browser-based tools for musicians at any level. No account, no installation, no server — each tool is a single HTML file that runs entirely in your browser, powered by the Web Audio API.',
-  retro:   'A carefully curated collection of free, open-source musical tools for the modern musician. No account required, no installation needed — each tool is a single HTML file that runs entirely within your browser.',
-  playful: 'A little collection of free music tools you can use right in your browser — no download, no sign-up, just open and play! 🎉 Built with the Web Audio API and a lot of love.',
-};
-const THEME_LABELS = {
-  current:'Dark Gold', minimal:'Clean & Minimal',
-  studio:'Dark Studio', retro:'Retro Piano', playful:'Bright & Playful',
-};
-
-function applyTheme(t, noSave){
-  document.body.dataset.theme = t;
-  const [h, s] = THEMES[t];
-  document.getElementById('appTitle').textContent  = h;
-  document.getElementById('appSub').textContent    = s;
-  document.getElementById('appIntro').textContent  = INTROS[t];
-  document.getElementById('themeMobileLabel').textContent = THEME_LABELS[t];
-  document.querySelectorAll('.theme-pill').forEach(b => b.classList.toggle('active', b.dataset.t === t));
-  if(!noSave) savePref('theme', t);
-}
-
-document.querySelectorAll('.theme-pill').forEach(btn => {
-  btn.addEventListener('click', () => {
-    applyTheme(btn.dataset.t);
-    document.getElementById('themeFlyout').classList.remove('open');
-    document.getElementById('themeMobileBtn').classList.remove('open');
-  });
+document.getElementById('modeToggle').addEventListener('click', function() {
+  applyMode(document.body.dataset.mode === 'dark' ? 'light' : 'dark');
 });
-
-const mobileBtn = document.getElementById('themeMobileBtn');
-const flyout    = document.getElementById('themeFlyout');
-mobileBtn.addEventListener('click', e => {
-  e.stopPropagation();
-  const open = flyout.classList.toggle('open');
-  mobileBtn.classList.toggle('open', open);
-});
-document.addEventListener('click', () => {
-  flyout.classList.remove('open');
-  mobileBtn.classList.remove('open');
-});
-flyout.addEventListener('click', e => e.stopPropagation());
-
-// Restore saved theme
-(function init(){
-  const p = loadPrefs();
-  if(p.theme && THEMES[p.theme]) applyTheme(p.theme, true);
+(function init() {
+  applyMode(loadTheme().mode || 'dark', true);
 })();
 </script>
 </body>
