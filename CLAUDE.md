@@ -52,6 +52,14 @@ music-tools/
 │   ├── drone.md
 │   ├── practice-timer.md
 │   └── chord-reference.md
+├── tests/
+│   ├── music-tools.test.js # Node stdlib unit tests for shared theme utilities
+│   └── server.test.js      # Node stdlib unit tests for dev static server
+├── .github/workflows/
+│   ├── commit-lint.yml     # Enforces Conventional Commit messages on PRs
+│   ├── pr-title.yml        # Enforces semantic PR titles
+│   ├── release.yml         # Publishes releases from main
+│   └── unit-tests.yml      # Runs npm test on PRs to main and dev
 ├── server.js              # Dev server (node server.js)
 ├── package.json
 └── README.md
@@ -176,6 +184,13 @@ Non-conventional commits that somehow reach `main` will not break the release wo
 5. No console errors
 6. Help modal content matches actual current features exactly (no removed features referenced)
 7. CSS file loads correctly via relative path (test from file:// and localhost)
+
+## Unit test commands
+- Run all JS unit tests (Node standard library only): `npm test`
+- Unit tests live in `tests/` and currently cover:
+  - `src/js/music-tools.js` shared theme utilities
+  - `server.js` dev static server routing and SSE endpoint
+- CI check: `.github/workflows/unit-tests.yml` runs `npm test` on pull requests targeting `main` and `dev`
 
 ## Documentation maintenance — ALWAYS keep these in sync
 When adding new tools, features, or making significant changes:
