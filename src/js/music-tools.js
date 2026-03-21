@@ -25,6 +25,8 @@ function saveTheme(k, v) {
 // Each preset defines --accent, --accent2, and their glow variants
 // for both light and dark modes. Inline styles set on <body> override
 // the stylesheet values so no CSS changes are needed per-preset.
+// --accent-2 / --accent-2-glow are CSS aliases of --accent2 / --accent2-glow
+// so overriding --accent2 propagates to --grad and all --accent-2 usages.
 
 const ACCENT_PRESETS = {
   pink: {
