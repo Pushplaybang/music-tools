@@ -50,13 +50,66 @@ jobs:
 
       - name: Generate release notes
         id: notes
+        shell: bash
         run: |
           TAG="${{ steps.latest_tag.outputs.tag }}"
           DELIMITER="NOTES_$(openssl rand -hex 8)"
+          COMMITS=$(git log "${TAG}..HEAD" --pretty=format:"%s" 2>/dev/null || git log --max-count=50 --pretty=format:"%s")
+          TYPES=(feat fix docs style refactor perf test build ci chore revert)
+          TYPE_REGEX="$(IFS='|'; echo "${TYPES[*]}")"
+
+          declare -A NOTES
+          for key in "${TYPES[@]}" other; do
+            NOTES["$key"]=""
+          done
+
+          while IFS= read -r line; do
+            [[ -z "$line" ]] && continue
+            if [[ "$line" =~ ^(${TYPE_REGEX})(\(([^)]+)\))?(!)?:[[:space:]]*(.+)$ ]]; then
+              type="${BASH_REMATCH[1]}"
+              scope="${BASH_REMATCH[3]}"
+              breaking="${BASH_REMATCH[4]}"
+              msg="${BASH_REMATCH[5]}"
+              if [[ -n "$breaking" ]]; then
+                msg="[BREAKING] ${msg}"
+              fi
+              if [[ -n "$scope" ]]; then
+                entry="- ${scope}: ${msg}"
+              else
+                entry="- ${msg}"
+              fi
+            else
+              type="other"
+              entry="- ${line}"
+            fi
+
+            NOTES["$type"]+="${entry}"$'\n'
+          done <<< "$COMMITS"
+
+          emit_section() {
+            local key="$1"
+            local title="$2"
+            if [[ -n "${NOTES[$key]}" ]]; then
+              printf "## %s\n" "${title}"
+              printf "%s" "${NOTES[$key]}"
+              printf "\n"
+            fi
+          }
 
           {
             echo "notes<<${DELIMITER}"
-            git log "${TAG}..HEAD" --pretty=format:"- %s" 2>/dev/null || git log --max-count=50 --pretty=format:"- %s"
+            emit_section "feat" "Features"
+            emit_section "fix" "Fixes"
+            emit_section "docs" "Documentation"
+            emit_section "style" "Style"
+            emit_section "refactor" "Refactors"
+            emit_section "perf" "Performance"
+            emit_section "test" "Tests"
+            emit_section "build" "Build"
+            emit_section "ci" "CI"
+            emit_section "chore" "Chores"
+            emit_section "revert" "Reverts"
+            emit_section "other" "Other"
             echo ""
             echo "${DELIMITER}"
           } >> $GITHUB_OUTPUT
