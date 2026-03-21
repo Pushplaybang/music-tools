@@ -46,9 +46,27 @@ music-tools/
 │   ├── drone.md                  # Drone documentation
 │   ├── practice-timer.md         # Practice Timer documentation
 │   └── chord-reference.md        # Chord & Scale Reference documentation
+├── tests/
+│   ├── music-tools.test.js       # Unit tests for shared theme utilities
+│   └── server.test.js            # Unit tests for dev static server routes/SSE
+├── .github/workflows/
+│   └── unit-tests.yml            # PR check running npm test on main/dev targets
 ├── CLAUDE.md                     # AI assistant instructions & conventions
 └── README.md                     # This file
 ```
+
+---
+
+## ✅ Unit Tests (Node standard library only)
+
+This repository uses Node's built-in test runner (`node:test`) with no third-party test dependencies.
+
+- Run all tests: `npm test`
+- Test files live in `tests/`
+  - `tests/music-tools.test.js` validates shared `src/js/music-tools.js` behaviour (theme persistence and accent application)
+  - `tests/server.test.js` validates `server.js` route handling, HTML reload-script injection, and SSE handshake
+
+GitHub Actions runs these tests on pull requests targeting `main` and `dev` via `.github/workflows/unit-tests.yml`.
 
 ---
 
