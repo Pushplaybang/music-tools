@@ -20,6 +20,13 @@ jobs:
           # Commit subject lines matching any of these patterns are skipped.
           # Separate patterns with | (extended-regex alternation).
           IGNORE_PATTERN: "^Initial plan$|^Merge "
+          # Commit author names or emails matching this pattern are treated as agent commits.
+          # Pattern matches known agent bot names (literal "[bot]" requires escaping) and Copilot noreply email.
+          # Escaped brackets keep the literal "[bot]" intact through YAML and grep regex parsing.
+          # Keep this list explicit to avoid matching non-agent bots like dependabot or renovate.
+          # Use [cC] for Copilot to handle name/email capitalisation variations without case-insensitive matching.
+          # Avoiding -i keeps matching tight to the known bot patterns.
+          AGENT_AUTHOR_PATTERN: "([cC]opilot-swe-agent\\[bot\\]|[cC]opilot-swe\\[bot\\]|[cC]opilot\\[bot\\]|swe-agent\\[bot\\]|[cC]opilot@users\\.noreply\\.github\\.com)"
         run: |
           BASE_SHA=${{ github.event.pull_request.base.sha }}
           HEAD_SHA=${{ github.event.pull_request.head.sha }}
@@ -30,7 +37,13 @@ jobs:
           PATTERN="^(${TYPES_RE})(\(.+\))?\!?:.+"
 
           FAILED=0
-          while IFS= read -r MSG; do
+          # Format is subject<TAB>author name<TAB>author email (git log uses %x09 tab escapes below).
+          while IFS=$'\t' read -r MSG AUTHOR EMAIL; do
+            AUTHOR_INFO="${AUTHOR} <${EMAIL}>"
+            if [ -n "$AGENT_AUTHOR_PATTERN" ] && echo "$AUTHOR_INFO" | grep -qE "$AGENT_AUTHOR_PATTERN"; then
+              echo "🤖 $MSG  (agent commit by $AUTHOR_INFO, skipped)"
+              continue
+            fi
             # Skip ignored patterns (merge commits, bot-generated messages)
             if [ -n "$IGNORE_PATTERN" ] && echo "$MSG" | grep -qE "$IGNORE_PATTERN"; then
               echo "⏭️  $MSG  (skipped)"
@@ -43,13 +56,16 @@ jobs:
               echo "🚩 $MSG"
               FAILED=1
             fi
-          done < <(git log --format="%s" "$BASE_SHA".."$HEAD_SHA")
+          done < <(git log --format="%s%x09%an%x09%ae" "$BASE_SHA".."$HEAD_SHA")
 
           if [ "$FAILED" -eq 1 ]; then
             echo ""
             echo "::error::🚫 Some commit messages do not follow the Conventional Commits specification."
             echo "Expected format: type(scope): description"
             echo "Allowed types: $ALLOWED_TYPES"
+            echo ""
+            echo "Recommended fix: squash and merge with a clean Conventional Commit title."
+            echo "Example: fix(tuner): improve low-frequency stability"
             exit 1
           fi
 

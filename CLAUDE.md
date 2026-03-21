@@ -176,6 +176,8 @@ type(scope): short description
 
 Non-conventional commits that somehow reach `main` will not break the release workflow — they are treated as patch-level changes and appear verbatim in the release notes. The CI gate on PRs is the primary enforcement mechanism.
 
+**Agent commits:** CI skips Conventional Commit validation for agent-authored commits (for example, `copilot-swe-agent[bot]`). If any commits do not match Conventional Commits, the action output recommends **Squash and merge** with a clean Conventional Commit title, e.g. `fix(tuner): improve low-frequency stability`.
+
 ## Testing checklist (verify before completing ANY task)
 1. Both light and dark modes render correctly
 2. Mobile layout at 375px width — no horizontal overflow, no tiny touch targets
