@@ -56,6 +56,9 @@ music-tools/
 │   ├── music-tools.test.js # Node stdlib unit tests for shared theme utilities
 │   └── server.test.js      # Node stdlib unit tests for dev static server
 ├── .github/workflows/
+│   ├── commit-lint.yml     # Enforces Conventional Commit messages on PRs
+│   ├── pr-title.yml        # Enforces semantic PR titles
+│   ├── release.yml         # Publishes releases from main
 │   └── unit-tests.yml      # Runs npm test on PRs to main and dev
 ├── server.js              # Dev server (node server.js)
 ├── package.json

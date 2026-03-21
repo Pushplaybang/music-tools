@@ -50,6 +50,9 @@ music-tools/
 │   ├── music-tools.test.js       # Unit tests for shared theme utilities
 │   └── server.test.js            # Unit tests for dev static server routes/SSE
 ├── .github/workflows/
+│   ├── commit-lint.yml           # Validates Conventional Commit messages on PRs
+│   ├── pr-title.yml              # Enforces semantic PR titles
+│   ├── release.yml               # Creates GitHub releases on main pushes
 │   └── unit-tests.yml            # PR check running npm test on main/dev targets
 ├── CLAUDE.md                     # AI assistant instructions & conventions
 └── README.md                     # This file
@@ -66,7 +69,12 @@ This repository uses Node's built-in test runner (`node:test`) with no third-par
   - `tests/music-tools.test.js` validates shared `src/js/music-tools.js` behaviour (theme persistence and accent application)
   - `tests/server.test.js` validates `server.js` route handling, HTML reload-script injection, and SSE handshake
 
-GitHub Actions runs these tests on pull requests targeting `main` and `dev` via `.github/workflows/unit-tests.yml`.
+GitHub Actions workflows in this repository:
+
+- `.github/workflows/unit-tests.yml` — runs `npm test` on PRs targeting `main` and `dev`
+- `.github/workflows/commit-lint.yml` — validates Conventional Commit messages on PRs
+- `.github/workflows/pr-title.yml` — validates semantic PR titles
+- `.github/workflows/release.yml` — creates releases from merges/pushes to `main`
 
 ---
 
