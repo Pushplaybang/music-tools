@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Tools — Stasis v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   STASIS v3 — TOKEN SYSTEM
+   Refined arctic neutrals · Cyberpunk accents · Soft hardware
+   Changes from v2:
+   - Dark bg/surface: 50% less blue saturation (cold but not electric)
+   - Dark text: higher contrast, brighter blue-white
+   - Correct: minty-fresh teal-green (not acid)
+   - All other accent/wrong tokens preserved
+══════════════════════════════════════════════════════════════════════ */
+
+/* ── LIGHT MODE ────────────────────────────────────────────────────── */
+[data-mode="light"] {
+  --bg:          #EAEDF5;   /* blue-grey, gentle arctic */
+  --bg-deep:     #E1E5F0;
+  --surface:     #F3F5FC;
+  --surface-hi:  #FAFBFF;
+  --surface-lo:  #DCDFE F;   /* intentional: will fallback */
+  --surface-lo:  #DCDFF0;
+  --surface-lo2: #D2D6E6;
+
+  --border:      rgba(70,100,190,0.10);
+  --border-hi:   rgba(255,255,255,0.92);
+  --border-lo:   rgba(55,85,170,0.07);
+
+  --text:        #0A1220;
+  --text-2:      #344A68;
+  --text-3:      #7088A8;
+
+  --accent:        #0080C0;
+  --accent-glow:   rgba(0,128,192,0.22);
+  --accent-2:      #C0006E;
+  --accent-2-glow: rgba(192,0,110,0.18);
+  --correct:       #009E70;    /* minty teal-green */
+  --correct-glow:  rgba(0,158,112,0.18);
+  --wrong:         #D4003C;
+  --wrong-glow:    rgba(212,0,60,0.16);
+
+  --kw: var(--surface-hi); --kw-active: var(--accent);
+  --kb: #181C28;            --kb-active: #005A8C;
+
+  /* Neumorphic — blue-tinted shadows */
+  --neu-out:  7px 7px 18px rgba(40,60,150,0.12), -4px -4px 12px rgba(255,255,255,0.94);
+  --neu-in:   inset 3px 3px 9px rgba(30,50,140,0.10), inset -3px -3px 9px rgba(255,255,255,0.80);
+  --neu-flat: 2px 2px 7px rgba(30,50,140,0.08), -1px -1px 5px rgba(255,255,255,0.94);
+  --neu-deep: inset 4px 4px 12px rgba(25,45,130,0.13), inset -2px -2px 8px rgba(255,255,255,0.68);
+
+  --track-texture: repeating-linear-gradient(
+    180deg, transparent 0px, transparent 2px,
+    rgba(55,85,180,0.033) 2px, rgba(55,85,180,0.033) 3px
+  );
+}
+
+/* ── DARK MODE ─────────────────────────────────────────────────────── */
+[data-mode="dark"] {
+  /* 50% less blue saturation vs v2 — still cold, not swimming in blue */
+  --bg:          #080A0F;
+  --bg-deep:     #040608;
+  --surface:     #0D1019;
+  --surface-hi:  #121620;
+  --surface-lo:  #080A12;
+  --surface-lo2: #050710;
+
+  --border:      rgba(120,150,220,0.07);
+  --border-hi:   rgba(140,170,255,0.05);
+  --border-lo:   rgba(100,130,200,0.04);
+
+  /* Higher contrast text — v2 was too dim */
+  --text:        #D8E8F8;
+  --text-2:      #5A78A0;
+  --text-3:      #2E4060;
+
+  /* Full neon accents */
+  --accent:        #00D8FF;    /* electric cyan */
+  --accent-glow:   rgba(0,216,255,0.28);
+  --accent-2:      #FF2688;    /* hot magenta */
+  --accent-2-glow: rgba(255,38,136,0.24);
+  --correct:       #00E8A8;    /* minty-fresh neon */
+  --correct-glow:  rgba(0,232,168,0.22);
+  --wrong:         #FF2855;    /* neon crimson */
+  --wrong-glow:    rgba(255,40,85,0.22);
+
+  --kw: #1A1E2C; --kw-active: var(--accent);
+  --kb: #060810; --kb-active: #005C78;
+
+  /* FLAT+RAISED shadows — calibrated low highlight */
+  --neu-out:  7px 7px 20px rgba(0,0,0,0.62), -2px -2px 6px rgba(255,255,255,0.035);
+  --neu-in:   inset 4px 4px 12px rgba(0,0,0,0.58), inset -2px -2px 5px rgba(255,255,255,0.025);
+  --neu-flat: 3px 3px 10px rgba(0,0,0,0.52), -1px -1px 3px rgba(255,255,255,0.02);
+  --neu-deep: inset 5px 5px 14px rgba(0,0,0,0.62), inset -1px -1px 4px rgba(255,255,255,0.018);
+
+  --track-texture: repeating-linear-gradient(
+    180deg, transparent 0px, transparent 2px,
+    rgba(100,140,255,0.038) 2px, rgba(100,140,255,0.038) 3px
+  );
+}
+
+/* ── SHARED ────────────────────────────────────────────────────────── */
+:root {
+  --font-display: 'Syne', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+  --r-xs: 6px; --r-sm: 10px; --r-md: 18px; --r-lg: 26px; --r-xl: 36px; --r-pill: 100px;
+  --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+  --spring: 0.32s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   BASE
+══════════════════════════════════════════════════════════════════════ */
+html,body {
+  min-height:100%; background:var(--bg); color:var(--text);
+  font-family:var(--font-display);
+  transition:background 0.3s,color 0.3s; overflow-x:hidden;
+}
+::selection { background:var(--accent); color:var(--bg); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   CHROME
+══════════════════════════════════════════════════════════════════════ */
+.chrome {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 28px; height:54px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(16px) saturate(1.4);
+}
+.chrome-wordmark {
+  display:flex; align-items:center; gap:9px;
+  font-size:0.72rem; font-weight:700; letter-spacing:0.18em;
+  text-transform:uppercase; color:var(--text-2);
+}
+.chrome-mark {
+  width:22px; height:22px; border-radius:7px;
+  background:var(--accent); box-shadow:0 0 10px var(--accent-glow);
+  flex-shrink:0; position:relative; overflow:hidden;
+}
+.chrome-mark::after {
+  content:''; position:absolute; top:3px; left:3px; right:3px; height:40%;
+  background:rgba(255,255,255,0.22); border-radius:4px 4px 0 0;
+}
+.chrome-right { display:flex; align-items:center; gap:14px; }
+.nav-links { display:flex; gap:2px; }
+.nav-link {
+  font-size:0.68rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--text-3); padding:5px 10px; border-radius:var(--r-sm);
+  cursor:pointer; transition:all var(--transition); text-decoration:none;
+}
+.nav-link:hover { color:var(--text-2); background:var(--surface-lo); }
+.nav-link.active { color:var(--accent); }
+.mode-badge {
+  font-family:var(--font-mono); font-size:0.6rem; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--text-3);
+}
+.mode-toggle {
+  width:48px; height:26px; border-radius:13px; flex-shrink:0;
+  background:var(--surface-lo); border:1px solid var(--border);
+  cursor:pointer; position:relative; box-shadow:var(--neu-in);
+}
+.mode-toggle::after {
+  content:''; position:absolute; top:3px; left:3px;
+  width:18px; height:18px; border-radius:50%; background:var(--text-3);
+  transition:transform var(--spring), background 0.22s;
+}
+[data-mode="dark"] .mode-toggle::after {
+  transform:translateX(22px); background:var(--accent);
+  box-shadow:0 0 8px var(--accent-glow);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════════════════════════════════════ */
+.page { padding:74px 28px 72px; max-width:1340px; margin:0 auto; }
+.section { margin-bottom:72px; }
+.section-label {
+  font-family:var(--font-mono); font-size:0.6rem; letter-spacing:0.24em;
+  text-transform:uppercase; color:var(--text-3); margin-bottom:5px;
+}
+.section-title {
+  font-size:clamp(1.4rem,3vw,2.1rem); font-weight:800;
+  letter-spacing:-0.025em; color:var(--text); margin-bottom:5px;
+}
+.section-sub {
+  font-size:0.82rem; color:var(--text-2); max-width:560px;
+  line-height:1.65; margin-bottom:32px;
+}
+.mt-xs{margin-top:8px} .mt-sm{margin-top:16px} .mt-md{margin-top:28px}
+.grid-auto { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   CARDS
+══════════════════════════════════════════════════════════════════════ */
+.card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-xl); box-shadow:var(--neu-out); padding:26px;
+  transition:box-shadow var(--transition), transform var(--transition);
+}
+.card:hover { transform:translateY(-2px); }
+.card-title {
+  font-family:var(--font-mono); font-size:0.6rem; letter-spacing:0.22em;
+  text-transform:uppercase; color:var(--text-3); margin-bottom:18px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PALETTE SWATCHES
+══════════════════════════════════════════════════════════════════════ */
+.palette { display:flex; gap:10px; flex-wrap:wrap; }
+.swatch { display:flex; flex-direction:column; gap:5px; }
+.swatch-chip {
+  width:72px; height:48px; border-radius:var(--r-md);
+  box-shadow:var(--neu-out); border:1px solid var(--border); cursor:default;
+  transition:transform 0.14s;
+}
+.swatch-chip:hover { transform:translateY(-3px); }
+.swatch-name { font-family:var(--font-mono); font-size:0.55rem; color:var(--text-3); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY SPECIMENS
+══════════════════════════════════════════════════════════════════════ */
+.type-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; }
+.type-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-md); padding:20px; box-shadow:var(--neu-flat);
+}
+.type-meta { font-family:var(--font-mono); font-size:0.56rem; color:var(--text-3); letter-spacing:0.06em; margin-top:8px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════════════════════════════════ */
+.btn {
+  font-family:var(--font-display); font-size:0.7rem; font-weight:700;
+  letter-spacing:0.12em; text-transform:uppercase; border:none; cursor:pointer;
+  border-radius:var(--r-pill); padding:12px 24px; transition:all var(--transition);
+}
+.btn-primary {
+  background:var(--accent); color:var(--bg);
+  box-shadow:0 4px 16px var(--accent-glow), 0 1px 3px rgba(0,0,0,0.2);
+}
+.btn-primary:hover { transform:translateY(-1px); box-shadow:0 6px 22px var(--accent-glow); }
+.btn-primary:active { transform:translateY(1px); }
+.btn-ghost {
+  background:transparent; color:var(--text-2);
+  box-shadow:var(--neu-out); border:1px solid var(--border);
+}
+.btn-ghost:hover { color:var(--text); box-shadow:var(--neu-out),0 0 0 1px var(--accent); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   SEGMENT CONTROL
+══════════════════════════════════════════════════════════════════════ */
+.seg-control {
+  display:inline-flex; background:var(--surface-lo);
+  border-radius:var(--r-pill); padding:4px; box-shadow:var(--neu-in); gap:2px;
+}
+.seg-btn {
+  font-family:var(--font-display); font-size:0.66rem; font-weight:600;
+  letter-spacing:0.1em; text-transform:uppercase; color:var(--text-3);
+  padding:7px 14px; border-radius:var(--r-pill); border:none;
+  background:transparent; cursor:pointer; transition:all var(--transition);
+}
+.seg-btn.active { background:var(--surface-hi); color:var(--text); box-shadow:var(--neu-flat); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   READOUT
+══════════════════════════════════════════════════════════════════════ */
+.readout {
+  background:var(--surface-lo); border-radius:var(--r-md);
+  padding:16px 18px; box-shadow:var(--neu-in);
+  display:flex; flex-direction:column; gap:2px;
+}
+.readout-main {
+  font-family:var(--font-mono); font-size:3rem; font-weight:300;
+  line-height:1; letter-spacing:-0.025em; color:var(--text);
+}
+.readout-main .unit { color:var(--accent); font-size:1.3rem; }
+.readout-sub {
+  font-family:var(--font-mono); font-size:0.58rem;
+  letter-spacing:0.18em; text-transform:uppercase; color:var(--text-3);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PROGRESS BAR — gradient accent→accent-2
+══════════════════════════════════════════════════════════════════════ */
+.progress-wrap {
+  display:flex; flex-direction:column; gap:5px;
+}
+.progress-label-row {
+  display:flex; justify-content:space-between; align-items:center;
+}
+.progress-label {
+  font-family:var(--font-mono); font-size:0.56rem; letter-spacing:0.14em;
+  text-transform:uppercase; color:var(--text-3);
+}
+.progress-val {
+  font-family:var(--font-mono); font-size:0.68rem; font-weight:500; color:var(--accent);
+}
+.progress-track {
+  height:5px; border-radius:3px;
+  background:var(--surface-lo2); box-shadow:var(--neu-in);
+  position:relative; overflow:hidden;
+}
+.progress-fill {
+  position:absolute; top:0; left:0; height:100%;
+  background:linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius:3px;
+  box-shadow:0 0 8px var(--accent-glow);
+  transition:width 0.3s ease;
+}
+/* Thin sub-progress variant */
+.progress-track.thin { height:3px; border-radius:2px; }
+/* Block progress */
+.progress-track.block .progress-fill {
+  background:linear-gradient(90deg, var(--correct), var(--accent));
+  box-shadow:0 0 6px var(--correct-glow);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   CHOICE CHIPS
+══════════════════════════════════════════════════════════════════════ */
+.choice-chip {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:var(--r-sm); padding:10px 14px;
+  font-family:var(--font-display); font-size:0.76rem; font-weight:600;
+  color:var(--text); cursor:pointer; box-shadow:var(--neu-flat);
+  display:flex; align-items:center; justify-content:space-between;
+  transition:all var(--transition);
+}
+.choice-chip:hover:not(.correct):not(.wrong) { border-color:var(--accent); color:var(--accent); }
+.choice-chip.correct { border-color:var(--correct); color:var(--correct); box-shadow:0 0 14px var(--correct-glow),var(--neu-flat); }
+.choice-chip.wrong   { border-color:var(--wrong); color:var(--wrong); box-shadow:0 0 14px var(--wrong-glow),var(--neu-flat); animation:shakeX 0.25s ease; }
+@keyframes shakeX { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 60%{transform:translateX(4px)} 80%{transform:translateX(-2px)} }
+.chip-letter { font-family:var(--font-mono); font-size:0.58rem; color:var(--text-3); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   KNOBS
+══════════════════════════════════════════════════════════════════════ */
+.knob-wrap { display:flex; flex-direction:column; align-items:center; gap:7px; }
+.knob-label { font-family:var(--font-mono); font-size:0.56rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--text-3); }
+.knob-value { font-family:var(--font-mono); font-size:0.68rem; font-weight:500; color:var(--accent); }
+.knob-svg { cursor:ns-resize; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   VERTICAL SLIDER — laser line + textured flanks
+══════════════════════════════════════════════════════════════════════ */
+.vslider-wrap { display:flex; flex-direction:column; align-items:center; gap:7px; }
+.vslider-label { font-family:var(--font-mono); font-size:0.56rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--text-3); }
+.vslider-value { font-family:var(--font-mono); font-size:0.66rem; font-weight:500; color:var(--accent); }
+.vslider-track {
+  width:36px; height:140px; border-radius:18px;
+  background:var(--surface-lo); background-image:var(--track-texture);
+  box-shadow:var(--neu-deep); position:relative; cursor:ns-resize; overflow:hidden;
+}
+.vslider-track::before,.vslider-track::after {
+  content:''; position:absolute; top:0; bottom:0; width:calc(50% - 1px);
+  background:var(--surface-lo); background-image:var(--track-texture);
+  z-index:2; pointer-events:none;
+}
+.vslider-track::before { left:0; border-radius:18px 0 0 18px; }
+.vslider-track::after  { right:0; border-radius:0 18px 18px 0; }
+.vslider-line { position:absolute; left:50%; transform:translateX(-50%); width:2px; top:14px; bottom:14px; background:var(--surface-lo2); border-radius:1px; z-index:1; }
+.vslider-fill {
+  position:absolute; bottom:0; left:0; right:0; border-radius:1px;
+  background:linear-gradient(to top, var(--accent), color-mix(in srgb,var(--accent) 60%,var(--accent-2)));
+  box-shadow:0 0 6px var(--accent-glow),0 0 14px var(--accent-glow);
+  z-index:1; transition:height 0.05s linear;
+}
+.vslider-glow { position:absolute; left:50%; transform:translateX(-50%); width:12px; border-radius:6px; background:var(--accent-glow); filter:blur(4px); z-index:0; pointer-events:none; }
+.vslider-thumb {
+  position:absolute; left:4px; right:4px; height:14px;
+  background:var(--surface-hi); border-radius:7px;
+  box-shadow:var(--neu-out); border:1px solid var(--border-hi);
+  z-index:3; transition:bottom 0.05s linear;
+}
+.vslider-thumb::before,.vslider-thumb::after {
+  content:''; position:absolute; left:50%; transform:translateX(-50%);
+  width:14px; height:1px; border-radius:1px; background:var(--text-3); opacity:0.45;
+}
+.vslider-thumb::before { top:4px; } .vslider-thumb::after { top:8px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   TOOL PANELS
+══════════════════════════════════════════════════════════════════════ */
+.tools-grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+.tools-grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; }
+.tools-grid-1 { display:grid; grid-template-columns:1fr; gap:22px; }
+@media(max-width:1100px){ .tools-grid-3{grid-template-columns:1fr 1fr;} }
+@media(max-width:700px) { .tools-grid-3,.tools-grid-2{grid-template-columns:1fr;} }
+
+.tool-panel {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-xl); box-shadow:var(--neu-out);
+  display:flex; flex-direction:column;
+  transition:box-shadow var(--transition),transform var(--transition);
+  overflow:hidden; position:relative;
+}
+.tool-panel:hover { transform:translateY(-3px); }
+.tool-panel::before {
+  content:''; position:absolute; top:0; left:36px; right:36px; height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent); opacity:0.35;
+  transition:opacity var(--transition);
+}
+.tool-panel:hover::before { opacity:0.65; }
+
+.panel-top { display:flex; align-items:center; justify-content:space-between; padding:20px 22px 0; }
+.panel-tag { font-family:var(--font-mono); font-size:0.55rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-3); }
+.panel-top-right { display:flex; gap:8px; align-items:center; }
+.panel-badge {
+  font-family:var(--font-mono); font-size:0.55rem; letter-spacing:0.1em;
+  text-transform:uppercase; color:var(--bg); background:var(--accent);
+  padding:3px 8px; border-radius:var(--r-pill); box-shadow:0 0 8px var(--accent-glow);
+}
+.panel-badge.good  { background:var(--correct); box-shadow:0 0 8px var(--correct-glow); }
+.panel-badge.alt   { background:var(--accent-2); box-shadow:0 0 8px var(--accent-2-glow); }
+.panel-badge.dim   { background:var(--surface-lo2); color:var(--text-3); box-shadow:none; }
+.panel-settings-btn {
+  width:28px; height:28px; border-radius:var(--r-xs);
+  background:transparent; border:1px solid var(--border); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text-3); font-size:0.8rem; box-shadow:var(--neu-flat);
+  transition:all var(--transition); line-height:1;
+}
+.panel-settings-btn:hover { color:var(--accent); border-color:var(--accent); box-shadow:0 0 8px var(--accent-glow); }
+.panel-settings-btn.active { color:var(--accent); border-color:var(--accent); background:var(--surface-lo); }
+.panel-title { font-size:1.5rem; font-weight:800; letter-spacing:-0.025em; line-height:1.05; padding:9px 22px 4px; color:var(--text); }
+.panel-sub { font-family:var(--font-mono); font-size:0.58rem; letter-spacing:0.06em; color:var(--text-3); padding:0 22px 13px; }
+.panel-divider { height:1px; background:var(--border); margin:0 22px 17px; }
+.panel-body { padding:0 22px 22px; flex:1; display:flex; flex-direction:column; gap:15px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   ADVANCED SETTINGS PANEL
+══════════════════════════════════════════════════════════════════════ */
+.adv-panel {
+  overflow:hidden; max-height:0; opacity:0; padding:0 22px;
+  transition:max-height 0.38s cubic-bezier(0.4,0,0.2,1), opacity 0.28s, padding 0.28s;
+}
+.adv-panel.open { max-height:500px; opacity:1; padding:0 22px 14px; }
+.adv-inner { background:var(--surface-lo); border-radius:var(--r-md); border:1px solid var(--border); padding:14px; box-shadow:var(--neu-in); }
+.adv-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.adv-section-label { grid-column:1/-1; font-family:var(--font-mono); font-size:0.54rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--text-3); opacity:0.7; border-bottom:1px solid var(--border); padding-bottom:5px; }
+.adv-row { display:flex; flex-direction:column; gap:5px; }
+.adv-label { font-family:var(--font-mono); font-size:0.55rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-3); }
+.adv-select {
+  font-family:var(--font-mono); font-size:0.7rem; color:var(--text);
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-sm);
+  padding:7px 28px 7px 10px; box-shadow:var(--neu-flat); cursor:pointer; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237088A8'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 9px center;
+}
+.adv-select:focus { outline:2px solid var(--accent); outline-offset:2px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   BOTTOM SHEET
+══════════════════════════════════════════════════════════════════════ */
+.sheet-backdrop { position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); opacity:0; pointer-events:none; transition:opacity 0.28s; }
+.sheet-backdrop.open { opacity:1; pointer-events:all; }
+.bottom-sheet { position:fixed; bottom:0; left:0; right:0; z-index:400; background:var(--surface); border-radius:var(--r-xl) var(--r-xl) 0 0; border-top:1px solid var(--border); box-shadow:0 -8px 40px rgba(0,0,0,0.3); transform:translateY(100%); transition:transform 0.32s cubic-bezier(0.4,0,0.2,1); max-height:72vh; overflow-y:auto; padding:0 24px 40px; }
+.bottom-sheet.open { transform:translateY(0); }
+.sheet-handle { width:36px; height:4px; border-radius:2px; background:var(--text-3); opacity:0.38; margin:14px auto 20px; }
+.sheet-title { font-size:1.1rem; font-weight:800; letter-spacing:-0.02em; color:var(--text); margin-bottom:3px; }
+.sheet-sub { font-family:var(--font-mono); font-size:0.58rem; letter-spacing:0.1em; color:var(--text-3); margin-bottom:20px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   BEAT GRID — Pulse hero component
+══════════════════════════════════════════════════════════════════════ */
+.beat-grid-wrap {
+  background:var(--surface-lo); border-radius:var(--r-md);
+  box-shadow:var(--neu-in); padding:16px;
+}
+.beat-grid-label { font-family:var(--font-mono); font-size:0.56rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--text-3); margin-bottom:12px; text-align:center; }
+.beat-row { display:flex; gap:8px; justify-content:center; margin-bottom:8px; }
+.beat-dot-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; }
+/* Main beat dots — larger, clickable for accent */
+.beat-dot {
+  width:36px; height:36px; border-radius:50%;
+  background:var(--surface); border:2px solid var(--border);
+  box-shadow:var(--neu-out);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all 0.1s; user-select:none;
+  position:relative;
+}
+.beat-dot.playing { border-color:var(--accent); box-shadow:0 0 14px var(--accent-glow),var(--neu-out); transform:scale(1.12); }
+.beat-dot.accent-1 { background:color-mix(in srgb,var(--accent) 12%,var(--surface)); border-color:color-mix(in srgb,var(--accent) 55%,var(--border)); }
+.beat-dot.accent-2 { background:color-mix(in srgb,var(--accent) 25%,var(--surface)); border-color:var(--accent); box-shadow:0 0 10px var(--accent-glow),var(--neu-out); }
+.beat-dot.downbeat  { border-color:var(--accent-2); }
+.beat-dot.downbeat.playing { box-shadow:0 0 16px var(--accent-2-glow),var(--neu-out); border-color:var(--accent-2); }
+.beat-dot-num { font-family:var(--font-mono); font-size:0.6rem; font-weight:500; color:var(--text-3); }
+.beat-dot-num.active { color:var(--accent); }
+/* Sub-beat dots row */
+.sub-row { display:flex; gap:6px; justify-content:center; }
+.sub-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--surface-lo2); border:1px solid var(--border);
+  cursor:pointer; transition:all 0.1s;
+}
+.sub-dot.playing { background:var(--accent); box-shadow:0 0 6px var(--accent-glow); }
+.sub-dot.accent-1 { background:color-mix(in srgb,var(--accent) 45%,transparent); border-color:var(--accent); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   TUNER GAUGE
+══════════════════════════════════════════════════════════════════════ */
+.tuner-gauge { background:var(--surface-lo); border-radius:var(--r-md); box-shadow:var(--neu-in); padding:14px 16px; display:flex; flex-direction:column; align-items:center; gap:10px; }
+.gauge-ticks { display:flex; align-items:flex-end; gap:3px; width:100%; justify-content:center; }
+.g-tick { border-radius:1px; background:var(--border); }
+.g-tick.main  { width:1.5px; height:10px; }
+.g-tick.minor { width:1px; height:5px; opacity:0.5; }
+.g-tick.center { width:2px; height:18px; background:var(--accent); box-shadow:0 0 5px var(--accent-glow); }
+.gauge-needle-track { width:100%; height:44px; position:relative; display:flex; align-items:flex-end; justify-content:center; }
+.gauge-needle { position:absolute; bottom:0; left:50%; width:2px; height:38px; border-radius:1px; background:linear-gradient(to top,var(--accent),transparent); transform-origin:bottom center; transform:translateX(-50%) rotate(-12deg); box-shadow:0 0 8px var(--accent-glow); transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1); }
+.note-readout { font-family:var(--font-mono); font-size:2.4rem; font-weight:300; color:var(--text); letter-spacing:-0.02em; display:flex; align-items:baseline; gap:3px; }
+.note-readout sup { font-size:0.9rem; color:var(--text-3); }
+.cents-row { display:flex; align-items:center; gap:8px; width:100%; }
+.cents-bar { flex:1; height:3px; border-radius:2px; background:var(--surface-lo2); position:relative; overflow:visible; }
+.cents-fill { position:absolute; top:-2px; height:7px; border-radius:3px; background:var(--accent); box-shadow:0 0 8px var(--accent-glow); width:20%; left:42%; }
+.cents-val { font-family:var(--font-mono); font-size:0.63rem; color:var(--text-2); min-width:34px; text-align:right; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   MINI PIANO (ear trainer + chord ref)
+══════════════════════════════════════════════════════════════════════ */
+.mini-piano { display:flex; position:relative; height:52px; border-radius:var(--r-sm); overflow:hidden; box-shadow:var(--neu-out); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   PRACTICE BLOCKS (practice timer)
+══════════════════════════════════════════════════════════════════════ */
+.block-list { display:flex; flex-direction:column; gap:7px; }
+.practice-block {
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-sm); padding:8px 12px;
+  box-shadow:var(--neu-flat);
+}
+.block-color { width:8px; height:28px; border-radius:4px; flex-shrink:0; }
+.block-name { font-size:0.78rem; font-weight:600; color:var(--text); flex:1; }
+.block-dur { font-family:var(--font-mono); font-size:0.65rem; color:var(--text-3); min-width:30px; text-align:right; }
+.block-active { border-color:var(--accent); box-shadow:0 0 10px var(--accent-glow),var(--neu-flat); }
+.block-done { opacity:0.45; }
+
+/* Drone play ring */
+.drone-ring {
+  width:100px; height:100px; border-radius:50%;
+  background:var(--surface); border:2px solid var(--border);
+  box-shadow:var(--neu-out); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.15s; position:relative;
+}
+.drone-ring::before {
+  content:''; position:absolute; inset:-6px; border-radius:50%;
+  border:1.5px solid var(--accent); opacity:0; border-style:dashed;
+  animation:dronePulse 1.8s ease-in-out infinite;
+}
+.drone-ring.active::before { opacity:0.6; }
+.drone-ring.active { border-color:var(--accent); box-shadow:0 0 24px var(--accent-glow),var(--neu-out); }
+@keyframes dronePulse { 0%,100%{transform:scale(1);opacity:0.5} 50%{transform:scale(1.12);opacity:0.9} }
+.drone-icon { font-size:1.8rem; color:var(--text-2); transition:color 0.15s; }
+.drone-ring.active .drone-icon { color:var(--accent); }
+
+/* Chord diagram miniature */
+.chord-diag { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.chord-diag-name { font-family:var(--font-mono); font-size:0.62rem; font-weight:500; color:var(--text-2); letter-spacing:0.06em; }
+.chord-fret { display:flex; gap:3px; }
+.c-string { display:flex; flex-direction:column; align-items:center; gap:2px; }
+.c-fret-cell { width:14px; height:8px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:center; position:relative; }
+.c-fret-cell.has-dot::after { content:''; width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 4px var(--accent-glow); position:absolute; }
+.c-nut { width:14px; height:2px; background:var(--text-2); border-radius:1px; }
+.c-open { font-family:var(--font-mono); font-size:0.48rem; color:var(--text-3); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   DESKTOP LAYOUT MOCKUP
+══════════════════════════════════════════════════════════════════════ */
+.desktop-mockup {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-xl); box-shadow:var(--neu-out);
+  overflow:hidden;
+}
+.desktop-chrome {
+  height:40px; background:var(--surface-lo); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; padding:0 16px; gap:8px;
+}
+.desktop-chrome-dot { width:10px; height:10px; border-radius:50%; }
+.desktop-chrome-bar { flex:1; height:20px; background:var(--surface-lo2); border-radius:10px; max-width:300px; margin:0 auto; }
+.desktop-layout { display:grid; grid-template-columns:220px 1fr 260px; min-height:420px; }
+.desktop-sidebar { border-right:1px solid var(--border); padding:16px 14px; display:flex; flex-direction:column; gap:8px; }
+.desktop-main { padding:20px; display:flex; flex-direction:column; gap:14px; }
+.desktop-aside { border-left:1px solid var(--border); padding:16px 14px; display:flex; flex-direction:column; gap:12px; }
+.sidebar-tool-link {
+  display:flex; align-items:center; gap:9px; padding:8px 10px;
+  border-radius:var(--r-sm); cursor:default;
+  font-size:0.76rem; font-weight:600; color:var(--text-3);
+  transition:all var(--transition);
+}
+.sidebar-tool-link.active { background:var(--surface-lo); color:var(--text); border-left:2px solid var(--accent); padding-left:8px; }
+.sidebar-tool-link .stl-icon { font-size:1rem; }
+.sidebar-group-label { font-family:var(--font-mono); font-size:0.52rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-3); opacity:0.6; padding:6px 4px 2px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   SPEC CARDS
+══════════════════════════════════════════════════════════════════════ */
+.spec-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:18px; box-shadow:var(--neu-flat); }
+.spec-card-title { font-family:var(--font-mono); font-size:0.56rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-3); margin-bottom:12px; }
+.spec-list { display:flex; flex-direction:column; gap:6px; }
+.spec-item { display:flex; align-items:center; justify-content:space-between; padding:6px 9px; border-radius:var(--r-xs); background:var(--surface-lo); font-size:0.74rem; }
+.spec-lbl { color:var(--text-2); font-weight:500; }
+.spec-val { font-family:var(--font-mono); font-size:0.65rem; color:var(--text-3); }
+.spec-val.cy{color:var(--accent)} .spec-val.mg{color:var(--accent-2)} .spec-val.gr{color:var(--correct)} .spec-val.rd{color:var(--wrong)}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PROMPT CARDS
+══════════════════════════════════════════════════════════════════════ */
+.prompt-grid { display:flex; flex-direction:column; gap:11px; }
+.prompt-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); box-shadow:var(--neu-flat); overflow:hidden; }
+.prompt-header { display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid transparent; cursor:pointer; user-select:none; transition:border-color var(--transition); }
+.prompt-card.open .prompt-header { border-bottom-color:var(--border); }
+.prompt-num { font-family:var(--font-mono); font-size:0.58rem; font-weight:500; color:var(--bg); background:var(--accent); width:26px; height:26px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; box-shadow:0 0 8px var(--accent-glow); }
+.prompt-htitle { font-size:0.84rem; font-weight:700; color:var(--text); }
+.prompt-scope { font-family:var(--font-mono); font-size:0.56rem; color:var(--text-3); letter-spacing:0.05em; margin-top:1px; }
+.prompt-chev { color:var(--text-3); font-size:0.62rem; margin-left:auto; transition:transform var(--transition); }
+.prompt-card.open .prompt-chev { transform:rotate(180deg); }
+.prompt-body { display:none; padding:18px; }
+.prompt-card.open .prompt-body { display:block; }
+.prompt-pre { font-family:var(--font-mono); font-size:0.64rem; line-height:1.78; color:var(--text-2); background:var(--surface-lo); border-radius:var(--r-sm); padding:14px; white-space:pre-wrap; box-shadow:var(--neu-in); }
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:var(--text-3);border-radius:3px}
+
+/* footer */
+.app-footer { font-family:var(--font-mono); font-size:0.6rem; letter-spacing:0.1em; color:var(--text-3); opacity:0.45; text-align:center; padding:20px 0 8px; }
+
+/* BPM range slider custom */
+input[type=range].bpm-range { width:100%; height:4px; border-radius:2px; -webkit-appearance:none; appearance:none; outline:none; cursor:pointer; }
+input[type=range].bpm-range::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--surface-hi); box-shadow:var(--neu-out); cursor:pointer; }
+</style>
+</head>
+
+<body data-mode="light">
+
+<!-- ══ CHROME ══════════════════════════════════════════════════════════ -->
+<nav class="chrome">
+  <div class="chrome-wordmark"><div class="chrome-mark"></div>Stasis v3</div>
+  <div class="chrome-right">
+    <nav class="nav-links">
+      <a class="nav-link active" href="#system">System</a>
+      <a class="nav-link" href="#mockups">Mockups</a>
+      <a class="nav-link" href="#desktop">Desktop</a>
+      <a class="nav-link" href="#prompts">Prompts</a>
+    </nav>
+    <span class="mode-badge" id="modeLabel">Light</span>
+    <button class="mode-toggle" id="modeToggle"></button>
+  </div>
+</nav>
+
+<div class="page">
+
+<!-- ══ SYSTEM ══════════════════════════════════════════════════════════ -->
+<section class="section" id="system">
+  <div class="section-label">Design System v3 · Stasis</div>
+  <div class="section-title">Arctic Hardware</div>
+  <div class="section-sub">Refined from v2: backgrounds desaturated to 50% less blue in dark mode, text contrast improved, correct state shifted to minty teal. Cyberpunk accents hold at full neon. Soft hardware — controls that read as instruments.</div>
+
+  <div class="section-label">Colour Tokens</div>
+  <div class="palette mt-xs" id="paletteRow"></div>
+
+  <div class="section-label mt-md">Typography Pairings</div>
+  <div class="type-grid mt-xs">
+    <div class="type-card">
+      <div style="font-family:'Syne';font-size:2rem;font-weight:800;letter-spacing:-0.025em;line-height:1;color:var(--text)">Ear Trainer</div>
+      <div class="type-meta">Syne 800 · panel titles, h1</div>
+    </div>
+    <div class="type-card">
+      <div style="font-family:'Syne';font-size:0.82rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-2)">INTERVAL RECOGNITION</div>
+      <div class="type-meta">Syne 600 CAPS · section headings</div>
+    </div>
+    <div class="type-card">
+      <div style="font-family:'DM Mono';font-size:2.8rem;font-weight:300;letter-spacing:-0.025em;line-height:1;color:var(--text)">A<span style="color:var(--accent);font-size:1.2rem">♭4</span></div>
+      <div class="type-meta">DM Mono 300 · readout numerals</div>
+    </div>
+    <div class="type-card">
+      <div style="font-family:'DM Mono';font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--text-3)">ATTACK · FREQUENCY · DEPTH</div>
+      <div class="type-meta">DM Mono 400 · control labels</div>
+    </div>
+    <div class="type-card" style="grid-column:span 2">
+      <div style="font-family:'DM Mono';font-size:0.74rem;font-weight:500;display:flex;gap:18px;flex-wrap:wrap;align-items:center">
+        <span style="color:var(--accent)">+0.0¢</span>
+        <span style="color:var(--correct)">✓ In tune</span>
+        <span style="color:var(--wrong)">✗ Wrong</span>
+        <span style="color:var(--accent-2)">● Active</span>
+        <span style="color:var(--text-2)">440 Hz</span>
+      </div>
+      <div class="type-meta">DM Mono 500 · status values, feedback states</div>
+    </div>
+  </div>
+
+  <div class="section-label mt-md">Component Library</div>
+  <div class="grid-auto mt-xs">
+    <div class="spec-card">
+      <div class="spec-card-title">Buttons</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-primary">▶ Play</button>
+        <button class="btn btn-ghost">Reset</button>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-title">Segment Control</div>
+      <div class="seg-control">
+        <button class="seg-btn active" onclick="setSeg(this)">Easy</button>
+        <button class="seg-btn" onclick="setSeg(this)">Med</button>
+        <button class="seg-btn" onclick="setSeg(this)">Hard</button>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-title">Progress Bars — accent → accent-2 gradient</div>
+      <div style="display:flex;flex-direction:column;gap:12px" id="progressDemo"></div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-title">Choice Chips</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div class="choice-chip correct">Major 6th <span class="chip-letter">A</span></div>
+        <div class="choice-chip wrong">Perfect 5th <span class="chip-letter">B</span></div>
+        <div class="choice-chip">Minor 7th <span class="chip-letter">C</span></div>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-title">Knobs — interactive (drag up/down)</div>
+      <div style="display:flex;gap:18px;justify-content:center" id="knobRow"></div>
+    </div>
+    <div class="spec-card" style="grid-column:span 2">
+      <div class="spec-card-title">Vertical Sliders — thin laser line, textured flanks</div>
+      <div style="display:flex;gap:20px;align-items:flex-end" id="sliderRow"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TOOL MOCKUPS ══════════════════════════════════════════════════════ -->
+<section class="section" id="mockups">
+  <div class="section-label">Interactive Mockups</div>
+  <div class="section-title">All Six Tools</div>
+  <div class="section-sub">Each panel shows the primary UX patterns for that tool. Click ⊞ to expand advanced settings. Toggle dark mode to confirm contrast and neon states. Beat dots in Pulse are accent-clickable.</div>
+
+  <!-- ROW 1: Ear Trainer + Tuner + Pulse -->
+  <div class="tools-grid-3">
+
+    <!-- EAR TRAINER -->
+    <div class="tool-panel">
+      <div class="panel-top">
+        <div class="panel-tag">01 · Ear Trainer</div>
+        <div class="panel-top-right">
+          <div class="panel-badge">Active</div>
+          <button class="panel-settings-btn" id="earBtn" onclick="toggleAdv('earAdv','earBtn')">⊞</button>
+        </div>
+      </div>
+      <div class="panel-title">Ear Trainer</div>
+      <div class="panel-sub">Scales · Intervals · Chords</div>
+      <div class="adv-panel" id="earAdv">
+        <div class="adv-inner"><div class="adv-grid">
+          <div class="adv-section-label">Quiz Configuration</div>
+          <div class="adv-row"><div class="adv-label">Root Key</div><select class="adv-select"><option>C</option><option>G</option><option>D</option><option>A</option></select></div>
+          <div class="adv-row"><div class="adv-label">Difficulty</div><select class="adv-select"><option>Easy</option><option selected>Medium</option><option>Hard</option></select></div>
+          <div class="adv-row"><div class="adv-label">Scale / Mode</div><select class="adv-select"><option selected>Major</option><option>Natural Minor</option><option>Pentatonic</option></select></div>
+          <div class="adv-row"><div class="adv-label">Round Length</div><select class="adv-select"><option>5</option><option selected>10</option><option>20</option></select></div>
+          <div class="adv-section-label">Playback</div>
+          <div class="adv-row"><div class="adv-label">Play Mode</div><select class="adv-select"><option selected>Ascending</option><option>Harmonic</option></select></div>
+          <div class="adv-row"><div class="adv-label">Root First</div><select class="adv-select"><option selected>On</option><option>Off</option></select></div>
+        </div></div>
+      </div>
+      <div class="panel-divider"></div>
+      <div class="panel-body">
+        <div id="earPiano"><div class="readout-sub" style="margin-bottom:8px">Key Position</div><div class="mini-piano" id="miniPiano"></div></div>
+        <div class="readout"><div class="readout-sub">Interval</div><div class="readout-main">M<span class="unit">6</span></div><div class="readout-sub">Major Sixth · 9 semitones</div></div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div class="choice-chip correct">Major 6th <span class="chip-letter">A</span></div>
+          <div class="choice-chip">Minor 7th <span class="chip-letter">B</span></div>
+          <div class="choice-chip wrong">Perfect 5th <span class="chip-letter">C</span></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-end">
+          <div><div class="readout-sub">Streak</div><div style="font-family:var(--font-mono);font-size:1.5rem;font-weight:300;color:var(--accent)">7</div></div>
+          <div><div class="readout-sub">Score</div><div style="font-family:var(--font-mono);font-size:1.5rem;font-weight:300;color:var(--text)">84%</div></div>
+          <div><div class="readout-sub">Round</div><div style="font-family:var(--font-mono);font-size:1.5rem;font-weight:300;color:var(--text-2)">3/10</div></div>
+        </div>
+        <button class="btn btn-primary" style="align-self:stretch">▶ Play Again</button>
+      </div>
+    </div>
+
+    <!-- TUNER -->
+    <div class="tool-panel">
+      <div class="panel-top">
+        <div class="panel-tag">02 · Tuner</div>
+        <div class="panel-top-right">
+          <div class="panel-badge good">Listening</div>
+          <button class="panel-settings-btn" id="tunerBtn" onclick="toggleAdv('tunerAdv','tunerBtn')">⊞</button>
+        </div>
+      </div>
+      <div class="panel-title">Tuner</div>
+      <div class="panel-sub">Chromatic · Precise · Live</div>
+      <div class="adv-panel" id="tunerAdv">
+        <div class="adv-inner"><div class="adv-grid">
+          <div class="adv-section-label">Reference & Calibration</div>
+          <div class="adv-row"><div class="adv-label">Reference Pitch</div><select class="adv-select"><option>432 Hz</option><option selected>440 Hz</option><option>442 Hz</option></select></div>
+          <div class="adv-row"><div class="adv-label">Tuning System</div><select class="adv-select"><option selected>Equal Temp.</option><option>Just Intonation</option></select></div>
+          <div class="adv-row"><div class="adv-label">Sensitivity</div><select class="adv-select"><option>Low</option><option selected>Medium</option><option>High</option></select></div>
+          <div class="adv-row"><div class="adv-label">In-Tune Window</div><select class="adv-select"><option>±2¢</option><option selected>±5¢</option><option>±10¢</option></select></div>
+        </div></div>
+      </div>
+      <div class="panel-divider"></div>
+      <div class="panel-body">
+        <div class="readout" style="align-items:center;text-align:center">
+          <div class="readout-sub">Detected Pitch</div>
+          <div class="note-readout" style="justify-content:center">G<sup>#4</sup></div>
+          <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--accent)">415.30 Hz</div>
+        </div>
+        <div class="tuner-gauge">
+          <div class="gauge-ticks">
+            <div class="g-tick minor"></div><div class="g-tick minor"></div><div class="g-tick main"></div>
+            <div class="g-tick minor"></div><div class="g-tick minor"></div><div class="g-tick main"></div>
+            <div class="g-tick minor"></div><div class="g-tick center"></div><div class="g-tick minor"></div>
+            <div class="g-tick main"></div><div class="g-tick minor"></div><div class="g-tick minor"></div>
+            <div class="g-tick main"></div><div class="g-tick minor"></div><div class="g-tick minor"></div>
+          </div>
+          <div class="gauge-needle-track"><div class="gauge-needle" id="tunerNeedle"></div></div>
+          <div class="cents-row">
+            <div style="font-family:var(--font-mono);font-size:0.52rem;color:var(--text-3)">−50¢</div>
+            <div class="cents-bar" style="flex:1"><div class="cents-fill"></div></div>
+            <div class="cents-val">−8¢</div>
+          </div>
+        </div>
+        <div>
+          <div class="readout-sub" style="margin-bottom:7px">Instrument</div>
+          <div class="seg-control" style="width:100%">
+            <button class="seg-btn active" onclick="setSeg(this)" style="flex:1">Guitar</button>
+            <button class="seg-btn" onclick="setSeg(this)" style="flex:1">Bass</button>
+            <button class="seg-btn" onclick="setSeg(this)" style="flex:1">Uke</button>
+            <button class="seg-btn" onclick="setSeg(this)" style="flex:1">Chr.</button>
+          </div>
+        </div>
+        <div><div class="readout-sub" style="margin-bottom:8px">Strings</div><div style="display:flex;gap:5px;justify-content:space-between" id="stringRow"></div></div>
+        <div class="progress-wrap">
+          <div class="progress-label-row"><span class="progress-label">Pitch History</span><span class="progress-val">−8¢</span></div>
+          <div class="progress-track thin"><div class="progress-fill" style="width:42%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PULSE -->
+    <div class="tool-panel">
+      <div class="panel-top">
+        <div class="panel-tag">03 · Pulse</div>
+        <div class="panel-top-right">
+          <div class="panel-badge alt">Playing</div>
+          <button class="panel-settings-btn" id="pulseBtn" onclick="toggleAdv('pulseAdv','pulseBtn')">⊞</button>
+        </div>
+      </div>
+      <div class="panel-title">Pulse</div>
+      <div class="panel-sub">Tempo · Rhythm · Accent</div>
+      <div class="adv-panel" id="pulseAdv">
+        <div class="adv-inner"><div class="adv-grid">
+          <div class="adv-section-label">Sound & Feel</div>
+          <div class="adv-row"><div class="adv-label">Click Sound</div><select class="adv-select"><option>Click</option><option selected>Stick</option><option>Ping</option></select></div>
+          <div class="adv-row"><div class="adv-label">Accent Boost</div><select class="adv-select"><option>Low</option><option selected>Medium</option><option>High</option></select></div>
+          <div class="adv-section-label">Training Modes</div>
+          <div class="adv-row"><div class="adv-label">Count-In</div><select class="adv-select"><option selected>Off</option><option>1 bar</option><option>2 bars</option></select></div>
+          <div class="adv-row"><div class="adv-label">Mute Bars</div><select class="adv-select"><option selected>Off</option><option>Every 2</option><option>Every 4</option></select></div>
+          <div class="adv-section-label">Speed Trainer</div>
+          <div class="adv-row"><div class="adv-label">Start BPM</div><select class="adv-select"><option selected>60</option><option>80</option><option>100</option></select></div>
+          <div class="adv-row"><div class="adv-label">End BPM</div><select class="adv-select"><option>100</option><option>120</option><option selected>140</option></select></div>
+        </div></div>
+      </div>
+      <div class="panel-divider"></div>
+      <div class="panel-body">
+        <!-- BPM row — compact, not hero -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div>
+            <div class="readout-sub">Tempo</div>
+            <div style="font-family:var(--font-mono);font-size:2.2rem;font-weight:300;letter-spacing:-0.02em;color:var(--text)" id="bpmDisplay">120</div>
+            <div class="readout-sub" style="color:var(--text-3)">Allegro</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            <input type="range" class="bpm-range" min="20" max="300" value="120" id="bpmSlider"
+              style="background:linear-gradient(to right,var(--accent) 35.5%,var(--surface-lo) 35.5%)">
+            <div style="display:flex;gap:6px;justify-content:center">
+              <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.62rem">−10</button>
+              <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.62rem">−1</button>
+              <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.62rem">+1</button>
+              <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.62rem">+10</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BEAT GRID — hero element -->
+        <div class="beat-grid-wrap">
+          <div class="beat-grid-label">4 / 4 · click to set accent level</div>
+          <div class="beat-row" id="beatGridRow"></div>
+          <div class="sub-row" id="subDotsRow"></div>
+        </div>
+
+        <!-- Time sig + tap row -->
+        <div style="display:flex;gap:10px;align-items:center">
+          <div style="flex:1">
+            <div class="readout-sub" style="margin-bottom:6px">Time Sig</div>
+            <div class="seg-control" style="width:100%">
+              <button class="seg-btn" onclick="setSeg(this);rebuildBeatGrid(3)" style="flex:1">3/4</button>
+              <button class="seg-btn active" onclick="setSeg(this);rebuildBeatGrid(4)" style="flex:1">4/4</button>
+              <button class="seg-btn" onclick="setSeg(this);rebuildBeatGrid(6)" style="flex:1">6/8</button>
+              <button class="seg-btn" onclick="setSeg(this);rebuildBeatGrid(5)" style="flex:1">5/4</button>
+            </div>
+          </div>
+          <!-- TAP — useful but secondary -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+            <div class="readout-sub">Tap</div>
+            <div id="tapBtn" style="width:46px;height:46px;border-radius:50%;background:var(--surface);border:1px solid var(--border);box-shadow:var(--neu-out);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:var(--font-mono);font-size:0.6rem;color:var(--text-3);transition:all 0.1s;letter-spacing:0.08em"
+              onmousedown="this.style.boxShadow='var(--neu-in)';this.style.transform='scale(0.92)'"
+              onmouseup="this.style.boxShadow='var(--neu-out)';this.style.transform='scale(1)'">TAP</div>
+          </div>
+        </div>
+
+        <!-- Sub division -->
+        <div>
+          <div class="readout-sub" style="margin-bottom:6px">Subdivision</div>
+          <div class="seg-control" style="width:100%">
+            <button class="seg-btn active" onclick="setSeg(this)" style="flex:1">None</button>
+            <button class="seg-btn" onclick="setSeg(this)" style="flex:1">8ths</button>
+            <button class="seg-btn" onclick="setSeg(this)" style="flex:1">Trip.</button>
+            <button class="seg-btn" onclick="setSeg(this)" style="flex:1">16ths</button>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="align-self:stretch">▶ Start</button>
+      </div>
+    </div>
+  </div><!-- /tools-grid-3 -->
+
+  <!-- ROW 2: Drone + Practice Timer + Chord Reference -->
+  <div class="tools-grid-3" style="margin-top:22px">
+
+    <!-- DRONE -->
+    <div class="tool-panel">
+      <div class="panel-top">
+        <div class="panel-tag">04 · Drone</div>
+        <div class="panel-top-right">
+          <div class="panel-badge dim">Stopped</div>
+          <button class="panel-settings-btn" id="droneBtn" onclick="toggleAdv('droneAdv','droneBtn')">⊞</button>
+        </div>
+      </div>
+      <div class="panel-title">Drone</div>
+      <div class="panel-sub">Reference · Sustain · Tune</div>
+      <div class="adv-panel" id="droneAdv">
+        <div class="adv-inner"><div class="adv-grid">
+          <div class="adv-section-label">Timbre</div>
+          <div class="adv-row"><div class="adv-label">Timbre</div><select class="adv-select"><option selected>Warm</option><option>Tanpura</option><option>Organ</option><option>Pad</option></select></div>
+          <div class="adv-row"><div class="adv-label">Voicing</div><select class="adv-select"><option selected>Root</option><option>Root+5th</option><option>Power</option><option>Octaves</option></select></div>
+          <div class="adv-row"><div class="adv-label">Octave</div><select class="adv-select"><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
+          <div class="adv-row"><div class="adv-label">Volume</div><select class="adv-select"><option>25%</option><option>50%</option><option selected>75%</option><option>100%</option></select></div>
+        </div></div>
+      </div>
+      <div class="panel-divider"></div>
+      <div class="panel-body">
+        <!-- Note selector -->
+        <div>
+          <div class="readout-sub" style="margin-bottom:8px">Root Note</div>
+          <div class="seg-control" style="width:100%;flex-wrap:wrap">
+            <button class="seg-btn active" onclick="setSeg(this)" style="flex:1">C</button>
+            <button class="seg-btn" onclick="setSeg(this)" style="flex:1">D</button>
+            <button class="seg-btn" onclick="setSeg(this)" style="flex:1">E</button>
+            <button class="seg-btn" onclick="setSeg(this)" style="flex:1">F</button>
+            <button class="seg-btn" onclick="setSeg(this)" style="flex:1">G</button>
+            <button class="seg-btn" onclick="setSeg(this)" style="flex:1">A</button>
+            <button class="seg-btn" onclick="setSeg(this)" style="flex:1">B</button>
+          </div>
+        </div>
+        <!-- Hero play ring -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 0">
+          <div class="drone-ring" id="droneRing" onclick="toggleDrone()">
+            <span class="drone-icon" id="droneIcon">▶</span>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--font-mono);font-size:1.6rem;font-weight:300;color:var(--text)">C<span style="color:var(--accent);font-size:0.9rem">3</span></div>
+            <div class="readout-sub">130.81 Hz</div>
+          </div>
+        </div>
+        <!-- Volume slider + voicing -->
+        <div style="display:flex;gap:14px;align-items:flex-end">
+          <div style="flex:1" id="droneSlider"></div>
+          <div style="flex:2">
+            <div class="readout-sub" style="margin-bottom:6px">Voicing</div>
+            <div class="seg-control" style="width:100%">
+              <button class="seg-btn active" onclick="setSeg(this)" style="flex:1">Root</button>
+              <button class="seg-btn" onclick="setSeg(this)" style="flex:1">+5</button>
+              <button class="seg-btn" onclick="setSeg(this)" style="flex:1">Pwr</button>
+              <button class="seg-btn" onclick="setSeg(this)" style="flex:1">Oct</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRACTICE TIMER -->
+    <div class="tool-panel">
+      <div class="panel-top">
+        <div class="panel-tag">05 · Practice Timer</div>
+        <div class="panel-top-right">
+          <div class="panel-badge good">Running</div>
+          <button class="panel-settings-btn" id="timerBtn" onclick="toggleAdv('timerAdv','timerBtn')">⊞</button>
+        </div>
+      </div>
+      <div class="panel-title">Practice<br>Timer</div>
+      <div class="panel-sub">Plan · Focus · Track</div>
+      <div class="adv-panel" id="timerAdv">
+        <div class="adv-inner"><div class="adv-grid">
+          <div class="adv-section-label">Templates</div>
+          <div class="adv-row" style="grid-column:1/-1">
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn btn-ghost" style="font-size:0.6rem;padding:6px 12px">Quick 30</button>
+              <button class="btn btn-ghost" style="font-size:0.6rem;padding:6px 12px">Full Hour</button>
+              <button class="btn btn-ghost" style="font-size:0.6rem;padding:6px 12px">Focused 20</button>
+            </div>
+          </div>
+          <div class="adv-section-label">Session</div>
+          <div class="adv-row" style="grid-column:1/-1">
+            <button class="btn btn-ghost" style="font-size:0.62rem;padding:7px 14px;width:100%">+ Add Block</button>
+          </div>
+        </div></div>
+      </div>
+      <div class="panel-divider"></div>
+      <div class="panel-body">
+        <!-- Hero countdown -->
+        <div class="readout" style="align-items:center;text-align:center">
+          <div class="readout-sub">Scales</div>
+          <div style="font-family:var(--font-mono);font-size:3.4rem;font-weight:300;letter-spacing:-0.025em;color:var(--text)">08:32</div>
+          <div class="readout-sub" style="color:var(--text-3)">of 10:00</div>
+        </div>
+        <!-- Dual progress bars -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="progress-wrap">
+            <div class="progress-label-row"><span class="progress-label">Block</span><span class="progress-val">85%</span></div>
+            <div class="progress-track block"><div class="progress-fill" style="width:85%"></div></div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-label-row"><span class="progress-label">Session</span><span class="progress-val">34%</span></div>
+            <div class="progress-track"><div class="progress-fill" style="width:34%"></div></div>
+          </div>
+        </div>
+        <!-- Block list -->
+        <div class="block-list">
+          <div class="practice-block block-done"><div class="block-color" style="background:var(--correct)"></div><div class="block-name">Warmup</div><div class="block-dur">5m ✓</div></div>
+          <div class="practice-block block-active"><div class="block-color" style="background:var(--accent)"></div><div class="block-name">Scales</div><div class="block-dur">10m</div></div>
+          <div class="practice-block"><div class="block-color" style="background:var(--accent-2)"></div><div class="block-name">Repertoire</div><div class="block-dur">20m</div></div>
+          <div class="practice-block"><div class="block-color" style="background:var(--text-3)"></div><div class="block-name">Ear Training</div><div class="block-dur">10m</div></div>
+        </div>
+        <!-- Transport -->
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button class="btn btn-ghost" style="padding:8px 14px;font-size:0.7rem">|◀</button>
+          <button class="btn btn-primary" style="padding:8px 24px">⏸</button>
+          <button class="btn btn-ghost" style="padding:8px 14px;font-size:0.7rem">▶|</button>
+        </div>
+        <!-- This week -->
+        <div class="readout" style="flex-direction:row;justify-content:space-between">
+          <div style="text-align:center"><div class="readout-sub">This Week</div><div style="font-family:var(--font-mono);font-size:1.2rem;font-weight:300;color:var(--accent)">4.5h</div></div>
+          <div style="text-align:center"><div class="readout-sub">Sessions</div><div style="font-family:var(--font-mono);font-size:1.2rem;font-weight:300;color:var(--text)">6</div></div>
+          <div style="text-align:center"><div class="readout-sub">Streak</div><div style="font-family:var(--font-mono);font-size:1.2rem;font-weight:300;color:var(--correct)">5d 🔥</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHORD REFERENCE -->
+    <div class="tool-panel">
+      <div class="panel-top">
+        <div class="panel-tag">06 · Chord & Scale Reference</div>
+        <div class="panel-top-right">
+          <div class="panel-badge" style="background:var(--accent-2);box-shadow:0 0 8px var(--accent-2-glow)">Chords</div>
+          <button class="panel-settings-btn" id="chordBtn" onclick="toggleAdv('chordAdv','chordBtn')">⊞</button>
+        </div>
+      </div>
+      <div class="panel-title">Chord &<br>Scale Ref</div>
+      <div class="panel-sub">Voicings · Diatonic · Scales</div>
+      <div class="adv-panel" id="chordAdv">
+        <div class="adv-inner"><div class="adv-grid">
+          <div class="adv-section-label">Chord Mode</div>
+          <div class="adv-row"><div class="adv-label">Root Note</div><select class="adv-select"><option selected>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
+          <div class="adv-row"><div class="adv-label">Chord Type</div><select class="adv-select"><option selected>Major</option><option>Minor</option><option>Dom7</option><option>Maj7</option></select></div>
+          <div class="adv-section-label">Scale Mode</div>
+          <div class="adv-row"><div class="adv-label">Scale</div><select class="adv-select"><option selected>Major</option><option>Nat. Minor</option><option>Dorian</option></select></div>
+          <div class="adv-row"><div class="adv-label">Show</div><select class="adv-select"><option selected>Piano + Fretboard</option><option>Piano only</option></select></div>
+        </div></div>
+      </div>
+      <div class="panel-divider"></div>
+      <div class="panel-body">
+        <!-- Mode toggle -->
+        <div class="seg-control" style="width:100%">
+          <button class="seg-btn active" onclick="setSeg(this)" style="flex:1">Chords</button>
+          <button class="seg-btn" onclick="setSeg(this)" style="flex:1">Scales</button>
+        </div>
+        <!-- Piano -->
+        <div>
+          <div class="readout-sub" style="margin-bottom:8px">Piano — C Major</div>
+          <div class="mini-piano" id="miniPiano2"></div>
+        </div>
+        <!-- Chord name + notes -->
+        <div class="readout">
+          <div class="readout-sub">Chord</div>
+          <div class="readout-main" style="font-size:2rem">C<span class="unit" style="font-size:1rem">maj</span></div>
+          <div class="readout-sub">C · E · G</div>
+          <div style="font-family:var(--font-mono);font-size:0.58rem;color:var(--text-3);letter-spacing:0.1em;margin-top:2px">R · 3 · 5</div>
+        </div>
+        <!-- Guitar voicings -->
+        <div>
+          <div class="readout-sub" style="margin-bottom:8px">Guitar Voicings</div>
+          <div style="display:flex;gap:12px;justify-content:flex-start" id="chordDiags"></div>
+        </div>
+        <!-- Play buttons -->
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" style="flex:1;font-size:0.65rem">▶ Chord</button>
+          <button class="btn btn-ghost" style="flex:1;font-size:0.65rem">▶ Arp.</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /row 2 -->
+</section>
+
+<!-- ══ DESKTOP MOCKUP ══════════════════════════════════════════════════ -->
+<section class="section" id="desktop">
+  <div class="section-label">Desktop Layout</div>
+  <div class="section-title">Full-Width Experience</div>
+  <div class="section-sub">On wider screens the tool suite exposes a persistent sidebar for navigation, a spacious main content area, and a contextual aside panel for configuration — keeping advanced settings always visible without an overlay.</div>
+
+  <div class="desktop-mockup mt-sm">
+    <!-- Fake browser chrome -->
+    <div class="desktop-chrome">
+      <div class="desktop-chrome-dot" style="background:#FF5F57"></div>
+      <div class="desktop-chrome-dot" style="background:#FFBD2E"></div>
+      <div class="desktop-chrome-dot" style="background:#28C840"></div>
+      <div class="desktop-chrome-bar"></div>
+    </div>
+    <!-- App chrome -->
+    <div style="height:40px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:18px;height:18px;border-radius:5px;background:var(--accent);box-shadow:0 0 8px var(--accent-glow)"></div>
+        <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-2)">Music Tools</span>
+      </div>
+      <div style="display:flex;gap:6px">
+        <div style="width:38px;height:20px;border-radius:10px;background:var(--surface-lo);border:1px solid var(--border)"></div>
+      </div>
+    </div>
+    <div class="desktop-layout">
+      <!-- LEFT SIDEBAR: tool navigation -->
+      <div class="desktop-sidebar">
+        <div class="sidebar-group-label">Tools</div>
+        <div class="sidebar-tool-link"><span class="stl-icon">🎵</span> Ear Trainer</div>
+        <div class="sidebar-tool-link active"><span class="stl-icon">🎸</span> Tuner</div>
+        <div class="sidebar-tool-link"><span class="stl-icon">🥁</span> Pulse</div>
+        <div class="sidebar-tool-link"><span class="stl-icon">🎶</span> Drone</div>
+        <div class="sidebar-tool-link"><span class="stl-icon">⏱</span> Practice Timer</div>
+        <div class="sidebar-tool-link"><span class="stl-icon">🎹</span> Chord & Scale</div>
+        <div class="sidebar-group-label" style="margin-top:8px">Session</div>
+        <div style="background:var(--surface-lo);border-radius:var(--r-sm);padding:10px;box-shadow:var(--neu-in)">
+          <div class="readout-sub" style="margin-bottom:4px">This Week</div>
+          <div style="font-family:var(--font-mono);font-size:1.1rem;font-weight:300;color:var(--accent)">4.5 h</div>
+          <div class="progress-track thin" style="margin-top:6px"><div class="progress-fill" style="width:62%"></div></div>
+        </div>
+      </div>
+
+      <!-- MAIN: Tuner primary view -->
+      <div class="desktop-main">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div><div class="readout-sub">Tuner</div><div style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;color:var(--text)">Instrument Tuner</div></div>
+          <div class="panel-badge good" style="font-size:0.6rem">Listening · 440 Hz</div>
+        </div>
+        <!-- Big note readout -->
+        <div class="readout" style="align-items:center;text-align:center;padding:20px">
+          <div class="readout-sub">Detected Pitch</div>
+          <div style="font-family:var(--font-mono);font-size:4.5rem;font-weight:300;letter-spacing:-0.03em;color:var(--text);line-height:1">G<sup style="font-size:1.5rem;color:var(--text-3)">#4</sup></div>
+          <div style="font-family:var(--font-mono);font-size:0.82rem;font-weight:500;color:var(--accent)">415.30 Hz</div>
+        </div>
+        <!-- Full-width gauge -->
+        <div class="tuner-gauge" style="padding:18px 24px">
+          <div class="gauge-ticks" style="gap:4px">
+            <div class="g-tick minor"></div><div class="g-tick minor"></div>
+            <div class="g-tick main"></div><div class="g-tick minor"></div>
+            <div class="g-tick minor"></div><div class="g-tick main"></div>
+            <div class="g-tick minor"></div><div class="g-tick center"></div><div class="g-tick minor"></div>
+            <div class="g-tick main"></div><div class="g-tick minor"></div>
+            <div class="g-tick minor"></div><div class="g-tick main"></div>
+            <div class="g-tick minor"></div><div class="g-tick minor"></div>
+          </div>
+          <div class="gauge-needle-track" style="height:54px"><div class="gauge-needle" style="height:48px;transform:translateX(-50%) rotate(-8deg)"></div></div>
+          <div class="cents-row"><div style="font-family:var(--font-mono);font-size:0.55rem;color:var(--text-3)">−50¢</div><div class="cents-bar" style="flex:1"><div class="cents-fill"></div></div><div class="cents-val">−8¢</div></div>
+        </div>
+        <!-- String buttons -->
+        <div>
+          <div class="readout-sub" style="margin-bottom:10px">Strings — Guitar Standard</div>
+          <div style="display:flex;gap:8px" id="desktopStrings"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT ASIDE: configuration always visible -->
+      <div class="desktop-aside">
+        <div style="font-size:0.78rem;font-weight:700;letter-spacing:-0.01em;color:var(--text);margin-bottom:2px">Configuration</div>
+        <div class="adv-inner" style="margin-bottom:10px">
+          <div class="adv-grid">
+            <div class="adv-section-label">Instrument</div>
+            <div class="adv-row" style="grid-column:1/-1"><div class="adv-label">Type</div><select class="adv-select" style="width:100%"><option selected>Guitar</option><option>Bass</option><option>Ukulele</option><option>Manual</option></select></div>
+            <div class="adv-row" style="grid-column:1/-1"><div class="adv-label">Tuning</div><select class="adv-select" style="width:100%"><option selected>Standard (EADGBE)</option><option>Drop D</option><option>Open G</option></select></div>
+            <div class="adv-section-label">Reference</div>
+            <div class="adv-row" style="grid-column:1/-1"><div class="adv-label">A4 =</div><select class="adv-select" style="width:100%"><option>432 Hz</option><option selected>440 Hz</option><option>442 Hz</option></select></div>
+            <div class="adv-row" style="grid-column:1/-1"><div class="adv-label">In-Tune Window</div><select class="adv-select" style="width:100%"><option>±2¢</option><option selected>±5¢</option></select></div>
+          </div>
+        </div>
+        <!-- Mini pitch history -->
+        <div class="readout-sub" style="margin-bottom:6px">Pitch History</div>
+        <div style="background:var(--surface-lo);border-radius:var(--r-sm);box-shadow:var(--neu-in);height:60px;display:flex;align-items:center;justify-content:center;gap:2px;padding:8px" id="pitchHistoryBars"></div>
+        <div class="progress-wrap" style="margin-top:8px">
+          <div class="progress-label-row"><span class="progress-label">Deviation</span><span class="progress-val" style="color:var(--correct)">−8¢ flat</span></div>
+          <div class="progress-track thin"><div class="progress-fill" style="width:44%;background:linear-gradient(90deg,var(--correct),var(--accent))"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROMPTS ════════════════════════════════════════════════════════ -->
+<section class="section" id="prompts">
+  <div class="section-label">Implementation Prompts v3</div>
+  <div class="section-title">Build Instructions</div>
+  <div class="section-sub">Updated for v3 tokens and new patterns. Prompt 09 covers CSS file separation — extracting shared styles into music-tools.css without a build step.</div>
+  <div class="prompt-grid" id="promptGrid"></div>
+</section>
+
+<div class="app-footer">Stasis v3 · Music Tools Design System · made with ♥ by Paul van Zyl</div>
+</div>
+
+<!-- ══ BOTTOM SHEET ══════════════════════════════════════════════════ -->
+<div class="sheet-backdrop" id="sheetBackdrop" onclick="closeSheet()"></div>
+<div class="bottom-sheet" id="bottomSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="sheetTitle">Advanced Settings</div>
+  <div class="sheet-sub" id="sheetSub">Configuration</div>
+  <div id="sheetContent"></div>
+</div>
+
+<script>
+/* ══ MODE ══════════════════════════════════════════════════════════════ */
+document.getElementById('modeToggle').addEventListener('click',()=>{
+  const d = document.body.dataset.mode==='dark';
+  document.body.dataset.mode = d?'light':'dark';
+  document.getElementById('modeLabel').textContent = d?'Light':'Dark';
+  renderKnobs(); renderSliders();
+});
+
+/* ══ NAV ═══════════════════════════════════════════════════════════════ */
+document.querySelectorAll('.nav-link').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    document.getElementById(a.getAttribute('href').slice(1))?.scrollIntoView({behavior:'smooth'});
+    document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));
+    a.classList.add('active');
+  });
+});
+
+/* ══ SEG ═══════════════════════════════════════════════════════════════ */
+function setSeg(btn){
+  btn.closest('.seg-control').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* ══ ADV PANEL ═════════════════════════════════════════════════════════ */
+function toggleAdv(panelId,btnId){
+  if(window.innerWidth<640){ openSheet(panelId); return; }
+  const p=document.getElementById(panelId), b=document.getElementById(btnId);
+  const open=p.classList.toggle('open'); b.classList.toggle('active',open);
+}
+function openSheet(panelId){
+  const src=document.getElementById(panelId);
+  if(!src) return;
+  const inner=src.querySelector('.adv-inner');
+  document.getElementById('sheetContent').innerHTML=inner?inner.outerHTML:'';
+  document.getElementById('sheetBackdrop').classList.add('open');
+  document.getElementById('bottomSheet').classList.add('open');
+}
+function closeSheet(){
+  document.getElementById('sheetBackdrop').classList.remove('open');
+  document.getElementById('bottomSheet').classList.remove('open');
+}
+
+/* ══ PALETTE ═══════════════════════════════════════════════════════════ */
+[['--bg','BG'],['--surface','Surface'],['--surface-hi','Hi'],['--surface-lo','Lo'],
+ ['--text','Text'],['--text-2','Text 2'],['--text-3','Text 3'],
+ ['--accent','Cyan'],['--accent-2','Magenta'],['--correct','Mint'],['--wrong','Crimson']
+].forEach(([v,n])=>{
+  const row=document.getElementById('paletteRow');
+  const sw=document.createElement('div'); sw.className='swatch';
+  const chip=document.createElement('div'); chip.className='swatch-chip'; chip.style.background=`var(${v})`;
+  const lbl=document.createElement('div'); lbl.className='swatch-name'; lbl.textContent=n;
+  sw.appendChild(chip); sw.appendChild(lbl); row.appendChild(sw);
+});
+
+/* ══ PROGRESS DEMO ════════════════════════════════════════════════════ */
+(()=>{
+  const d=document.getElementById('progressDemo');
+  if(!d) return;
+  const items=[{lbl:'Session',val:'68%',w:68},{lbl:'Block',val:'85%',w:85,cls:'block'},{lbl:'Accuracy',val:'91%',w:91}];
+  items.forEach(({lbl,val,w,cls})=>{
+    const wrap=document.createElement('div'); wrap.className='progress-wrap';
+    wrap.innerHTML=`<div class="progress-label-row"><span class="progress-label">${lbl}</span><span class="progress-val">${val}</span></div><div class="progress-track${cls?' '+cls:''}"><div class="progress-fill" style="width:${w}%"></div></div>`;
+    d.appendChild(wrap);
+  });
+})();
+
+/* ══ KNOB ══════════════════════════════════════════════════════════════ */
+function getCSS(v){ return getComputedStyle(document.body).getPropertyValue(v).trim(); }
+function isDark(){ return document.body.dataset.mode==='dark'; }
+
+function buildKnob(container,label,init=0.5){
+  const SIZE=72,RT=24,RI=18,START=220,RANGE=280;
+  let val=init,drag=false,sY=0,sV=0;
+  const wrap=document.createElement('div'); wrap.className='knob-wrap';
+  const lbl=document.createElement('div'); lbl.className='knob-label'; lbl.textContent=label;
+  const valEl=document.createElement('div'); valEl.className='knob-value'; valEl.textContent=Math.round(val*100);
+  const NS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('width',SIZE); svg.setAttribute('height',SIZE);
+  svg.setAttribute('viewBox',`0 0 ${SIZE} ${SIZE}`); svg.classList.add('knob-svg'); svg.style.overflow='visible';
+  const defs=document.createElementNS(NS,'defs');
+  const grd=document.createElementNS(NS,'radialGradient');
+  const gid=`ksh_${Math.random().toString(36).slice(2)}`;
+  grd.id=gid; grd.setAttribute('cx','38%'); grd.setAttribute('cy','30%'); grd.setAttribute('r','58%');
+  const gs1=document.createElementNS(NS,'stop'); gs1.setAttribute('offset','0%');
+  const gs2=document.createElementNS(NS,'stop'); gs2.setAttribute('offset','100%'); gs2.setAttribute('stop-color','rgba(255,255,255,0)');
+  grd.appendChild(gs1); grd.appendChild(gs2); defs.appendChild(grd); svg.appendChild(defs);
+  const cx=SIZE/2,cy=SIZE/2;
+  const trackEl=document.createElementNS(NS,'path'); trackEl.setAttribute('stroke-width','3'); trackEl.setAttribute('fill','none'); trackEl.setAttribute('stroke-linecap','round');
+  const fillEl=document.createElementNS(NS,'path'); fillEl.setAttribute('stroke-width','3'); fillEl.setAttribute('fill','none'); fillEl.setAttribute('stroke-linecap','round');
+  const bodyEl=document.createElementNS(NS,'circle'); bodyEl.setAttribute('cx',cx); bodyEl.setAttribute('cy',cy); bodyEl.setAttribute('r',RI);
+  const shineEl=document.createElementNS(NS,'circle'); shineEl.setAttribute('cx',cx); shineEl.setAttribute('cy',cy); shineEl.setAttribute('r',RI); shineEl.setAttribute('fill',`url(#${gid})`);
+  const indEl=document.createElementNS(NS,'line'); indEl.setAttribute('stroke-width','2'); indEl.setAttribute('stroke-linecap','round');
+  [trackEl,fillEl,bodyEl,shineEl,indEl].forEach(el=>svg.appendChild(el));
+
+  function arc(r,a1,a2){ const s=((a1-90)*Math.PI/180),e=((a2-90)*Math.PI/180),lg=(a2-a1)>180?1:0; return `M${cx+r*Math.cos(s)} ${cy+r*Math.sin(s)} A ${r} ${r} 0 ${lg} 1 ${cx+r*Math.cos(e)} ${cy+r*Math.sin(e)}`; }
+
+  function styleMode(){
+    const dark=isDark();
+    trackEl.setAttribute('stroke',dark?'rgba(100,140,255,0.10)':'rgba(55,85,180,0.10)');
+    const acc=getCSS('--accent');
+    fillEl.setAttribute('stroke',acc);
+    fillEl.setAttribute('filter',`drop-shadow(0 0 3px ${dark?'rgba(0,216,255,0.48)':'rgba(0,128,192,0.32)'})`);
+    bodyEl.setAttribute('fill',getCSS('--surface-hi'));
+    bodyEl.setAttribute('filter',dark
+      ?'drop-shadow(3px 4px 14px rgba(0,0,0,0.65)) drop-shadow(-1px -1px 2px rgba(255,255,255,0.035))'
+      :'drop-shadow(3px 4px 12px rgba(40,60,150,0.13)) drop-shadow(-3px -3px 8px rgba(255,255,255,0.92))');
+    gs1.setAttribute('stop-color',dark?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.40)');
+    indEl.setAttribute('stroke',acc);
+  }
+
+  function update(){
+    styleMode();
+    const ang=START+val*RANGE;
+    trackEl.setAttribute('d',arc(RT,START,START+RANGE));
+    fillEl.setAttribute('d',val>0.01?arc(RT,START,ang):'M0 0');
+    const rad=(ang-90)*Math.PI/180;
+    indEl.setAttribute('x1',cx+(RI-10)*Math.cos(rad)); indEl.setAttribute('y1',cy+(RI-10)*Math.sin(rad));
+    indEl.setAttribute('x2',cx+(RI-4)*Math.cos(rad));  indEl.setAttribute('y2',cy+(RI-4)*Math.sin(rad));
+    valEl.textContent=Math.round(val*100);
+  }
+  svg.addEventListener('mousedown',e=>{drag=true;sY=e.clientY;sV=val;e.preventDefault();});
+  window.addEventListener('mousemove',e=>{if(drag){val=Math.max(0,Math.min(1,sV-(e.clientY-sY)/110));update();}});
+  window.addEventListener('mouseup',()=>drag=false);
+  svg.addEventListener('touchstart',e=>{drag=true;sY=e.touches[0].clientY;sV=val;},{passive:true});
+  window.addEventListener('touchmove',e=>{if(drag){val=Math.max(0,Math.min(1,sV-(e.touches[0].clientY-sY)/110));update();}},{passive:true});
+  window.addEventListener('touchend',()=>drag=false);
+  wrap.appendChild(svg); wrap.appendChild(lbl); wrap.appendChild(valEl);
+  container.appendChild(wrap); update();
+}
+function renderKnobs(){ const r=document.getElementById('knobRow'); r.innerHTML=''; buildKnob(r,'FREQ',0.32); buildKnob(r,'DEPTH',0.67); buildKnob(r,'MIX',0.50); }
+renderKnobs();
+
+/* ══ VSLIDER ═══════════════════════════════════════════════════════════ */
+function buildVSlider(container,label,init=0.6){
+  let val=init,drag=false;
+  const H=140,PAD=14,FR=H-PAD*2;
+  const wrap=document.createElement('div'); wrap.className='vslider-wrap';
+  const lbl=document.createElement('div'); lbl.className='vslider-label'; lbl.textContent=label;
+  const track=document.createElement('div'); track.className='vslider-track';
+  const line=document.createElement('div'); line.className='vslider-line';
+  const fill=document.createElement('div'); fill.className='vslider-fill';
+  const glow=document.createElement('div'); glow.className='vslider-glow';
+  const thumb=document.createElement('div'); thumb.className='vslider-thumb';
+  line.appendChild(fill); track.appendChild(line); track.appendChild(glow); track.appendChild(thumb);
+  const valEl=document.createElement('div'); valEl.className='vslider-value';
+  function update(){
+    const fh=val*FR; fill.style.height=fh+'px'; glow.style.height=(fh*.55+8)+'px'; glow.style.bottom=PAD+'px';
+    thumb.style.bottom=Math.max(2,PAD+val*FR-7)+'px'; valEl.textContent=Math.round(val*100);
+  }
+  function getV(cy){ const rect=track.getBoundingClientRect(); return 1-Math.max(0,Math.min(1,(cy-rect.top-PAD)/FR)); }
+  track.addEventListener('mousedown',e=>{drag=true;val=getV(e.clientY);update();});
+  window.addEventListener('mousemove',e=>{if(drag){val=getV(e.clientY);update();}});
+  window.addEventListener('mouseup',()=>drag=false);
+  track.addEventListener('touchstart',e=>{drag=true;val=getV(e.touches[0].clientY);update();},{passive:true});
+  window.addEventListener('touchmove',e=>{if(drag){val=getV(e.touches[0].clientY);update();}},{passive:true});
+  window.addEventListener('touchend',()=>drag=false);
+  wrap.appendChild(lbl); wrap.appendChild(track); wrap.appendChild(valEl);
+  container.appendChild(wrap); update();
+}
+function renderSliders(){ const r=document.getElementById('sliderRow'); r.innerHTML=''; ['LOW','MID','HIGH','VOL','PAN'].forEach((l,i)=>buildVSlider(r,l,[0.38,0.71,0.55,0.84,0.50][i])); }
+renderSliders();
+
+/* ══ DRONE SLIDER ══════════════════════════════════════════════════════ */
+(()=>{ const r=document.getElementById('droneSlider'); if(r) buildVSlider(r,'VOL',0.75); })();
+
+/* ══ MINI PIANO ════════════════════════════════════════════════════════ */
+function buildMiniPiano(el,litNotes=[0,9]){
+  if(!el) return;
+  const whites=[0,2,4,5,7,9,11,12,14,16,17,19];
+  whites.forEach(n=>{
+    const mk=document.createElement('div');
+    const lit=litNotes.includes(n%12);
+    mk.style.cssText=`flex:1;border-right:1px solid var(--border);
+      background:${lit?'var(--accent)':'var(--surface-hi)'};
+      ${lit?'box-shadow:0 0 10px var(--accent-glow);':''}
+      position:relative;height:100%;transition:background 0.2s;`;
+    el.appendChild(mk);
+  });
+  const bks=[{s:1,wi:0},{s:3,wi:1},{s:6,wi:3},{s:8,wi:4},{s:10,wi:5},{s:13,wi:7},{s:15,wi:8}];
+  bks.forEach(({wi})=>{
+    const mk=document.createElement('div');
+    const w=100/whites.length;
+    mk.style.cssText=`position:absolute;width:${w*.58}%;height:60%;top:0;
+      left:${(wi+1)*w-w*.29}%;background:var(--kb);border-radius:0 0 3px 3px;z-index:2;`;
+    el.appendChild(mk);
+  });
+}
+buildMiniPiano(document.getElementById('miniPiano'),[0,9]);
+buildMiniPiano(document.getElementById('miniPiano2'),[0,4,7]); // C major
+
+/* ══ STRING TOKENS ═════════════════════════════════════════════════════ */
+function buildStrings(row,strings){
+  if(!row) return;
+  strings.forEach(([name,note],i)=>{
+    const wrap=document.createElement('div');
+    wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;';
+    const ball=document.createElement('div');
+    const active=i===0;
+    ball.dataset.sball='1';
+    ball.style.cssText=`width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.18s;
+      background:${active?'var(--accent)':'var(--surface-lo)'};
+      box-shadow:${active?'0 0 12px var(--accent-glow),var(--neu-out)':'var(--neu-out)'};
+      border:1px solid ${active?'transparent':'var(--border)'};`;
+    ball.innerHTML=`<span style="font-family:var(--font-mono);font-size:0.58rem;font-weight:500;color:${active?'var(--bg)':'var(--text-2)'}">${name}</span>`;
+    const noteLbl=document.createElement('div');
+    noteLbl.style.cssText='font-family:var(--font-mono);font-size:0.5rem;color:var(--text-3);';
+    noteLbl.textContent=note;
+    wrap.appendChild(ball); wrap.appendChild(noteLbl);
+    wrap.addEventListener('click',()=>{
+      row.querySelectorAll('[data-sball]').forEach(b=>{
+        b.style.background='var(--surface-lo)'; b.style.boxShadow='var(--neu-out)';
+        b.style.border='1px solid var(--border)'; b.querySelector('span').style.color='var(--text-2)';
+      });
+      ball.style.background='var(--accent)'; ball.style.boxShadow='0 0 12px var(--accent-glow),var(--neu-out)';
+      ball.style.border='1px solid transparent'; ball.querySelector('span').style.color='var(--bg)';
+    });
+    row.appendChild(wrap);
+  });
+}
+const guitarStrings=[['e','E4'],['B','B3'],['G','G3'],['D','D3'],['A','A2'],['E','E2']];
+buildStrings(document.getElementById('stringRow'),guitarStrings);
+buildStrings(document.getElementById('desktopStrings'),guitarStrings.map(([n,p])=>[n,p]));
+
+/* ══ BEAT GRID (Pulse) ════════════════════════════════════════════════ */
+let beatCount=4, currentBeat=0, accentLevels=[];
+function rebuildBeatGrid(n){
+  beatCount=n; currentBeat=0; accentLevels=new Array(n).fill(0);
+  const row=document.getElementById('beatGridRow');
+  const sub=document.getElementById('subDotsRow');
+  if(!row) return;
+  row.innerHTML=''; if(sub) sub.innerHTML='';
+  for(let i=0;i<n;i++){
+    const wrap=document.createElement('div'); wrap.className='beat-dot-wrap';
+    const dot=document.createElement('div'); dot.className='beat-dot'+(i===0?' downbeat':'');
+    dot.dataset.beat=i;
+    dot.addEventListener('click',()=>{
+      accentLevels[i]=(accentLevels[i]+1)%3;
+      dot.className='beat-dot'+(i===0?' downbeat':'');
+      if(accentLevels[i]===1) dot.classList.add('accent-1');
+      if(accentLevels[i]===2) dot.classList.add('accent-2');
+    });
+    const numEl=document.createElement('div'); numEl.className='beat-dot-num'; numEl.textContent=i+1;
+    wrap.appendChild(dot); wrap.appendChild(numEl); row.appendChild(wrap);
+  }
+  // sub dots
+  if(sub){
+    for(let i=0;i<n;i++){
+      const d=document.createElement('div'); d.className='sub-dot'; sub.appendChild(d);
+    }
+  }
+}
+rebuildBeatGrid(4);
+
+setInterval(()=>{
+  document.querySelectorAll('#beatGridRow .beat-dot').forEach((d,i)=>d.classList.toggle('playing',i===currentBeat));
+  document.querySelectorAll('#subDotsRow .sub-dot').forEach((d,i)=>d.classList.toggle('playing',i===currentBeat));
+  currentBeat=(currentBeat+1)%beatCount;
+},500);
+
+/* ══ BPM SLIDER ════════════════════════════════════════════════════════ */
+const bpmSlider=document.getElementById('bpmSlider'), bpmDisplay=document.getElementById('bpmDisplay');
+if(bpmSlider){ bpmSlider.addEventListener('input',()=>{
+  const v=parseInt(bpmSlider.value);
+  if(bpmDisplay) bpmDisplay.textContent=v;
+  const pct=(v-20)/280*100;
+  bpmSlider.style.background=`linear-gradient(to right,var(--accent) ${pct}%,var(--surface-lo) ${pct}%)`;
+});}
+
+/* ══ TUNER NEEDLE ANIMATION ════════════════════════════════════════════ */
+(()=>{ const n=document.getElementById('tunerNeedle'); if(!n) return; let t=0; setInterval(()=>{ t+=0.04; n.style.transform=`translateX(-50%) rotate(${-12+Math.sin(t)*9+Math.sin(t*.35)*4}deg)`; },50); })();
+
+/* ══ CHORD DIAGRAMS ════════════════════════════════════════════════════ */
+(()=>{
+  const c=document.getElementById('chordDiags'); if(!c) return;
+  // C major voicings: x32010, 032010 simplified as dot positions
+  const voicings=[[{s:2,f:3},{s:4,f:2},{s:5,f:1}],[{s:1,f:3},{s:2,f:2},{s:5,f:3}],[{s:0,f:1},{s:2,f:3},{s:3,f:2}]];
+  const names=['Cmaj','Cmaj/E','Cmaj v3'];
+  voicings.forEach((dots,vi)=>{
+    const d=document.createElement('div'); d.className='chord-diag';
+    const name=document.createElement('div'); name.className='chord-diag-name'; name.textContent=names[vi];
+    const fret=document.createElement('div'); fret.className='chord-fret';
+    for(let s=0;s<5;s++){
+      const col=document.createElement('div'); col.className='c-string';
+      const nut=document.createElement('div'); nut.className='c-nut'; col.appendChild(nut);
+      for(let f=1;f<=4;f++){
+        const cell=document.createElement('div'); cell.className='c-fret-cell';
+        const hasDot=dots.some(d=>d.s===s&&d.f===f);
+        if(hasDot) cell.classList.add('has-dot');
+        col.appendChild(cell);
+      }
+      const open=document.createElement('div'); open.className='c-open'; open.textContent='○';
+      col.appendChild(open); fret.appendChild(col);
+    }
+    d.appendChild(name); d.appendChild(fret); c.appendChild(d);
+  });
+})();
+
+/* ══ DRONE ═════════════════════════════════════════════════════════════ */
+let droneActive=false;
+function toggleDrone(){
+  droneActive=!droneActive;
+  const ring=document.getElementById('droneRing'), icon=document.getElementById('droneIcon');
+  ring.classList.toggle('active',droneActive);
+  if(icon) icon.textContent=droneActive?'■':'▶';
+}
+
+/* ══ DESKTOP PITCH HISTORY ════════════════════════════════════════════ */
+(()=>{
+  const c=document.getElementById('pitchHistoryBars'); if(!c) return;
+  for(let i=0;i<24;i++){
+    const b=document.createElement('div');
+    const h=20+Math.sin(i*.55)*14+Math.random()*8;
+    b.style.cssText=`width:6px;border-radius:3px;background:var(--accent);opacity:${0.2+Math.abs(Math.sin(i*.3))*.6};height:${h}px;`;
+    c.appendChild(b);
+  }
+})();
+
+/* ══ PROMPTS DATA ══════════════════════════════════════════════════════ */
+const PROMPTS=[
+{num:'01',title:'Stasis v3 Token Layer — Refined Arctic',scope:'All tool files + boilerplate',
+body:`Replace ALL [data-theme] blocks with Stasis v3 two-mode system.
+Key changes from v2: backgrounds 50% less blue-saturated in dark, text contrast
+increased, correct shifted to minty teal.
+
+LIGHT [data-mode="light"]:
+  --bg:#EAEDF5   --bg-deep:#E1E5F0   --surface:#F3F5FC
+  --surface-hi:#FAFBFF   --surface-lo:#DCDFF0   --surface-lo2:#D2D6E6
+  --border:rgba(70,100,190,0.10)   --border-hi:rgba(255,255,255,0.92)
+  --text:#0A1220   --text-2:#344A68   --text-3:#7088A8
+  --accent:#0080C0   --accent-glow:rgba(0,128,192,0.22)
+  --accent-2:#C0006E   --accent-2-glow:rgba(192,0,110,0.18)
+  --correct:#009E70   --correct-glow:rgba(0,158,112,0.18)  ← minty teal
+  --wrong:#D4003C   --wrong-glow:rgba(212,0,60,0.16)
+  --neu-out:7px 7px 18px rgba(40,60,150,0.12),-4px -4px 12px rgba(255,255,255,0.94)
+  --neu-in:inset 3px 3px 9px rgba(30,50,140,0.10),inset -3px -3px 9px rgba(255,255,255,0.80)
+  --neu-flat:2px 2px 7px rgba(30,50,140,0.08),-1px -1px 5px rgba(255,255,255,0.94)
+  --neu-deep:inset 4px 4px 12px rgba(25,45,130,0.13),inset -2px -2px 8px rgba(255,255,255,0.68)
+
+DARK [data-mode="dark"] — 50% less blue vs v2:
+  --bg:#080A0F   --bg-deep:#040608   --surface:#0D1019
+  --surface-hi:#121620   --surface-lo:#080A12   --surface-lo2:#050710
+  --border:rgba(120,150,220,0.07)   --border-hi:rgba(140,170,255,0.05)
+  --text:#D8E8F8   --text-2:#5A78A0   --text-3:#2E4060   ← higher contrast
+  --accent:#00D8FF   --accent-glow:rgba(0,216,255,0.28)
+  --accent-2:#FF2688   --accent-2-glow:rgba(255,38,136,0.24)
+  --correct:#00E8A8   --correct-glow:rgba(0,232,168,0.22)  ← mint neon
+  --wrong:#FF2855   --wrong-glow:rgba(255,40,85,0.22)
+  --neu-out:7px 7px 20px rgba(0,0,0,0.62),-2px -2px 6px rgba(255,255,255,0.035)
+  --neu-in:inset 4px 4px 12px rgba(0,0,0,0.58),inset -2px -2px 5px rgba(255,255,255,0.025)
+  --neu-flat:3px 3px 10px rgba(0,0,0,0.52),-1px -1px 3px rgba(255,255,255,0.02)
+  --neu-deep:inset 5px 5px 14px rgba(0,0,0,0.62),inset -1px -1px 4px rgba(255,255,255,0.018)
+
+REMOVE the 5-theme system from ALL files. Default body: data-mode="light".
+LS key: add 'mode' to existing prefs object in each tool.`},
+
+{num:'02',title:'Progress Bar Component — Accent Gradient',scope:'All tools (boilerplate + each HTML)',
+body:`Add the progress bar component. The fill uses a gradient from --accent → --accent-2,
+giving every bar a cyan-to-magenta sweep that reads as "loading energy."
+
+HTML pattern:
+  <div class="progress-wrap">
+    <div class="progress-label-row">
+      <span class="progress-label">SESSION</span>
+      <span class="progress-val">68%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" style="width:68%"></div>
+    </div>
+  </div>
+
+CSS:
+  .progress-wrap { display:flex; flex-direction:column; gap:5px; }
+  .progress-label-row { display:flex; justify-content:space-between; align-items:center; }
+  .progress-label { font-family:var(--font-mono); font-size:0.56rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-3); }
+  .progress-val   { font-family:var(--font-mono); font-size:0.68rem; font-weight:500; color:var(--accent); }
+  .progress-track { height:5px; border-radius:3px; background:var(--surface-lo2); box-shadow:var(--neu-in); position:relative; overflow:hidden; }
+  .progress-track.thin  { height:3px; }
+  .progress-fill  {
+    position:absolute; top:0; left:0; height:100%;
+    background:linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius:3px;
+    box-shadow: 0 0 8px var(--accent-glow);
+    transition: width 0.3s ease;
+  }
+
+Variant — block progress (correct → accent):
+  .progress-track.block .progress-fill {
+    background:linear-gradient(90deg, var(--correct), var(--accent));
+    box-shadow:0 0 6px var(--correct-glow);
+  }
+
+USAGE PER TOOL:
+  Practice Timer: two bars — block (correct→accent) + session (accent→accent-2)
+  Tuner: thin bar for pitch deviation (update width in JS from cents value)
+  Pulse: optional bar for speed trainer progress
+  Ear Trainer: optional thin bar for quiz round progress`},
+
+{num:'03',title:'Pulse — Beat Grid as Hero UX',scope:'src/pulse.html — HTML structure only',
+body:`Redesign Pulse layout: beat accent grid is the centrepiece.
+TAP is useful but compact — no longer the largest element.
+
+LAYOUT ORDER (panel-body children, top to bottom):
+  1. BPM ROW — compact flex, left: large number + tempo name, right: range slider + ±nudge buttons
+  2. BEAT GRID — hero, recessed (.beat-grid-wrap with neu-in), label shows "4/4 · click to set accent"
+  3. TIME SIG + TAP ROW — seg-control (3/4,4/4,6/8,5/4) + compact 46px TAP circle on right
+  4. SUBDIVISION — seg-control: None/8ths/Triplets/16ths
+  5. Primary action button
+
+BEAT GRID component:
+  .beat-grid-wrap: background var(--surface-lo), border-radius var(--r-md), box-shadow var(--neu-in), padding 16px
+  .beat-row: flex, gap 8px, justify-content center
+  .beat-dot-wrap: flex column, align center, gap 4px
+
+  .beat-dot (main beats):
+    36×36px circle, border-radius 50%
+    background var(--surface), border 2px solid var(--border), box-shadow var(--neu-out)
+    cursor pointer, transition all 0.1s
+
+    ACCENT CYCLING (click cycles 0→1→2→0):
+    level 0 (default): as above
+    level 1 (.accent-1): bg color-mix(accent 12%,surface), border color-mix(accent 55%,border)
+    level 2 (.accent-2): bg color-mix(accent 25%,surface), border var(--accent), glow shadow
+    downbeat (beat 1): border-color var(--accent-2) always
+
+    PLAYING STATE (.playing):
+    border-color var(--accent), box-shadow 0 0 14px var(--accent-glow), scale(1.12)
+    downbeat playing: accent-2 glow
+
+  .beat-dot-num: DM Mono 0.6rem, var(--text-3); active: var(--accent)
+
+  Sub-beat dots row (.sub-row):
+    .sub-dot: 8×8px circle, surface-lo2 bg, border 1px border
+    .playing: background var(--accent), glow
+    .accent-1: semi-transparent accent fill
+
+TAP BUTTON (compact):
+  46×46px circle, neu-out, border 1px border
+  Center: "TAP" DM Mono 0.6rem uppercase
+  :active: neu-in + scale(0.92), transition 0.08s
+  Flanked by time sig seg-control — TAP is clearly secondary
+
+BPM nudge buttons: ±1 and ±10 as small .btn-ghost
+  font-size 0.62rem, padding 6px 12px`},
+
+{num:'04',title:'CSS File Separation — Shared Global Sheet',scope:'All tools + new music-tools.css + boilerplate',
+body:`Extract all shared design system CSS into a standalone file.
+No build step — plain <link> tag inclusion, offline-compatible.
+
+FILE STRUCTURE (add to repo):
+  music-tools/
+  ├── music-tools.css           ← NEW: shared design system
+  ├── src/
+  │   ├── ear-trainer.html      ← links to ../music-tools.css
+  │   ├── tuner.html
+  │   ├── pulse.html
+  │   ├── drone.html
+  │   ├── practice-timer.html
+  │   └── chord-reference.html
+  └── music-tools-boilerplate.html  ← also links, plus documents structure
+
+WHAT GOES IN music-tools.css:
+  1. All [data-mode="light"] token block
+  2. All [data-mode="dark"] token block
+  3. :root shared variables (--font-display, --font-mono, --r-*, --transition, --spring)
+  4. Base reset and html/body/::selection
+  5. .chrome + .chrome-wordmark + .chrome-mark + .chrome-right + .nav-link + .mode-toggle
+  6. Layout: .page, .section, .section-label, .section-title, .section-sub
+  7. .card + .card-title
+  8. .btn-primary / .btn-ghost / .btn-danger
+  9. .seg-control + .seg-btn
+  10. .readout + .readout-main + .readout-sub
+  11. .progress-wrap/.track/.fill + all variants
+  12. .choice-chip + states + @keyframes shakeX
+  13. .knob-wrap / .vslider-wrap (HTML wrappers only, no inline SVG)
+  14. .tool-panel + .panel-* sub-elements
+  15. .adv-panel + .adv-inner + .adv-grid + .adv-row + .adv-select
+  16. .bottom-sheet + .sheet-backdrop
+  17. .beat-grid-wrap + .beat-dot + states (Pulse)
+  18. .tuner-gauge + gauge sub-elements (Tuner)
+  19. .block-list + .practice-block (Practice Timer)
+  20. .drone-ring (Drone)
+  21. Modal: .modal-overlay + .modal-card + .modal-close
+  22. .app-footer + ::-webkit-scrollbar
+
+WHAT STAYS IN EACH TOOL HTML:
+  - Tool-specific layout (fretboard, piano, chord diagram)
+  - Any custom @keyframes unique to that tool
+  - No CSS custom properties (all use vars from music-tools.css)
+  - LS key, audio engine, core logic JS
+
+<head> TEMPLATE (each tool):
+  <link rel="stylesheet" href="../music-tools.css">
+  <style>
+    /* tool-specific overrides only */
+    .piano-wrap { overflow-x:auto; }
+    .fret-wrap { min-width:680px; }
+  </style>
+
+OFFLINE COMPATIBILITY:
+  Because the site is served from the same origin, relative paths work offline.
+  If a tool is opened as a file:// URI, the link href "../music-tools.css" resolves
+  correctly as long as both files are in their expected locations.
+  Add a <!-- fallback note --> comment in each tool explaining this.
+
+BOILERPLATE UPDATE:
+  music-tools-boilerplate.html should <link> to music-tools.css AND inline the
+  complete CSS as a reference block in a <template> tag, documenting what each
+  section contains. The boilerplate is documentation first, starter second.
+
+CLAUDE.md UPDATE:
+  Add to repository structure:
+    ├── music-tools.css   # Shared design system (tokens, components, chrome)
+  Add to "Hard constraints":
+    - All shared CSS lives in music-tools.css — never duplicate token blocks in tool HTML
+    - Tool HTML <style> blocks contain ONLY tool-specific CSS
+  Add testing checklist item:
+    7. CSS file loads correctly via relative path (test from file:// and localhost)`},
+
+{num:'05',title:'Ear Trainer — v3 Migration',scope:'src/ear-trainer.html',
+body:`Migrate ear-trainer.html to Stasis v3. Zero logic changes.
+
+Link: <link rel="stylesheet" href="../music-tools.css">
+Remove all inline token blocks. Remove 5-theme picker.
+Add mode-toggle to chrome.
+
+PIANO KEYS:
+  White: surface-hi, border-right 1px border-lo
+  Active white: var(--accent), glow 0 0 16px var(--accent-glow)
+  Scale white: 8% accent tint overlay
+  Black: var(--kb), radius 0 0 5px 5px
+  Active black: var(--kb-active)
+
+CHOICE CHIPS: exact spec from music-tools.css
+  .correct: glow 0 0 14px var(--correct-glow)
+  .wrong: glow 0 0 14px var(--wrong-glow) + shakeX animation
+
+READOUT: replace status-bar → .readout component
+  Main: interval short-name (M6, P5) + .unit for sub (6)
+  Sub: full interval name + semitone count
+
+PROGRESS BAR: add thin session progress bar above the choices
+  .progress-track.thin, block variant, width = correct/total %
+
+RESULT OVERLAY:
+  Add box-shadow ring: 0 0 0 1px var(--border), 0 0 32px var(--accent-glow)
+  Correct count: var(--correct), Wrong: var(--wrong), Streak: var(--accent)
+
+ADV SETTINGS: Prompt 04 pattern
+  Root Key, Difficulty, Scale/Mode, Round Length, Play Mode, Root First, Octave Range`},
+
+{num:'06',title:'Tuner — v3 Migration',scope:'src/tuner.html',
+body:`Migrate tuner.html to Stasis v3. All pitch detection, autocorrelation unchanged.
+
+Link: <link rel="stylesheet" href="../music-tools.css">
+
+NOTE READOUT: DM Mono 300, 4rem, var(--text)
+  Hz: DM Mono 500, 0.8rem, var(--accent), glow 0 0 8px var(--accent-glow)
+  In-tune: box-shadow ring 0 0 0 2px var(--correct), 0 0 20px var(--correct-glow)
+  Animation: @keyframes pulseRing for |cents|<5
+
+GAUGE NEEDLE:
+  2px gradient line (accent → transparent), transform-origin bottom center
+  Spring transition: cubic-bezier(0.34,1.56,0.64,1) 0.22s
+  −50¢ → rotate(−50deg), +50¢ → rotate(+50deg)
+  Wrong range (|cents|>15): needle glow shifts to var(--wrong-glow)
+
+PITCH HISTORY BAR: .progress-track.thin
+  Width maps from −50¢..+50¢ → 0..100%
+  Fill color: var(--correct) when |cents|<5, else var(--accent)
+  Update in the existing pitch trace rAF loop
+
+STRING TOKENS: 28×30px circles, neu-out inactive, accent active
+  Transition: all 0.18s var(--spring), scale(1.08) when active
+
+ADV SETTINGS: Reference Pitch, Tuning System, Sensitivity, In-Tune Window`},
+
+{num:'07',title:'Pulse — v3 Migration + Beat Grid Hero',scope:'src/pulse.html',
+body:`Migrate pulse.html to Stasis v3 AND implement the beat grid hero layout (see Prompt 03).
+All audio scheduler, WebWorker timing, and core logic unchanged.
+
+Link: <link rel="stylesheet" href="../music-tools.css">
+
+BEAT GRID HERO:
+  Replace current large TAP circle layout with .beat-grid-wrap hero.
+  Beat dots 36×36px, accent cycling on click (see Prompt 03 spec).
+  downbeat = beat 1 always uses --accent-2 border/glow.
+  TAP becomes 46px circle, right of time sig seg, clearly secondary.
+
+BPM DISPLAY: compact left column, DM Mono 300 2.2rem — NOT full-width hero
+  Range slider right column, ±nudge buttons below slider
+
+ANIMATED BARS: move to inside the BPM readout area (below the number),
+  reduced height — 22 bars, max 24px tall, 2px wide, stagger delay
+
+BEAT DOT PLAYING STATE: match audio scheduler beat index
+  On beat fire: scale(1.35) → scale(1.12) over 80ms — use classList + setTimeout
+  Remove playing class 80ms after adding
+
+ADV SETTINGS: Click Sound, Accent Boost, Count-In, Mute Bars, Speed Trainer Start/End BPM`},
+
+{num:'08',title:'Drone + Practice Timer + Chord Reference — v3',scope:'src/drone.html · src/practice-timer.html · src/chord-reference.html',
+body:`Migrate remaining three tools. Logic unchanged in all cases.
+
+Link (all three): <link rel="stylesheet" href="../music-tools.css">
+
+── DRONE ──────────────────────────────────────────────────────
+HERO PLAY RING (.drone-ring):
+  100×100px circle, neu-out, dashed accent border animation when active
+  ::before pseudo: inset:-6px, dashed 1.5px border, opacity 0→0.6 on .active
+  @keyframes dronePulse: scale 1→1.12, opacity 0.5→0.9
+  Center: ▶ / ■ icon, transitions color to var(--accent) when active
+
+NOTE DISPLAY: DM Mono 300, 1.6rem, octave in accent color
+  Hz: DM Mono 0.72rem, var(--text-3)
+
+VOLUME SLIDER: single .vslider (vertical, left of voicing seg-control)
+VOICING SEG: Root / +5 / Pwr / Oct (full width, 4 options)
+ROOT NOTE SEG: 7-button (C D E F G A B) + chromatic row for sharps/flats
+
+ADV SETTINGS: Timbre, Octave, Volume (replaces duplicated main controls)
+
+── PRACTICE TIMER ─────────────────────────────────────────────
+COUNTDOWN HERO: .readout center-aligned, DM Mono 300 3.4rem MM:SS
+  Current block label as readout-sub above number
+
+DUAL PROGRESS BARS (required):
+  Block bar: .progress-track.block (correct→accent gradient)
+  Session bar: .progress-track (accent→accent-2 gradient)
+  Both with label+value rows
+
+BLOCK LIST:
+  .practice-block: flex, align center, gap 10px
+  .block-color: 8×28px pill, colored swatch
+  .block-active: border-color var(--accent), glow 0 0 10px var(--accent-glow)
+  .block-done: opacity 0.45
+
+TRANSPORT ROW: |◀ · ⏸/▶ · ▶| as btn-ghost / btn-primary
+
+THIS WEEK CARD: .readout flex-row, 3 stats — weekly total, sessions, streak
+  streak color: var(--correct)
+
+ADV SETTINGS: template pills, + Add Block button, max block count
+
+── CHORD REFERENCE ────────────────────────────────────────────
+MODE SEG: Chords / Scales (full width, top of panel body)
+
+PIANO: .mini-piano, chord tones lit in var(--accent)
+  Scale degrees lit in var(--correct) for scale mode
+
+READOUT: chord name DM Mono 300 2rem, notes as readout-sub
+  Intervals line: DM Mono 0.58rem var(--text-3)
+
+GUITAR VOICINGS: chord diagram grid, 3 diagrams shown
+  .c-fret-cell.has-dot::after: 8×8px circle, var(--accent), glow
+
+AUDIO BUTTONS: ▶ Chord / ▶ Arp. as btn-primary / btn-ghost row
+
+ADV SETTINGS: Root Note, Chord Type / Scale, Diatonic analysis toggle`},
+
+{num:'09',title:'Polish Pass — Glow, Motion & Accessibility v3',scope:'All tools — final quality pass',
+body:`Final micro-interaction layer for v3.
+
+ENTRY ANIMATION:
+  .card, .tool-panel: animation fadeSlideUp 0.45s ease both
+  stagger: animation-delay calc(n * 0.07s)
+  @keyframes fadeSlideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+MODE SWITCH:
+  body transition: background 0.3s, color 0.3s (all surfaces follow token change)
+  .chrome-mark: transition box-shadow 0.3s (tracks accent glow)
+
+BEAT DOT HIT (Pulse):
+  On beat: classList.add('playing'), scale(1.35) → 1.12 over 80ms
+  setTimeout 80ms → remove class
+  Downbeat: accent-2-glow bloom, regular: accent-glow
+
+DRONE RING PULSE:
+  When active: dronePulse animation on ::before ring (already spec'd in Prompt 08)
+  Note display: gentle brightness pulse on active, 2s cycle
+
+PROGRESS BAR FILL:
+  transition: width 0.3s ease
+  Glow box-shadow transitions with the fill: 0 0 8px var(--accent-glow)
+
+CHOICE CHIP STATES:
+  .correct: single pulse — box-shadow grows to 0 0 20px var(--correct-glow) then settles at 14px
+  .wrong: shakeX + glow 0 0 14px var(--wrong-glow), duration 0.25s
+  Both use CSS animation, no JS needed beyond adding the class
+
+KNOB DRAGGING:
+  Add .dragging class body on mousedown, remove on mouseup
+  .dragging .knob-svg: cursor ns-resize (already set) + opacity 0.92
+
+PANEL ACCENT LINE HOVER:
+  .tool-panel::before opacity: 0.35 → 0.65 on hover (already in v3 CSS)
+
+VSLIDER THUMB PRESS:
+  :active → box-shadow: 0 0 0 3px var(--accent-glow), var(--neu-flat)
+
+FOCUS (accessibility):
+  :focus-visible on all interactive elements:
+    outline: 2px solid var(--accent); outline-offset: 3px;
+  Never override outline:none
+
+REDUCED MOTION:
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration:0.01ms !important; transition-duration:0.1ms !important; }
+  }`},
+];
+
+const grid=document.getElementById('promptGrid');
+PROMPTS.forEach(p=>{
+  const card=document.createElement('div'); card.className='prompt-card';
+  card.innerHTML=`<div class="prompt-header"><div class="prompt-num">${p.num}</div><div style="flex:1"><div class="prompt-htitle">${p.title}</div><div class="prompt-scope">${p.scope}</div></div><div class="prompt-chev">▼</div></div><div class="prompt-body"><pre class="prompt-pre">${p.body}</pre></div>`;
+  card.querySelector('.prompt-header').addEventListener('click',()=>card.classList.toggle('open'));
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

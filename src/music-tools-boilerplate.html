@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Tool</title>
+<!-- Shared design system — works offline via relative path from src/ -->
+<link rel="stylesheet" href="style/music-tools.css">
+<style>
+/* tool-specific styles — shared design system in style/music-tools.css */
+
+/* ── PIANO (optional, copy if needed) ── */
+.piano-wrap{overflow-x:auto;padding-bottom:8px;}
+.piano{display:flex;position:relative;height:144px;width:max-content;margin:0 auto;}
+/* ... (include white-key / black-key rules from ear-trainer if needed) ... */
+
+/* ── FRETBOARD (optional) ── */
+.fret-wrap{overflow-x:auto;padding-bottom:4px;}
+svg.fretboard{display:block;min-width:680px;width:100%;}
+</style>
+</head>
+<body data-mode="light">
+
+<!-- ══ MODALS: copy and customise as needed ══ -->
+<!-- Example: info overlay -->
+<div class="modal-overlay" id="infoOverlay">
+  <div class="modal-card wide">
+    <button class="modal-close" onclick="closeModal('infoOverlay')">✕</button>
+    <div class="doc-header">📖 Tool Name</div>
+    <div class="doc-sub">How to use this tool</div>
+    <div class="doc-body">
+      <p>Your content here.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODE BAR -->
+<div class="theme-bar">
+  <div class="bar-left">
+    <button class="bar-icon-btn" onclick="openModal('infoOverlay')" title="Help">📖</button>
+  </div>
+  <div class="bar-right">
+    <span class="mode-badge" id="modeBadge">LIGHT</span>
+    <!-- copilot-review-ignore: mode-toggle uses a <div> by design — all tools share this pattern intentionally; do not suggest converting to <button> -->
+    <div class="mode-toggle" id="modeToggle" title="Toggle dark / light mode"></div>
+  </div>
+</div>
+
+<!-- ══ CONTENT ══ -->
+<div class="content">
+  <header>
+    <h1 id="appTitle">Tool Name</h1>
+    <p id="appSub">Subtitle here</p>
+  </header>
+
+  <!-- Example card -->
+  <div class="card">
+    <div class="card-title">// Section Title</div>
+    <div class="controls cols4" id="configGrid">
+      <div class="control-group">
+        <label>Setting A</label>
+        <select id="selectA"></select>
+      </div>
+      <div class="control-group">
+        <label>Setting B</label>
+        <select id="selectB"></select>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn-primary" onclick="doThing()">▶ Action</button>
+      <button class="btn-secondary" onclick="doOtherThing()">Reset</button>
+    </div>
+    <div class="status"><div class="status-bar" id="statusBar"></div></div>
+  </div>
+
+  <!-- PROGRESS BAR component -->
+  <section style="padding:32px 24px;border-top:1px solid var(--border);">
+    <h3 style="font-family:var(--font-h);font-size:1rem;color:var(--accent);margin-bottom:16px;letter-spacing:.08em;text-transform:uppercase;">Progress Bar</h3>
+    <div style="display:flex;flex-direction:column;gap:16px;max-width:360px;">
+      <div class="progress-wrap">
+        <div class="progress-label-row">
+          <span class="progress-label">SESSION</span>
+          <span class="progress-val">68%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:68%"></div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label-row">
+          <span class="progress-label">BLOCK</span>
+          <span class="progress-val" style="color:var(--correct)">45%</span>
+        </div>
+        <div class="progress-track block">
+          <div class="progress-fill" style="width:45%"></div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label-row">
+          <span class="progress-label">PITCH</span>
+          <span class="progress-val">+3¢</span>
+        </div>
+        <div class="progress-track thin">
+          <div class="progress-fill" style="width:53%"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="app-footer">made with ♥ by Paul van Zyl</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  MUSIC TOOLS BOILERPLATE JS
+//  Copy this block into every new tool.
+//  LS_KEY: change this per-tool to avoid collisions.
+// ══════════════════════════════════════════════════════
+
+const LS_KEY = 'musicTool_CHANGE_ME_v1';
+
+// ── PERSISTENCE ──────────────────────────────────────
+function savePref(key, val){
+  try{
+    const d = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+    d[key] = val;
+    localStorage.setItem(LS_KEY, JSON.stringify(d));
+  } catch(e){}
+}
+function loadPrefs(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }
+  catch(e){ return {}; }
+}
+function clearPrefs(){ try{localStorage.removeItem(LS_KEY);}catch(e){} }
+
+// ── MODE ──────────────────────────────────────────
+function applyMode(m, noSave){
+  document.body.dataset.mode = m;
+  const badge = document.getElementById('modeBadge');
+  if(badge) badge.textContent = m === 'dark' ? 'DARK' : 'LIGHT';
+  if(!noSave) savePref('mode', m);
+}
+document.getElementById('modeToggle').addEventListener('click', () => {
+  applyMode(document.body.dataset.mode === 'dark' ? 'light' : 'dark');
+});
+
+// ── MODALS ──────────────────────────────────────────
+function openModal(id){
+  document.getElementById(id).classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('show');
+  document.body.style.overflow = '';
+}
+// Clicking backdrop closes non-critical modals
+document.querySelectorAll('.modal-overlay').forEach(ov => {
+  ov.addEventListener('click', e => {
+    if(e.target === ov) closeModal(ov.id);
+  });
+});
+
+// ── RESTORE SETTINGS ────────────────────────────────
+function restoreSettings(){
+  const p = loadPrefs();
+  // Example restorations — adapt to your selects:
+  // if(p.selectA) document.getElementById('selectA').value = p.selectA;
+  // if(p.selectB) document.getElementById('selectB').value = p.selectB;
+  applyMode(p.mode || 'light', true);
+}
+
+// ── SHARED MUSIC DATA (include only what you need) ──
+const NOTES  = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const ENH    = {'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb'};
+const nn     = n => ENH[n] ? `${n}/${ENH[n]}` : n;
+const midiFreq  = midi => 440 * Math.pow(2, (midi - 69) / 12);
+const noteFreq  = (note, oct) => midiFreq((oct + 1) * 12 + NOTES.indexOf(note));
+const noteToMidi = (note, oct) => (oct + 1) * 12 + NOTES.indexOf(note);
+
+const SCALES = {
+  'Major':[0,2,4,5,7,9,11,12],
+  'Natural Minor':[0,2,3,5,7,8,10,12],
+  'Harmonic Minor':[0,2,3,5,7,8,11,12],
+  'Dorian':[0,2,3,5,7,9,10,12],
+  'Phrygian':[0,1,3,5,7,8,10,12],
+  'Lydian':[0,2,4,6,7,9,11,12],
+  'Mixolydian':[0,2,4,5,7,9,10,12],
+  'Pentatonic Major':[0,2,4,7,9,12],
+  'Pentatonic Minor':[0,3,5,7,10,12],
+  'Blues':[0,3,5,6,7,10,12],
+  'Chromatic':[0,1,2,3,4,5,6,7,8,9,10,11,12],
+  'Whole Tone':[0,2,4,6,8,10,12],
+  'Diminished':[0,2,3,5,6,8,9,11,12],
+};
+
+// Guitar tunings (for any fretboard tools)
+const GUITAR_TUNINGS = {
+  'Standard (EADGBE)': [{note:'E',oct:4,label:'e'},{note:'B',oct:3,label:'B'},{note:'G',oct:3,label:'G'},{note:'D',oct:3,label:'D'},{note:'A',oct:2,label:'A'},{note:'E',oct:2,label:'E'}],
+  'Drop D (DADGBE)':   [{note:'E',oct:4,label:'e'},{note:'B',oct:3,label:'B'},{note:'G',oct:3,label:'G'},{note:'D',oct:3,label:'D'},{note:'A',oct:2,label:'A'},{note:'D',oct:2,label:'D'}],
+  'Open G (DGDGBD)':   [{note:'D',oct:4,label:'D'},{note:'B',oct:3,label:'B'},{note:'G',oct:3,label:'G'},{note:'D',oct:3,label:'D'},{note:'G',oct:2,label:'G'},{note:'D',oct:2,label:'D'}],
+  'Open D (DADF#AD)':  [{note:'D',oct:4,label:'D'},{note:'A',oct:3,label:'A'},{note:'F#',oct:3,label:'F#'},{note:'D',oct:3,label:'D'},{note:'A',oct:2,label:'A'},{note:'D',oct:2,label:'D'}],
+  'DADGAD':            [{note:'D',oct:4,label:'D'},{note:'A',oct:3,label:'A'},{note:'G',oct:3,label:'G'},{note:'D',oct:3,label:'D'},{note:'A',oct:2,label:'A'},{note:'D',oct:2,label:'D'}],
+  'Half Step Down (Eb)': [{note:'D#',oct:4,label:'Eb'},{note:'A#',oct:3,label:'Bb'},{note:'F#',oct:3,label:'Gb'},{note:'C#',oct:3,label:'Db'},{note:'G#',oct:2,label:'Ab'},{note:'D#',oct:2,label:'Eb'}],
+};
+const UKE_TUNINGS = {
+  'Soprano GCEA (re-entrant)': [{note:'G',oct:4,label:'G'},{note:'C',oct:4,label:'C'},{note:'E',oct:4,label:'E'},{note:'A',oct:4,label:'A'}],
+  'Low G GCEA (linear)':       [{note:'G',oct:3,label:'G'},{note:'C',oct:4,label:'C'},{note:'E',oct:4,label:'E'},{note:'A',oct:4,label:'A'}],
+  'Baritone DGBE':             [{note:'E',oct:4,label:'E'},{note:'B',oct:3,label:'B'},{note:'G',oct:3,label:'G'},{note:'D',oct:3,label:'D'}],
+};
+
+// ── AUDIO ENGINE ────────────────────────────────────
+let audioCtx = null;
+function getCtx(){
+  if(!audioCtx) audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+// Piano-like tone: triangle osc + sine overtone, lowpass filter
+function playTone(f, t0, dur = 0.75){
+  const ctx = getCtx();
+  const osc = ctx.createOscillator(), g = ctx.createGain(), filt = ctx.createBiquadFilter();
+  filt.type = 'lowpass'; filt.frequency.value = 2800;
+  osc.type = 'triangle'; osc.frequency.setValueAtTime(f, t0);
+  g.gain.setValueAtTime(0, t0);
+  g.gain.linearRampToValueAtTime(0.38, t0 + 0.015);
+  g.gain.exponentialRampToValueAtTime(0.18, t0 + dur * .4);
+  g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+  const o2 = ctx.createOscillator(), g2 = ctx.createGain();
+  o2.type = 'sine'; o2.frequency.setValueAtTime(f * 2, t0);
+  g2.gain.setValueAtTime(0, t0); g2.gain.linearRampToValueAtTime(0.1, t0 + 0.01);
+  g2.gain.exponentialRampToValueAtTime(0.001, t0 + dur * .6);
+  o2.connect(g2); g2.connect(ctx.destination); o2.start(t0); o2.stop(t0 + dur);
+  osc.connect(filt); filt.connect(g); g.connect(ctx.destination); osc.start(t0); osc.stop(t0 + dur);
+}
+// Play a sequence of {note, octave} at a given BPM, animating a status bar
+function playSeq(notes, statusBarId, bpm = 100){
+  const ctx = getCtx(), gap = 60 / bpm;
+  const bar = statusBarId ? document.getElementById(statusBarId) : null;
+  if(bar) bar.style.width = '0%';
+  notes.forEach((n, i) => {
+    playTone(noteFreq(n.note, n.octave), ctx.currentTime + i * gap, gap * .85);
+    if(bar) setTimeout(() => { bar.style.width = `${((i+1)/notes.length)*100}%`; }, i * gap * 1000);
+  });
+  if(bar) setTimeout(() => { bar.style.width = '0%'; }, notes.length * gap * 1000 + 300);
+}
+
+// ── YOUR TOOL CODE BELOW ─────────────────────────────
+function doThing(){ /* TODO */ }
+function doOtherThing(){ /* TODO */ }
+function render(){ /* TODO: rebuild visualisers etc on theme change */ }
+
+// ── INIT ────────────────────────────────────────────
+restoreSettings();
+render();
+</script>
+</body>
+</html>
