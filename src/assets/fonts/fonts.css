@@ -1,0 +1,45 @@
+/* ── LOCAL FONTS ──────────────────────────────────────────────
+   Self-hosted copies of Syne + DM Mono (Latin subset only).
+   Referenced from:
+     - src/style/music-tools.css  via @import '../assets/fonts/fonts.css'
+     - index.html                 via <link href="src/assets/fonts/fonts.css">
+──────────────────────────────────────────────────────────────── */
+
+/* ── DM Mono ─────────────────────────────────────────────── */
+@font-face {
+  font-family: 'DM Mono';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url('dmmono-300italic-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('dmmono-300-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('dmmono-400-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('dmmono-500-latin.woff2') format('woff2');
+}
+
+/* ── Syne — variable weight 400–800 ─────────────────────── */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('syne-400to800-latin.woff2') format('woff2');
+}
