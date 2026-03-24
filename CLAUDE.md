@@ -28,7 +28,8 @@ music-tools/
 │   │   ├── pulse.css
 │   │   ├── drone.css
 │   │   ├── practice-timer.css
-│   │   └── chord-reference.css
+│   │   ├── chord-reference.css
+│   │   └── rhythm.css
 │   ├── js/
 │   │   ├── music-tools.js       # Shared: global theme key, loadTheme/saveTheme, applyAccent, accent dropdown
 │   │   ├── ear-trainer.js       # LS key: earTrainer_v6
@@ -36,13 +37,15 @@ music-tools/
 │   │   ├── pulse.js             # LS key: musicTool_pulse_v1
 │   │   ├── drone.js             # LS key: musicTool_drone_v1
 │   │   ├── practice-timer.js   # LS key: musicTool_practiceTimer_v1
-│   │   └── chord-reference.js  # LS key: musicTool_chordRef_v1
+│   │   ├── chord-reference.js  # LS key: musicTool_chordRef_v1
+│   │   └── rhythm.js           # LS key: musicTool_rhythm_v1
 │   ├── ear-trainer.html
 │   ├── tuner.html
 │   ├── pulse.html
 │   ├── drone.html
 │   ├── practice-timer.html
-│   └── chord-reference.html
+│   ├── chord-reference.html
+│   └── rhythm.html
 ├── music-tools-boilerplate.html  # Design system reference (read-only, not served as a tool)
 ├── docs/
 │   ├── ARCHITECTURE.md    # Shared patterns, audio engine, theme system
@@ -51,7 +54,8 @@ music-tools/
 │   ├── pulse.md
 │   ├── drone.md
 │   ├── practice-timer.md
-│   └── chord-reference.md
+│   ├── chord-reference.md
+│   └── rhythm.md
 ├── tests/
 │   ├── music-tools.test.js # Node stdlib unit tests for shared theme utilities
 │   └── server.test.js      # Node stdlib unit tests for dev static server

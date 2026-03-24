@@ -456,6 +456,53 @@ header p.sub{color:var(--text-hi);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);l
       </div>
     </div>
 
+    <!-- ── Rhythm Pattern Trainer ── -->
+    <div class="tool-card card">
+      <div class="tool-illo" aria-hidden="true">
+        <svg viewBox="0 0 190 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background glow -->
+          <circle cx="95" cy="75" r="52" fill="var(--surface2)" opacity="0.5"/>
+          <!-- Rhythm grid cells -->
+          <rect x="20" y="50" width="28" height="50" rx="3" fill="var(--surface-hi, var(--surface))" stroke="var(--border)" stroke-width="0.5"/>
+          <rect x="52" y="50" width="28" height="50" rx="3" fill="var(--surface-hi, var(--surface))" stroke="var(--border)" stroke-width="0.5"/>
+          <rect x="84" y="50" width="28" height="50" rx="3" fill="var(--surface-hi, var(--surface))" stroke="var(--border)" stroke-width="0.5"/>
+          <rect x="116" y="50" width="28" height="50" rx="3" fill="var(--surface-hi, var(--surface))" stroke="var(--border)" stroke-width="0.5"/>
+          <rect x="148" y="50" width="28" height="50" rx="3" fill="var(--surface-hi, var(--surface))" stroke="var(--border)" stroke-width="0.5"/>
+          <!-- Active cell highlight -->
+          <rect x="20" y="50" width="28" height="50" rx="3" fill="var(--accent)" opacity="0.2"/>
+          <!-- Down arrow (accented) -->
+          <polygon points="34,64 26,74 42,74" fill="var(--accent)" opacity="0.9"/>
+          <!-- Up arrow -->
+          <polygon points="66,82 58,74 74,74" fill="var(--text)" opacity="0.7"/>
+          <!-- Mute × -->
+          <text x="98" y="80" text-anchor="middle" font-size="14" font-weight="700" font-family="'DM Mono',monospace" fill="var(--text)" opacity="0.7">×</text>
+          <!-- Rest dot -->
+          <circle cx="130" cy="75" r="3" fill="var(--muted)" opacity="0.4"/>
+          <!-- Down arrow -->
+          <polygon points="162,64 154,74 170,74" fill="var(--accent2)" opacity="0.8"/>
+          <!-- Beat numbers -->
+          <text x="34" y="114" text-anchor="middle" font-size="9" font-family="'DM Mono',monospace" fill="var(--muted)">1</text>
+          <text x="66" y="114" text-anchor="middle" font-size="9" font-family="'DM Mono',monospace" fill="var(--muted)">+</text>
+          <text x="98" y="114" text-anchor="middle" font-size="9" font-family="'DM Mono',monospace" fill="var(--muted)">2</text>
+          <text x="130" y="114" text-anchor="middle" font-size="9" font-family="'DM Mono',monospace" fill="var(--muted)">+</text>
+          <text x="162" y="114" text-anchor="middle" font-size="9" font-family="'DM Mono',monospace" fill="var(--muted)">3</text>
+          <!-- Cursor line -->
+          <line x1="20" y1="48" x2="48" y2="48" stroke="var(--accent)" stroke-width="2" opacity="0.8"/>
+        </svg>
+      </div>
+      <div class="tool-body">
+        <div class="tool-name">Rhythm</div>
+        <p class="tool-desc">Learn strumming patterns, grooves, and rhythmic feels across 9 genres. Visual rhythm grid with play-along and call-and-response modes. 30 patterns from beginner to advanced.</p>
+        <div class="tool-tags">
+          <span class="tool-tag">Strumming</span>
+          <span class="tool-tag">Rhythm</span>
+          <span class="tool-tag">Groove</span>
+          <span class="tool-tag">Patterns</span>
+        </div>
+        <a href="src/rhythm.html" class="tool-launch">Launch Rhythm →</a>
+      </div>
+    </div>
+
   </div><!-- /tools-grid -->
 
   <!-- ── Links / meta ── -->
@@ -471,6 +518,7 @@ header p.sub{color:var(--text-hi);font-size:clamp(.62rem,.2rem + 1.5vw,.76rem);l
     <a class="link-pill" href="docs/drone.md">Drone Docs</a>
     <a class="link-pill" href="docs/practice-timer.md">Practice Timer Docs</a>
     <a class="link-pill" href="docs/chord-reference.md">Chord Reference Docs</a>
+    <a class="link-pill" href="docs/rhythm.md">Rhythm Docs</a>
   </div>
 
 </div><!-- /content -->
