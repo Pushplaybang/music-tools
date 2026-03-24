@@ -6,6 +6,7 @@ const path = require('node:path');
 const instructionsPath = path.join(__dirname, '..', '.github', 'copilot-instructions.md');
 
 test('copilot instructions require conventional commits with allowed repository types', () => {
+  assert.equal(fs.existsSync(instructionsPath), true, 'Expected .github/copilot-instructions.md to exist');
   const content = fs.readFileSync(instructionsPath, 'utf8');
 
   assert.match(content, /Conventional Commits format/i);
