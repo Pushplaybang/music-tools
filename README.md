@@ -16,7 +16,6 @@ Built with vanilla HTML, CSS, and JavaScript. Powered by the Web Audio API.
 | [Drone](docs/drone.md) | `src/drone.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/drone.html) | Sustained reference tone generator with 4 voicings & 4 timbres |
 | [Practice Timer](docs/practice-timer.md) | `src/practice-timer.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/practice-timer.html) | Structured practice session planner with countdown timer & history |
 | [Chord & Scale Reference](docs/chord-reference.md) | `src/chord-reference.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/chord-reference.html) | Chord voicings, scale reference, diatonic harmony with piano & guitar |
-| [Rhythm](docs/rhythm.md) | `src/rhythm.html` | [▶ Open](https://pushplaybang.github.io/music-tools/src/rhythm.html) | Strumming pattern trainer with 30 patterns across 9 genres |
 
 ---
 
@@ -37,8 +36,7 @@ music-tools/
 │   ├── pulse.html                # Pulse Visual Metronome app
 │   ├── drone.html                # Drone Reference Tone Generator
 │   ├── practice-timer.html       # Practice Timer
-│   ├── chord-reference.html      # Chord & Scale Reference
-│   └── rhythm.html              # Rhythm Pattern Trainer
+│   └── chord-reference.html      # Chord & Scale Reference
 ├── music-tools-boilerplate.html  # Shared design system starter
 ├── docs/
 │   ├── ARCHITECTURE.md           # Shared patterns, audio engine, theme system
@@ -47,11 +45,36 @@ music-tools/
 │   ├── pulse.md                  # Pulse documentation
 │   ├── drone.md                  # Drone documentation
 │   ├── practice-timer.md         # Practice Timer documentation
-│   ├── chord-reference.md        # Chord & Scale Reference documentation
-│   └── rhythm.md                 # Rhythm documentation
+│   └── chord-reference.md        # Chord & Scale Reference documentation
+├── tests/
+│   ├── music-tools.test.js       # Unit tests for shared theme utilities
+│   └── server.test.js            # Unit tests for dev static server routes/SSE
+├── .github/workflows/
+│   ├── commit-lint.yml           # Validates Conventional Commit messages on PRs
+│   ├── pr-title.yml              # Enforces semantic PR titles
+│   ├── release.yml               # Creates GitHub releases on main pushes
+│   └── unit-tests.yml            # PR check running npm test on main/dev targets
 ├── CLAUDE.md                     # AI assistant instructions & conventions
 └── README.md                     # This file
 ```
+
+---
+
+## ✅ Unit Tests (Node standard library only)
+
+This repository uses Node's built-in test runner (`node:test`) with no third-party test dependencies.
+
+- Run all tests: `npm test`
+- Test files live in `tests/`
+  - `tests/music-tools.test.js` validates shared `src/js/music-tools.js` behaviour (theme persistence and accent application)
+  - `tests/server.test.js` validates `server.js` route handling, HTML reload-script injection, and SSE handshake
+
+GitHub Actions workflows in this repository:
+
+- `.github/workflows/unit-tests.yml` — runs `npm test` on PRs targeting `main` and `dev`
+- `.github/workflows/commit-lint.yml` — validates Conventional Commit messages on PRs
+- `.github/workflows/pr-title.yml` — validates semantic PR titles
+- `.github/workflows/release.yml` — creates releases from merges/pushes to `main`
 
 ---
 

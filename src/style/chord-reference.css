@@ -1,0 +1,350 @@
+/* chord-reference.css — Chord Reference tool-specific styles. Requires music-tools.css. */
+
+/* ── PIANO ── */
+
+/* Horizontal scroll wrapper so the piano can extend beyond viewport on mobile */
+.piano-wrap {
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+/* Fixed-height piano container; width is content-driven so keys never compress */
+.piano {
+  display: flex;
+  position: relative;
+  height: 144px;
+  width: max-content;
+  margin: 0 auto;
+}
+
+/* Individual white keys — uniform width with rounded bottom corners */
+.white-key {
+  width: 42px;
+  height: 144px;
+  background: var(--kw);
+  border: 1px solid var(--kw-border);
+  border-radius: 0 0 6px 6px;
+  margin-right: 2px;
+  position: relative;
+  cursor: pointer;
+  transition: background .15s, box-shadow .15s;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+  flex-shrink: 0;
+}
+
+/* Interval/degree label printed at the bottom of each highlighted white key */
+.white-key .key-label {
+  font-size: .52rem;
+  color: var(--kl);
+  font-family: var(--font-b);
+  pointer-events: none; /* label must never intercept clicks destined for the key */
+}
+
+.white-key:hover {
+  background: var(--kw-hover);
+}
+
+/* Momentary flash when a key is clicked and its note plays */
+.white-key.playing {
+  background: var(--kw-active) !important;
+}
+
+/* Default highlighted state used by the scale piano (overridden per-context below) */
+.white-key.in-scale {
+  background: var(--kw-scale);
+  border-color: var(--accent);
+}
+
+.white-key.in-scale .key-label {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Black keys are absolutely positioned over the white-key row via JS offsets */
+.black-key {
+  width: 26px;
+  height: 90px;
+  background: var(--kb);
+  border-radius: 0 0 4px 4px;
+  position: absolute;
+  top: 0;
+  z-index: 2; /* float above white keys */
+  cursor: pointer;
+  transition: background .15s, box-shadow .15s;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6px;
+  border: 1px solid var(--kb-border);
+}
+
+.black-key .key-label {
+  font-size: .42rem;
+  color: var(--kbl);
+  font-family: var(--font-b);
+  pointer-events: none;
+}
+
+.black-key:hover {
+  background: var(--kb-hover);
+}
+
+.black-key.playing {
+  background: var(--kb-active) !important;
+}
+
+/* Default highlighted state for black keys in scale view */
+.black-key.in-scale {
+  background: var(--kb-scale);
+  border-color: var(--accent2);
+}
+
+.black-key.in-scale .key-label {
+  color: var(--accent2);
+}
+
+/* ── FRETBOARD ── */
+
+/* Allow the SVG fretboard to scroll horizontally on narrow viewports */
+.fret-wrap {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+/* min-width prevents frets from becoming unreadably narrow on small screens */
+svg.fretboard {
+  display: block;
+  min-width: 680px;
+  width: 100%;
+}
+
+/* ── CHORD REFERENCE SPECIFIC ── */
+
+/* Chord/Scale mode selector — full-width segmented control */
+.mode-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.mode-tab {
+  font-family: var(--font-b);
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 10px 28px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  flex: 1; /* tabs share equal width */
+  text-align: center;
+}
+
+/* Round only the outer corners to create a single pill shape */
+.mode-tab:first-child {
+  border-radius: var(--br) 0 0 var(--br);
+}
+
+.mode-tab:last-child {
+  border-radius: 0 var(--br) var(--br) 0;
+  border-left: none; /* collapse shared border between tabs */
+}
+
+.mode-tab.active {
+  background: var(--accent);
+  color: var(--pill-text);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.mode-tab:hover:not(.active) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Only the active panel is rendered; inactive panels are removed from flow */
+.mode-panel {
+  display: none;
+  width: 100%;
+}
+
+.mode-panel.active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Two-column grid: piano on the left, guitar voicings / fretboard on the right */
+.vis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* Stack to single column on narrow screens */
+@media (max-width: 700px) {
+  .vis-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Remove bottom margin from cards inside the grid (gap handles spacing) */
+.vis-grid .card {
+  margin-bottom: 0;
+}
+
+/* Note name / interval readout displayed above the visualisers */
+.note-list {
+  text-align: center;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+/* Large note names (e.g. "C · E · G") */
+.note-list .notes {
+  font-family: var(--font-b);
+  font-weight: 300;
+  font-size: 2rem;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+/* Secondary row showing enharmonic equivalents or full note names */
+.note-list .sub-notes {
+  font-family: var(--font-b);
+  font-size: .72rem;
+  color: var(--text-2);
+  margin-bottom: 2px;
+}
+
+/* Smallest row showing interval names (e.g. "R · 3 · 5") */
+.note-list .intervals {
+  font-family: var(--font-b);
+  font-size: .58rem;
+  color: var(--text-3);
+  letter-spacing: .06em;
+}
+
+/* Full-width container for the diatonic chords section */
+.diatonic-section {
+  width: 100%;
+}
+
+/* Wrapping flex row of chord pills */
+.diatonic-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* Each pill represents one diatonic chord; clicking navigates to Chords view */
+.diatonic-pill {
+  font-family: var(--font-b);
+  font-size: .74rem;
+  padding: 8px 14px;
+  border-radius: var(--br);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  cursor: pointer;
+  transition: all .2s;
+  text-align: center;
+  min-width: 60px;
+}
+
+.diatonic-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--surface);
+}
+
+/* Roman numeral label shown beneath the chord name inside each pill */
+.diatonic-pill .roman {
+  display: block;
+  font-size: .66rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* Message shown when diatonic chords are not available for the current scale */
+.diatonic-msg {
+  font-size: .78rem;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+/* ── CHORD PIANO HIGHLIGHT OVERRIDE ──
+   In the chords view, chord tones are lit with the primary accent colour
+   (overrides the default in-scale green used by the scale piano). */
+.chord-piano-wrap .white-key.in-scale {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.chord-piano-wrap .white-key.in-scale .key-label {
+  color: var(--pill-text);
+  font-weight: 700;
+}
+
+.chord-piano-wrap .black-key.in-scale {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.chord-piano-wrap .black-key.in-scale .key-label {
+  color: var(--pill-text);
+}
+
+/* ── SCALE PIANO HIGHLIGHT OVERRIDE ──
+   In the scales view, scale degrees are lit with the "correct" (green) colour
+   so they are visually distinct from chord tones. */
+.scale-piano-wrap .white-key.in-scale {
+  background: rgba(0, 158, 112, 0.15); /* translucent tint so the ivory shows through */
+  border-color: var(--correct);
+}
+
+.scale-piano-wrap .white-key.in-scale .key-label {
+  color: var(--correct);
+  font-weight: 700;
+}
+
+.scale-piano-wrap .black-key.in-scale {
+  background: var(--correct);
+  border-color: var(--correct);
+}
+
+.scale-piano-wrap .black-key.in-scale .key-label {
+  color: var(--pill-text);
+}
+
+/* ── GUITAR CHORD DIAGRAMS ──
+   Flex row of SVG chord diagrams with wrapping for narrow screens. */
+.chord-diagrams {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Each diagram SVG is a fixed-size non-growing item */
+.chord-diagram {
+  flex: 0 0 auto;
+}
+
+/* Glow effect on the filled dots inside chord diagrams
+   to improve legibility and add visual polish. */
+.chord-diagram circle[fill] {
+  filter: drop-shadow(0 0 4px var(--accent-glow));
+}
