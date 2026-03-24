@@ -31,7 +31,7 @@ jobs:
             npx --no-install terser "$file" --compress --mangle --output "$file"
           done
 
-          find dist-web -type f -name '*.css' -print0 | while IFS= read -r -d '' file; do
+          find dist/web -type f -name '*.css' -print0 | while IFS= read -r -d '' file; do
             npx --no-install cleancss --output "$file" "$file"
           done
 

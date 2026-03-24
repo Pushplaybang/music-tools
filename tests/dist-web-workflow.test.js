@@ -13,9 +13,9 @@ test('dist-web workflow runs on main pushes and copies src into dist/web', () =>
 
 test('dist-web workflow minifies JS and CSS files in place', () => {
   assert.match(source, /find dist\/web -type f -name '\*\.js'/);
-  assert.match(source, /npx terser/);
+  assert.match(source, /npx\s+(?:--no-install\s+)?terser/);
   assert.match(source, /find dist\/web -type f -name '\*\.css'/);
-  assert.match(source, /npx cleancss/);
+  assert.match(source, /npx\s+(?:--no-install\s+)?cleancss/);
 });
 
 test('dist/web workflow preserves HTML by copying the whole src tree', () => {
