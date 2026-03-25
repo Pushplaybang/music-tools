@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rhythm — Strumming Pattern Trainer</title>
+<meta name="description" content="Learn strumming patterns, grooves, and rhythmic feels across 9 genres. Visual rhythm grid with play-along and call-and-response modes. No install, no account.">
+<!-- Shared design system — works offline via relative path from src/ -->
+<link rel="stylesheet" href="style/music-tools.css">
+<link rel="stylesheet" href="style/rhythm.css">
+</head>
+<body data-mode="light">
+
+<!-- HELP MODAL -->
+<div class="modal-overlay" id="helpOverlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('helpOverlay')">✕</button>
+    <div class="doc-header">📖 Rhythm — Strumming Patterns</div>
+    <div class="doc-sub">Features &amp; guide</div>
+    <div class="doc-body">
+      <h3>Reading the Grid</h3>
+      <ul>
+        <li><strong>▼</strong> — Downstroke (strum towards the floor)</li>
+        <li><strong>▲</strong> — Upstroke (strum towards the ceiling)</li>
+        <li><strong>×</strong> — Mute (damp strings with palm)</li>
+        <li><strong>◆</strong> — Tap (a lighter percussive hit, used in fingerpicking patterns)</li>
+        <li><strong>·</strong> — Rest (silent — skip this beat)</li>
+        <li><strong>Larger / bolder</strong> symbols are accented (play louder)</li>
+        <li>Numbers below show beat positions (1, 2, 3, 4…)</li>
+        <li>The <strong>+</strong> symbol marks the "and" of each beat</li>
+      </ul>
+
+      <h3>Play Along Mode</h3>
+      <p>The pattern loops continuously with a click track. Match your strumming to the highlighted grid position. Start slow, then increase BPM as you get comfortable.</p>
+
+      <h3>Call &amp; Response Mode</h3>
+      <p>The tool plays the pattern for a set number of bars (the "call"), then goes silent for one bar (the "response") while the grid shows faded positions. Play the pattern from memory during the silent bar. Great for building muscle memory.</p>
+
+      <h3>Practice Tips</h3>
+      <ul>
+        <li>Start at a slow tempo (60–80 BPM) and increase gradually</li>
+        <li>Tap your foot on each beat to lock in the pulse</li>
+        <li>Count subdivisions aloud: "1 and 2 and 3 and 4 and"</li>
+        <li>Keep your strumming hand moving in a constant down-up motion, even on rests</li>
+        <li>Gradually reduce the pattern volume to test your internalization</li>
+        <li>Use the genre filter to focus on one style at a time</li>
+      </ul>
+      <div class="tip">💡 Keyboard: Space = play/stop · Arrow keys = ±1/5 BPM · T = tap tempo</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODE BAR -->
+<div class="theme-bar">
+  <div class="bar-left">
+    <a href="../index.html" class="bar-icon-btn" title="Home">←</a>
+    <span class="bar-sep"></span>
+    <span class="bar-title">Rhythm</span>
+  </div>
+  <div class="bar-right">
+    <button class="bar-icon-btn" onclick="openModal('helpOverlay')" title="Help">📖</button>
+    <span class="bar-sep"></span>
+    <div class="accent-drop" id="accentDrop">
+      <button class="accent-drop-btn" id="accentDropBtn" title="Choose accent colour" aria-haspopup="listbox" aria-expanded="false">
+        <span class="accent-drop-dot"></span>
+        <svg class="accent-drop-chev" width="9" height="6" viewBox="0 0 9 6" fill="none"><path d="M1 1l3.5 3.5L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="accent-drop-panel" role="listbox">
+        <button class="accent-drop-item" data-accent="pink"   role="option"><span class="accent-drop-item-dot" style="--sw:#FF2688"></span>Pink</button>
+        <button class="accent-drop-item" data-accent="orange" role="option"><span class="accent-drop-item-dot" style="--sw:#FF6830"></span>Orange</button>
+        <button class="accent-drop-item" data-accent="teal"   role="option"><span class="accent-drop-item-dot" style="--sw:#00CCB8"></span>Teal</button>
+        <button class="accent-drop-item" data-accent="olive"  role="option"><span class="accent-drop-item-dot" style="--sw:#C4E020"></span>Olive</button>
+      </div>
+    </div>
+    <span class="bar-sep"></span>
+    <span class="mode-badge" id="modeBadge">LIGHT</span>
+    <div class="mode-toggle" id="modeToggle" title="Toggle dark / light mode"></div>
+  </div>
+</div>
+
+<div class="content">
+  <header>
+    <h1>Rhythm</h1>
+    <p>Strumming Patterns · Groove · Feel</p>
+  </header>
+
+  <!-- PATTERN SELECTION CARD -->
+  <div class="card">
+    <div class="card-title">// Pattern Selection</div>
+    <div class="controls cols3">
+      <div class="control-group">
+        <label>Genre</label>
+        <select id="genreSelect" onchange="savePref('genre', this.value); filterPatterns()">
+          <option value="All">All</option>
+          <option value="Folk">Folk</option>
+          <option value="Rock">Rock</option>
+          <option value="Pop">Pop</option>
+          <option value="Blues">Blues</option>
+          <option value="Jazz">Jazz</option>
+          <option value="Latin">Latin</option>
+          <option value="Reggae">Reggae</option>
+          <option value="Country">Country</option>
+          <option value="Funk">Funk</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Difficulty</label>
+        <div class="seg-group">
+          <button class="seg-btn active" data-diff="0" onclick="setDifficulty(0)">All</button>
+          <button class="seg-btn" data-diff="1" onclick="setDifficulty(1)">⭐</button>
+          <button class="seg-btn" data-diff="2" onclick="setDifficulty(2)">⭐⭐</button>
+          <button class="seg-btn" data-diff="3" onclick="setDifficulty(3)">⭐⭐⭐</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Pattern</label>
+        <select id="patternSelect" onchange="selectPattern()"></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODE CARD -->
+  <div class="card">
+    <div class="card-title">// Mode</div>
+    <div class="mode-group">
+      <button class="mode-btn active" data-mode="along" onclick="setMode('along')">Play Along</button>
+      <button class="mode-btn" data-mode="callresp" onclick="setMode('callresp')">Call &amp; Response</button>
+    </div>
+    <div class="bars-control" id="barsControl" style="display:none;">
+      <label>Bars before response:</label>
+      <button class="bars-btn active" data-bars="1" onclick="setBarsBeforeResp(1)">1</button>
+      <button class="bars-btn" data-bars="2" onclick="setBarsBeforeResp(2)">2</button>
+      <button class="bars-btn" data-bars="4" onclick="setBarsBeforeResp(4)">4</button>
+    </div>
+  </div>
+
+  <!-- PATTERN DISPLAY CARD -->
+  <div class="card">
+    <div class="card-title">// Pattern</div>
+    <div class="pattern-info">
+      <span class="genre-tag" id="genreTag">Folk</span>
+      <span class="diff-stars" id="diffStars">⭐</span>
+      <span class="time-sig" id="timeSig">4/4</span>
+    </div>
+    <div class="pattern-desc" id="patternDesc">—</div>
+    <div class="grid-scroll" id="gridScroll">
+      <svg id="rhythmSvg" width="400" height="100"></svg>
+    </div>
+    <div class="cr-indicator" id="crIndicator"></div>
+  </div>
+
+  <!-- TRANSPORT CARD -->
+  <div class="card" style="display:flex;flex-direction:column;align-items:center;">
+    <div class="bpm-display">
+      <div class="bpm-number" id="bpmDisplay">100</div>
+      <div class="bpm-label">BPM</div>
+      <div class="bpm-tempo-name" id="tempoName">Andante</div>
+    </div>
+    <div class="bpm-slider-wrap">
+      <input type="range" id="bpmSlider" min="20" max="300" value="100" oninput="setBpm(+this.value)">
+      <button class="bpm-tap" id="tapBtn" onclick="tapTempo()">TAP</button>
+    </div>
+    <div class="transport">
+      <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+    </div>
+    <div class="vol-row">
+      <div class="vol-group">
+        <label>Click Vol</label>
+        <input type="range" id="clickVol" min="0" max="100" value="70" oninput="setClickVol(+this.value)">
+      </div>
+      <div class="vol-group">
+        <label>Pattern Vol</label>
+        <input type="range" id="patternVol" min="0" max="100" value="80" oninput="setPatternVol(+this.value)">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-footer">made with ♥ by Paul van Zyl</div>
+
+<script src="js/music-tools.js"></script>
+<script src="js/rhythm.js"></script>
+</body>
+</html>

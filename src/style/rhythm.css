@@ -1,0 +1,399 @@
+/*
+ * rhythm.css — Tool-specific styles for the Rhythm Pattern Trainer
+ *
+ * A visual rhythm and strumming pattern practice tool with play-along
+ * and call-and-response modes. This file contains only component styles
+ * unique to rhythm.html. All shared design tokens live in music-tools.css.
+ *
+ * Load order in rhythm.html:
+ *   <link rel="stylesheet" href="style/music-tools.css">
+ *   <link rel="stylesheet" href="style/rhythm.css">
+ */
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   CONTENT WIDTH
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.content {
+  max-width: 640px;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   SEGMENTED BUTTON GROUP — difficulty filter
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.seg-group {
+  display: flex;
+  gap: 4px;
+}
+
+.seg-btn {
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .05em;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+
+.seg-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.seg-btn.active {
+  background: var(--accent);
+  color: var(--pill-text, var(--bg));
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   MODE TOGGLE — Play Along / Call & Response
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.mode-group {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.mode-btn {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: .65rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.mode-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mode-btn.active {
+  background: var(--accent);
+  color: var(--pill-text, var(--bg));
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   BARS BEFORE RESPONSE CONTROL
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.bars-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.bars-control label {
+  font-family: var(--font-mono);
+  font-size: .6rem;
+  color: var(--text-hi);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bars-btn {
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  width: 32px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.bars-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.bars-btn.active {
+  background: var(--accent);
+  color: var(--pill-text, var(--bg));
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   PATTERN INFO — genre tag, difficulty, time sig
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.pattern-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.genre-tag {
+  font-family: var(--font-mono);
+  font-size: .58rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--surface-lo, var(--surface2));
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+}
+
+.diff-stars {
+  font-size: .7rem;
+}
+
+.time-sig {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  color: var(--text-hi);
+  font-weight: 700;
+}
+
+.pattern-desc {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  color: var(--text-2, var(--muted));
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   RHYTHM GRID — SVG display with horizontal scroll
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.grid-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin: 0 -4px;
+  padding: 8px 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.grid-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.grid-scroll::-webkit-scrollbar-track {
+  background: var(--surface2);
+  border-radius: 2px;
+}
+
+.grid-scroll::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.grid-scroll svg {
+  display: block;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   CALL & RESPONSE INDICATOR
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.cr-indicator {
+  text-align: center;
+  font-size: .7rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  margin-top: 8px;
+  min-height: 1.2em;
+}
+
+.cr-call {
+  color: var(--accent);
+}
+
+.cr-response {
+  color: var(--accent2);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   BPM DISPLAY
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.bpm-display {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.bpm-number {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  color: var(--text);
+  line-height: 1;
+}
+
+.bpm-label {
+  font-family: var(--font-mono);
+  font-size: .58rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.bpm-tempo-name {
+  font-family: var(--font-mono);
+  font-size: .6rem;
+  color: var(--text-hi);
+  letter-spacing: .06em;
+  margin-top: 4px;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   BPM SLIDER + TAP BUTTON ROW
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.bpm-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.bpm-slider-wrap input[type="range"] {
+  flex: 1;
+}
+
+.bpm-tap {
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+
+.bpm-tap:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.bpm-tap.tapped {
+  background: var(--accent);
+  color: var(--pill-text, var(--bg));
+  border-color: var(--accent);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   TRANSPORT — play/stop button
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.transport {
+  margin: 8px 0 14px;
+}
+
+.play-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-btn:hover {
+  background: var(--accent);
+  color: var(--pill-text, var(--bg));
+  box-shadow: 0 0 20px var(--accent-glow, rgba(0,128,192,0.3));
+}
+
+.play-btn.playing {
+  background: var(--accent);
+  color: var(--pill-text, var(--bg));
+  animation: pulse-glow 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px var(--accent-glow, rgba(0,128,192,0.2)); }
+  50% { box-shadow: 0 0 24px var(--accent-glow, rgba(0,128,192,0.5)); }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   VOLUME CONTROLS ROW
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.vol-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+.vol-group label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: .56rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-hi);
+  margin-bottom: 4px;
+}
+
+.vol-group input[type="range"] {
+  width: 100%;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .seg-group {
+    flex-wrap: wrap;
+  }
+
+  .vol-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
